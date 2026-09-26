@@ -26,7 +26,7 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
-from PIL import Image, ImageColor, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 from common import DOCS, ROOT, WORK, WORK_IMG, WORK_SETS, env, fetch_bytes, load_json, session
 
@@ -182,10 +182,28 @@ def set_meta(code: str, cards: list[dict]) -> dict:
     return {**meta, "released_at": meta.get("released_at") or (dates[0] if dates else "2020-01-01")}
 
 
+PW_VISIBLE = 0.645                           # share of the planeswalker art box above the text box
+
+
+def planeswalker_art(img: Image.Image) -> Image.Image:
+    """The art crops are landscape; the planeswalker art box is tall and mostly hidden by
+    the translucent text box. Like on printed cards, the art fills the visible top part and
+    runs on (here blurred) under the text box - instead of a zoomed-in vertical strip."""
+    w, h = PW_ART[0] * 2, PW_ART[1] * 2
+    canvas = ImageOps.fit(img, (w, h), method=Image.LANCZOS).resize((24, 32), Image.BILINEAR) \
+        .resize((w, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(6))
+    vh = int(h * PW_VISIBLE)
+    vw = int(vh * img.width / img.height)
+    if vw < w:                                # narrow image: fit the width instead
+        vw, vh = w, int(w * img.height / img.width)
+    canvas.paste(img.resize((vw, vh), Image.LANCZOS), ((w - vw) // 2, 0))
+    return canvas
+
+
 def art_bytes(path: Path, planeswalker: bool) -> bytes:
     img = Image.open(path).convert("RGB")
-    if planeswalker:                         # tall art box: crop instead of stretching
-        img = ImageOps.fit(img, PW_ART, method=Image.LANCZOS, centering=(0.5, 0.35))
+    if planeswalker:
+        img = planeswalker_art(img)
     buf = io.BytesIO()
     img.save(buf, "PNG")
     return buf.getvalue()

@@ -79,6 +79,11 @@ def printed_texts(s, code: str) -> dict[str, str]:
         texts = {}
         try:
             data = json.loads(lzma.decompress(fetch_bytes(s, f"{MTGJSON}/{code.upper()}.json.xz")))
+            # Scryfall lacks the printed set size for some sets (WAR: 311 cards, 264 printed)
+            meta_path = WORK_SETS / f"{code}.meta.json"
+            meta = load_json(meta_path, None)
+            if meta is not None and not meta.get("printed_size") and data["data"].get("baseSetSize"):
+                save_json(meta_path, {**meta, "printed_size": data["data"]["baseSetSize"]})
             for c in data["data"]["cards"]:
                 sid = c.get("identifiers", {}).get("scryfallId")
                 if sid and c.get("originalText") and c.get("language", "English") == "English":
