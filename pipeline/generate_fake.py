@@ -136,10 +136,23 @@ def subject(type_line: str) -> str:
     return f"Main subject: a {kinds}{note}. "
 
 
+# LoRA for Replicate models that take one (black-forest-labs/flux-2-klein-4b-base-lora):
+# "Light Fantasy" (FLUX.2 klein base 4B), trigger word "light_fantasy".
+LORA_DEFAULT = ("https://huggingface.co/giannisan/light-fantasy-flux2-klein-base-lora/resolve/main/"
+                "pytorch_lora_weights.safetensors")
+
+
+def uses_lora(model: str) -> bool:
+    return model.endswith("-lora")
+
+
 def refs_enabled() -> bool:
-    """Does the image provider in use take reference images?"""
-    provider = env("IMAGE_PROVIDER", "")
-    return provider == "openai" or (provider == "replicate" and bool(ref_field(env("REPLICATE_MODEL", ""))))
+    """Does the image provider in use take reference images? With a LoRA the style comes from
+    the LoRA, and the small klein model tends to copy references: off unless STYLE_REFS is set."""
+    provider, model = env("IMAGE_PROVIDER", ""), env("REPLICATE_MODEL", "")
+    if provider == "replicate" and uses_lora(model) and not env("STYLE_REFS"):
+        return False
+    return provider == "openai" or (provider == "replicate" and bool(ref_field(model)))
 
 
 def ref_labels(n: int) -> str:
@@ -173,12 +186,17 @@ def art_prompt(c: dict) -> str:
             f"References: {ref_labels(len(refs))}" if refs else "",
             f"Constraints: {ART_CONSTRAINTS}"]))
     note = ref_note() + " " if refs else ""
-    return (f"{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
+    model = env("REPLICATE_MODEL", "")
+    trigger = f"{env('LORA_TRIGGER', 'light_fantasy')}, a detailed fantasy painting. " \
+        if env("IMAGE_PROVIDER") == "replicate" and uses_lora(model) and env("LORA_TRIGGER", "light_fantasy") else ""
+    return (f"{trigger}{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
             f"Illustration as painted around {year}. {note}{ART_STYLE}")
 
 
 def ref_field(model: str) -> str | None:
     """Replicate models that take reference images, and the name of that input."""
+    if "/flux-2-klein" in model:
+        return "images"                          # FLUX.2 klein (incl. base-lora): up to 5
     if "/flux-2" in model:
         return "input_images"                    # FLUX 2 pro/flex/max: up to 8
     if "nano-banana" in model or "seedream-4" in model:
@@ -424,6 +442,9 @@ def _gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = N
             inp.update(num_outputs=1, go_fast=True)
         if "nano-banana" in model:
             inp.update(output_format="jpg")
+        if uses_lora(model):                     # e.g. flux-2-klein-4b-base-lora + "Light Fantasy"
+            inp.update(lora_weights=[env("LORA_URL", LORA_DEFAULT)],
+                       lora_scales=[float(env("LORA_SCALE", "1.0"))])
         if ref_field(model) and refs:            # real illustrations of the set as style references
             inp[ref_field(model)] = refs
         for attempt in range(8):                # low-credit accounts are heavily rate limited
@@ -843,8 +864,10 @@ def main() -> None:
         model = {"replicate": env("REPLICATE_MODEL", "black-forest-labs/flux-schnell"),
                  "openai": f"{env('IMAGE_MODEL', 'gpt-image-2.5-sunburst')} "
                            f"({env('IMAGE_QUALITY', 'medium')}, {env('IMAGE_SIZE', '1536x1152')})"}.get(args.images, args.images)
-        annotate("notice", f"image model: {model}; reference images ({env('STYLE_REFS', 'mix')}): "
-                           f"{'yes' if refs_enabled() else 'no (model without reference images)'}")
+        lora = (f"; LoRA {env('LORA_URL', LORA_DEFAULT).split('/')[4]} x{env('LORA_SCALE', '1.0')}"
+                if args.images == "replicate" and uses_lora(env("REPLICATE_MODEL", "")) else "")
+        annotate("notice", f"image model: {model}{lora}; reference images ({env('STYLE_REFS', 'mix')}): "
+                           f"{'yes' if refs_enabled() else 'no'}")
         for i, c in enumerate(fakes):
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():

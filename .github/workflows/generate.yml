@@ -14,8 +14,8 @@ on:
         description: "Fournisseur texte (openai | anthropic)"
         default: "openai"
       images:
-        description: "Fournisseur images (openai | replicate | pollinations | placeholder)"
-        default: "openai"
+        description: "Fournisseur images (replicate | openai | pollinations | placeholder)"
+        default: "replicate"
 
 permissions:
   contents: write
@@ -50,6 +50,10 @@ jobs:
           IMAGE_SIZE: ${{ vars.IMAGE_SIZE }}
           # Replicate model, e.g. black-forest-labs/flux-1.1-pro (default: flux-schnell)
           REPLICATE_MODEL: ${{ vars.REPLICATE_MODEL || secrets.REPLICATE_MODEL }}
+          # LoRA for *-lora models (default: Light Fantasy on flux-2-klein-4b-base-lora)
+          LORA_URL: ${{ vars.LORA_URL }}
+          LORA_SCALE: ${{ vars.LORA_SCALE }}
+          LORA_TRIGGER: ${{ vars.LORA_TRIGGER }}
           # images tried per AI card (each checked by the vision model), 1 = no check
           ART_TRIES: ${{ vars.ART_TRIES }}
           # reference images: mix (2 set illustrations + 1 public-domain painting), set, classic
