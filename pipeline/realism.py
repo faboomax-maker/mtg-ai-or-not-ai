@@ -17,7 +17,7 @@ PAREN = re.compile(r"\s*\(([^()]*)\)")
 def _clause(text: str, end: int) -> str:
     """The clause right before position `end`: 'Flying', 'venture into the dungeon'."""
     start = max(text.rfind(sep, 0, end) for sep in ("\n", ". ", ", ", ": ", "—", ")"))
-    clause = text[start + 1:end].strip(" .,:—\n")
+    clause = text[start + 1:end].strip(" .,:—•\n")
     return re.sub(r"\s+", " ", clause).lower()
 
 
@@ -25,7 +25,7 @@ def _last_keyword(clause: str, keywords) -> str | None:
     """The keyword that ends the clause (the one a reminder text right after it explains)."""
     best, pos = None, -1
     for kw in keywords:
-        for m in re.finditer(rf"\b{re.escape(kw.lower())}\b", clause):
+        for m in re.finditer(rf"\b{re.escape(kw.lower())}\w*", clause):   # explore(s), venture(d)
             # the reminder explains the keyword only if it closes the clause
             # ("create a Treasure token", "scry 2"), not one mentioned earlier in it
             if m.start() > pos and len(clause[m.end():].split()) <= 3:
@@ -33,20 +33,30 @@ def _last_keyword(clause: str, keywords) -> str | None:
     return best
 
 
-def reminder_texts(pool: list[dict]) -> tuple[dict[str, str], dict[str, str]]:
-    """({clause: reminder}, {keyword: reminder}) from the printed text of a set's cards."""
+def rarity_class(rarity: str) -> str:
+    return "low" if rarity in ("common", "uncommon") else "high"
+
+
+def reminder_texts(pool: list[dict]) -> tuple[dict[str, str], dict[str, str], dict]:
+    """({clause: reminder}, {keyword: reminder}, {(keyword, rarity class): share of cards
+    printing that keyword's reminder}) from the printed text of a set's cards."""
     by_clause: dict[str, Counter] = {}
     by_keyword: dict[str, Counter] = {}
+    seen, reminded = Counter(), Counter()
     for c in pool:
         text = c.get("oracle_text") or ""
+        cls = rarity_class(c.get("rarity", ""))
+        for kw in {k.lower() for k in c.get("keywords") or []}:
+            seen[kw, cls] += 1
+        explained = set()
         for m in PAREN.finditer(text):
             rem, clause = m.group(1).strip(), _clause(text, m.start())
             if not clause:
                 continue
             by_clause.setdefault(clause, Counter())[rem] += 1
             # parametrised reminders (Ward {2}, Kicker {1}{R}) are only reused by clause
-            if re.search(r"[{\d]|\b(?:two|three|four|five|six|seven|X)\b", rem):
-                continue                         # "Scry 2" / "mill three": number-specific
+            if re.search(r"[{\d]|\b(?:two|three|four|five|six|seven|x)\b", clause):
+                continue                         # "scry 2" / "mill three": number-specific
             line = text[text.rfind("\n", 0, m.start()) + 1:m.start()].lower()
             kws = [k.lower() for k in c.get("keywords") or []]
             # "(To behold a Dragon, ...)" names its keyword; otherwise the keyword must close
@@ -58,8 +68,99 @@ def reminder_texts(pool: list[dict]) -> tuple[dict[str, str], dict[str, str]]:
                 kw = _last_keyword(clause, kws)
             if kw:
                 by_keyword.setdefault(kw, Counter())[rem] += 1
+                explained.add(kw)
+        for kw in explained:
+            reminded[kw, cls] += 1
     pick = lambda d: {k: v.most_common(1)[0][0] for k, v in d.items()}
-    return pick(by_clause), pick(by_keyword)
+    rates = {key: reminded[key] / n for key, n in seen.items() if n}
+    return pick(by_clause), pick(by_keyword), rates
+
+
+def add_missing_reminders(text: str, rarity: str, by_keyword: dict, rates: dict,
+                          by_clause: dict | None = None) -> str:
+    """Add the set's reminder text after a keyword the set usually explains at this rarity
+    (e.g. explore on commons), when the LLM left it out."""
+    cls = rarity_class(rarity)
+    for kw, rem in by_keyword.items():
+        if rates.get((kw, cls), 0) < 0.5 or rem in text:
+            continue
+        m = re.search(rf"\b{re.escape(kw)}\w*", PAREN.sub(lambda p: " " * len(p.group(0)), text), re.I)
+        if not m:
+            continue
+        end = min([i for i in (text.find(".", m.end()), text.find("\n", m.end())) if i != -1]
+                  or [len(text)])
+        end += 1 if end < len(text) and text[end] == "." else 0
+        if not text[end:].lstrip(" ").startswith("("):
+            # exact wording for this phrase if the set prints it ("...on that creature...")
+            rem = (by_clause or {}).get(_clause(text, end), rem)
+            text = f"{text[:end]} ({rem}){text[end:]}"
+    return text
+
+
+# --------------------------------------------------------------- templating
+def fix_templating(text: str) -> str:
+    """Printed-card templating the LLM often gets wrong: 'Draw a card', not 'You draw a card'."""
+    return re.sub(r"(^|\n|[.:] |, | and | then |— |• )[Yy]ou (draw|create|scry|surveil|investigate)\b",
+                  lambda m: m.group(1) + (m.group(2) if m.group(1) in (", ", " and ", " then ")
+                                          else m.group(2).capitalize()),
+                  text)
+
+
+def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_words: set[str]) -> list[str]:
+    """Keyword actions/ability words written as a standalone keyword line ('Connive 1')."""
+    bad = []
+    for line in PAREN.sub("", text).split("\n"):
+        line = line.strip().rstrip(".")
+        if not line or re.search(r"[.:—]", line):
+            continue                               # a sentence or an activated ability
+        for part in line.split(", "):
+            head = re.sub(r"(\s*\{[^}]*\})+.*$|\s+(\d+|x)$", "", part.strip().lower())
+            if head and head not in abilities and (head in actions or head in ability_words):
+                bad.append(part.strip())
+    return bad
+
+
+def too_simple(text: str, rarity: str, type_line: str) -> bool:
+    """Rares and mythics are distinctive designs, not one short line."""
+    core = PAREN.sub("", text or "").strip()
+    return rarity in ("rare", "mythic") and "Planeswalker" not in type_line and len(core) < 70
+
+
+# ------------------------------------------------------------------- names
+OVERUSED = {"insight", "whisper", "whisperer", "whispers", "echo", "echoes", "arcane", "ethereal",
+            "azure", "azurewing", "tempest", "veil", "mystic", "enigma", "celestial", "luminous",
+            "eldritch", "shimmering", "radiant", "arcanist"}
+STOP = {"the", "of", "and", "a", "an", "to", "in", "from", "for", "with"}
+
+
+def name_words(name: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z]+", name.lower().replace("'s", "")) if w not in STOP and len(w) > 2}
+
+
+def name_problem(name: str, used_words: set[str]) -> str | None:
+    words = name_words(name)
+    if words & OVERUSED:
+        return f"overused AI word {sorted(words & OVERUSED)}"
+    if words & used_words:
+        return f"word already used in another AI name {sorted(words & used_words)}"
+    return None
+
+
+# -------------------------------------------------------------- art briefs
+CLICHES = re.compile(r"\b(hood(?:ed)?|cloak(?:ed)?|silhouett\w*|from behind|back to the viewer|"
+                     r"facing away|faceless|neon)\b", re.I)
+GLOW = re.compile(r"\b(?:softly |brightly |faintly |eerily )?(?:glowing|luminous|luminescent|"
+                  r"shimmering|ethereal|radiant|bioluminescent)\s+", re.I)
+
+
+def art_problem(brief: str) -> str | None:
+    m = CLICHES.search(brief or "")
+    return f"cliché in art brief ({m.group(0)!r})" if m else None
+
+
+def tone_down(brief: str) -> str:
+    """Drop the 'glowing/luminous/ethereal' adjectives image models overdo."""
+    return GLOW.sub("", brief)
 
 
 def fix_reminders(text: str, by_clause: dict, by_keyword: dict) -> str:
