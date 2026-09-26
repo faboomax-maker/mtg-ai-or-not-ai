@@ -302,6 +302,7 @@ def gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = No
             return _gen_image(provider, prompt, seed, [ref_data_uri(u) for u in refs])
         except (Exception, SystemExit) as e:
             print(f"  references refused ({e}); retrying without them", file=sys.stderr)
+            annotate("warning", f"style references refused, image made without them: {e}")
             prompt = prompt.replace(REF_NOTE + " ", "")
     return _gen_image(provider, prompt, seed, None)
 
@@ -725,6 +726,10 @@ def main() -> None:
 
     # --- images
     if args.images != "none":
+        model = env("REPLICATE_MODEL", "black-forest-labs/flux-schnell") if args.images == "replicate" else args.images
+        uses_refs = args.images == "replicate" and bool(ref_field(model))
+        annotate("notice", f"image model: {model}; style references from real illustrations: "
+                           f"{'yes (3 per card)' if uses_refs else 'no (model without reference images)'}")
         for i, c in enumerate(fakes):
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
