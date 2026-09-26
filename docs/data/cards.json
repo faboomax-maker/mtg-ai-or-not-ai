@@ -1,81 +1,47 @@
 {
   "generated": "2026-09-26",
-  "count": 12,
+  "count": 10,
   "cards": [
     {
-      "name": "Arena Trickster",
-      "mana_cost": "{3}{R}",
-      "type_line": "Creature — Human Shaman",
-      "oracle_text": "Whenever you cast your first spell during each opponent's turn, put a +1/+1 counter on Arena Trickster.",
-      "flavor_text": "\"It's not enough to surprise your opponent. You have to delight the crowd as well.\"",
-      "power": "3",
-      "toughness": "3",
+      "name": "Shadows' Embrace",
+      "mana_cost": "{3}{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Target player sacrifices a creature. You gain life equal to that creature's toughness.",
+      "flavor_text": "\"In the dark, promises unravel like thread—lives tethered, fates entwined.\"\n—Malek of the Duskblades",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "R"
+        "B"
       ],
       "card": true,
-      "img": "193ed5fcf5e33765.webp",
-      "s": "e2MDI/Hqi+dLt5LBi+/wk+6orHsDIUeikq2HZdwJDEx5Lh8isMLMvB+rwpjO4bHD6aSrLRs7RdSqgbtO+nsdYkljXWay89uxSfnAloa3pMHu9/d2SmIXj5ypmWaBSiFELyIQNPSp3bUJ7NGG2Oyxw/ijuXRNcwyVkbuBb90WO11tHgIp5fTKuFaikN3Mvg=="
+      "img": "4113fd3cc1276362.webp",
+      "s": "27k0C+DHG9t9l5yP6VbT5FBcCm7vGHxdcTFUmMROW5bB72Yl4NlVjivRsIL0XI3mDw=="
     },
     {
-      "name": "Winterthorn Blessing",
-      "mana_cost": "{G}{U}",
-      "type_line": "Sorcery",
-      "oracle_text": "Put a +1/+1 counter on up to one target creature you control. Tap up to one target creature you don't control, and that creature doesn't untap during its controller's next untap step.\nFlashback {1}{G}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "G",
-        "U"
-      ],
-      "card": true,
-      "img": "6bd4a08cf31edc3f.webp",
-      "s": "Cb4m4t+HE6diZnzq7mMqXgTzDxgEbRk967VLxMl4GQFIvBnu2oVY+ipmLtf+IX5eW7ZZW0w5Ugfx+RiXn1MdChz7ec/fhBHVI3wss6ttfw4btEEaHCVPAPWoGJiSeRsXC/o169LFUvIvPW3++SslER7yVAgLfBQD7LVW0s9+EAoA8nnl0o5C7it8aaD+O2cjBPkOSF0oBhX1sgDK"
-    },
-    {
-      "name": "Reverse Engineer",
-      "mana_cost": "{3}{U}{U}",
-      "type_line": "Sorcery",
-      "oracle_text": "Improvise (Your artifacts can help cast this spell. Each artifact you tap after you're done activating mana abilities pays for {1}.)\nDraw three cards.",
-      "flavor_text": "The Hold, an illegal research facility in a derelict merchant ship, became a wellspring of renegade intelligence.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "2ea5b6c2caf3498d.webp",
-      "s": "YdDvx0r7fkTmksf0IfHUHfytiyaWAgNQPUkiXrnOkB5snfHWCbt8XKeUweg3qdYFr+q8bM1RRDELSSVVrszuWziH784JrXxcrpLB8Tfn2xD8q419ykNNfXZeJVbkjaMJft38x1m4aEzplND3Ia+HWqKtkWPFTER0KgI/T6axsRRvgP7HFvYsF+Sb"
-    },
-    {
-      "name": "Kavaron Turbodrone",
-      "mana_cost": "{2}{R}",
-      "type_line": "Artifact Creature — Robot Scout",
-      "oracle_text": "{T}: Target creature you control gets +1/+1 and gains haste until end of turn. Activate only as a sorcery.",
-      "flavor_text": "\"Safe? Buddy, the whole planet is falling apart, we don't have time for safe.\"\n—Dorgan, Kav roboticist",
+      "name": "Spirit Mascot",
+      "mana_cost": "{R}{W}",
+      "type_line": "Creature — Spirit Ox",
+      "oracle_text": "Whenever one or more cards leave your graveyard, put a +1/+1 counter on this creature.",
+      "flavor_text": "Unflagging, unafraid, and undaunted.",
       "power": "2",
-      "toughness": "3",
+      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "R"
+        "R",
+        "W"
       ],
       "card": true,
-      "img": "a5da419f2bb9e3c8.webp",
-      "s": "VhagqT+JBO4kFUY40CYZFvU5tgdqf2pcx8hATb1jZ6lZUaCiN5FPsXdDGG2Xa0tA7y+2B2p/alXGylYFsyUPjUNau6s/iwT4JENBP9koAxSkNLZRICxyNozcRh+rYyaAQRqxozPKRbV2BRso2m8WBbJt7U4xKSlrzMEIGad3JYNJRr2iO9pToGk+RyLAeFpRuz2yTHIi"
+      "img": "009ac18db0917ea0.webp",
+      "s": "RYiMvLahZTmNKgnDRwadQUeLsRPCwes4/VZ0mbx4lJdYiq2tpaQ/a8woHtgABp1BVZyxWIuV61G4F0OYr2rG2G1pX7e0pSJ5jRYS0kNG2gwWwuUTjZOlSaIVJJS8f8SLBIXRqrS/PmXMMheYQUXQTFePt1XXkqYYtwc1zOd4xJFMw4r0uqw0YMIqRMNWR+IQW5u3Up3cqBvxF3s="
     },
     {
-      "name": "Verdant Stranglehold",
-      "mana_cost": "{G}{G}",
-      "type_line": "Enchantment",
-      "oracle_text": "Enchant land\nEnchanted land has \"{T}: This land fights target creature you don't control.\"",
+      "name": "Grow from the Ashes",
+      "mana_cost": "{2}{G}",
+      "type_line": "Sorcery",
+      "oracle_text": "Kicker {2} (You may pay an additional {2} as you cast this spell.)\nSearch your library for a basic land card, put it onto the battlefield, then shuffle your library. If this spell was kicked, instead search your library for two basic land cards, put them onto the battlefield, then shuffle your library.",
       "flavor_text": null,
       "power": null,
       "toughness": null,
@@ -85,117 +51,15 @@
         "G"
       ],
       "card": true,
-      "img": "0aeb448d4501da06.webp",
-      "s": "T799cFPRqflhmtjYtwdx1UWEpS/ARZ1izEExO/RuwTZR5GB7Vp3PpiCI0Za5"
+      "img": "299a89ddbfb06033.webp",
+      "s": "+B8Lw5teyNOS3/oSvMYQT04NkQeb5Vvwc2p+WF6+B/KhEVmEm0CegMHfql35yGIEXgCEV8XlLsZ1YH9CHeBOsfZPFYTAEsiBxt/4FOPFHx5eGpxDwKkVmn9oehlcrRz3rFkWy9UD3N2dzPoIrsdWH1IFyFHJoFTVb29yRQC5Gv7cThbTiFGP1NPb4UWk"
     },
     {
-      "name": "Sunlit Guardian",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Human Knight",
-      "oracle_text": "Lifelink\nLandfall — Whenever a land you control enters, create a 1/1 white Spirit creature token with flying.",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "a44b279bacf40ebc.webp",
-      "s": "ukKql6l/xDU4i8oBCCb7zKCjr5OkoH1tVc6pD3XPFaSEFL2ApnqSZn2eiRA="
-    },
-    {
-      "name": "Aetherbound Haven",
-      "mana_cost": "{1}{U}",
-      "type_line": "Enchantment",
-      "oracle_text": "Enchant land\nWhenever enchanted land is tapped for mana, you get {E} (an energy counter). You may spend {E} as though it were mana.",
-      "flavor_text": "\"The currents of change ripple beneath us, shifting power in unseen ways.\"\n—Loren, Aetherborn seer",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "384aeb23d1fe6780.webp",
-      "s": "6EcMPbfKqdZZYSjA9OoUDDaHijmTYdOXz6SFr/jTqaz2ExE0ooT2"
-    },
-    {
-      "name": "Surge of Inspiration",
-      "mana_cost": "{1}{U}",
+      "name": "Aether Surge",
+      "mana_cost": "{1}{G}",
       "type_line": "Sorcery",
-      "oracle_text": "Spree (Choose one or more additional costs.)\n+ {1} — Scry 2.\n+ {2} — Draw a card.",
-      "flavor_text": "\"Ideas hit like lightning out here. You just have to be ready to catch them.\"\n—Lena, aspiring inventor",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "eb67a331acad9303.webp",
-      "s": "ljZuFFGCC+xD4vIpC7/7+vLCQ9WyE2NmsesKIqvYONSCcjwlWJtHsgb2sw8NtLSuud5Ig+0="
-    },
-    {
-      "name": "Desert Sentinel",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Vigilance\nWhenever Desert Sentinel attacks, it gets +1/+0 until end of turn.",
-      "flavor_text": "\"In the face of the storm, we stand unyielding, like the ancient dunes.\"\n—Sefet, Guardian of the Horizon",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "d0756e73e485f227.webp",
-      "s": "8tFG66XBuhtoXT28FcVORGxwh76uy6Ch0G28rWntNJ+rjg=="
-    },
-    {
-      "name": "Inferno's Grasp",
-      "mana_cost": "{R}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Inferno's Grasp deals 4 damage to target creature. If that creature would die this turn, exile it instead.",
-      "flavor_text": "\"The flames don’t release their grip until I command it.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "feb4ad67fa4faf8a.webp",
-      "s": "nPu4O9sb35/sX4WewTtHo92vCjKiEAVRTLsdw68wg46D4+oT0xOTzKtRkNL6KwX33aE="
-    },
-    {
-      "name": "Take for a Ride",
-      "mana_cost": "{2}{R}",
-      "type_line": "Sorcery",
-      "oracle_text": "Take for a Ride has flash as long as you've committed a crime this turn. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)\nGain control of target creature until end of turn. Untap that creature. It gains haste until end of turn.",
-      "flavor_text": "\"Your horse deserves a braver rider!\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "0fe8ce81daadd986.webp",
-      "s": "KELjjVSKIwI+eE/tIRFZ4aZBljoQM1rXjqbLoekMpAo1QMWAQIhlXWwsd+0qXg2qukrANAoxGeqPu9S0vEWkRxIS5Z1HxlVKe2pb9iFPW+/1BpdqRjFCuNm607TuDL5KfBPymkyAYFRyIl73KRIaoqdAzXdeeVepz+qItP8U4Ug1D+PFVMtzUXppAu0wUCawulGQe08uGeiS8No="
-    },
-    {
-      "name": "Shed Weakness",
-      "mana_cost": "{G}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature gets +2/+2 until end of turn. You may remove a -1/-1 counter from it.",
-      "flavor_text": "To prepare for the Trial of Strength, nagas shed their old skin—and with it their scars, their doubts, and their fears.",
+      "oracle_text": "Choose one —\n• You gain {E}.\n• Look at the top card of your library. You may put that card on the bottom of your library.",
+      "flavor_text": "\"In the heart of invention, a jolt of Aether reveals paths yet to be forged.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -204,8 +68,108 @@
         "G"
       ],
       "card": true,
-      "img": "752c2a947e12a659.webp",
-      "s": "DArurOply1cRjw9ahl/6Ep7aMX0uI/dqPbYlzj4Wtw9bCL6o+X2AHkXZRw/BMLJChMwxNnpm9Wg4tiKHelPhWAVEvvOrK4EZRYsOFcxcqVOfxiM+eG/7SD+0ZMY3AacCFkP05rox3EJCkxhLzgS/UYbRICxnPKBfPYY4yiMBoEhKSeygqXQ="
+      "img": "e1d8e92dae1bd918.webp",
+      "s": "o048E6+X6IUx0P3iYnPyyEtGqIxMaC/KhNMphSSB5HP6EQ=="
+    },
+    {
+      "name": "Reckless Guardian",
+      "mana_cost": "{1}{W}",
+      "type_line": "Creature — Human Soldier",
+      "oracle_text": "Whenever Reckless Guardian attacks, it gets +1/+1 until end of turn for each creature you control with toxic.",
+      "flavor_text": "\"Amidst the ruin, I fight not just for survival, but for every soul left uncorrupted.\"\n—Galen, Shield of the Unyielding",
+      "power": "2",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "ab11debe6d666f22.webp",
+      "s": "a/5DGRg34P+yy0/srCl39yueCals5aF0/13x4bkaJN0q/HAQFXuVrP7BDsK6bBS5bM8R"
+    },
+    {
+      "name": "Eclipse of Despair",
+      "mana_cost": "{2}{B}{B}",
+      "type_line": "Instant",
+      "oracle_text": "Target player discards two cards. You gain 2 life for each card discarded this way.",
+      "flavor_text": "\"In the shadows, truth becomes a weight that crushes the soul.\"\n—Tama, Sultai Whisperer",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "de2cd115d9372d54.webp",
+      "s": "d0jwyk31w3LMeebkkrhYCaR507FDPXSo+Vxqko3jfO9tSP8="
+    },
+    {
+      "name": "Malfunction",
+      "mana_cost": "{3}{U}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant artifact or creature\nWhen Malfunction enters the battlefield, tap enchanted permanent.\nEnchanted permanent doesn't untap during its controller's untap step.",
+      "flavor_text": "\"They don't make them like they used to.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "88cc248c55dc9d39.webp",
+      "s": "h87PblGZx2zYaFxyZGM1mecGPh9qF6PMP8Qekc2Ok9rQzJ9qQoGMJYw+FCcjBm/B7UFmHXJC8+t8kl/XwImPiI/WkiRDlpcvnn1Cay8seta7ACtPNBjq6zqHSsCHkJqUmpnTaEScijjHaVpqXjx6zuYALwAxR+ilIw=="
+    },
+    {
+      "name": "Toxin Analysis",
+      "mana_cost": "{B}",
+      "type_line": "Instant",
+      "oracle_text": "Target creature gains deathtouch and lifelink until end of turn. Investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this artifact: Draw a card.\")",
+      "flavor_text": "\"Poison this deadly is only used by the Ochran. Either the Golgari are behind this, or someone wants us to think they are.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "f699e3386f1d4db1.webp",
+      "s": "LvHeseAyeUwIkNwZl+bAK17BKPRriazxj3+dSbTw4aYh8+e18zI0AAipzwKduMIlDYY9pCXA/cjYN9kOj/GoqTTz4rvzOigZRMaCTNC/kmUPnnz0Od36zIk31gO14LO+M7LAuK89NBsHh88eluWNYkCLbeZmhvrTgmSXAaftoKssoMWnvisvG3eXwRmAqYU0TNQ19Cw="
+    },
+    {
+      "name": "Phyrexian Atlas",
+      "mana_cost": "{3}",
+      "type_line": "Artifact",
+      "oracle_text": "{T}: Add one mana of any color.\nCorrupted — Whenever Phyrexian Atlas becomes tapped, each opponent who has three or more poison counters loses 1 life.",
+      "flavor_text": "Since conquering Mirrodin, Phyrexian engineers have worked tirelessly to transform the plane's original two layers into a more fitting array of nine.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "ab3573b702fb2934.webp",
+      "s": "9dvgcw5UcVThRHT2/OLkbNGZayua76u4MYQyvD7/Kc6uuP56T286Aq0QROa5gaorgNA/K8G9/YEqiWLjZrQbkf6N+3cBGBUPq0Jv4ve6q2yO3D180qOr0nnfKK0y5jvOodbhdR1BNQ+tXCjg9qPrLcOOeybPoezHa8539jb+MYbrgft3ARUyGq1RdbzsuqkR0ZNqe8OqtIkplGKk"
+    },
+    {
+      "name": "Dreamweaver Phoenix",
+      "mana_cost": "{4}{R}{R}",
+      "type_line": "Creature — Avatar Beast",
+      "oracle_text": "Flying\nWhenever this creature attacks, you may discard a card. If you do, this creature deals 2 damage to any target.",
+      "flavor_text": "\"Inspiration burns brighter than the fiercest flame. Best wield it wisely.\"\n—Fireborne Chronicle",
+      "power": "4",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "981304450358f44a.webp",
+      "s": "+Q/PCoSDlzagO9ndxxLwRG3qa1pV/kaJ2oBuFal7Tb/tS508kZ3cdOg8ztTaVaE="
     }
   ]
 }
