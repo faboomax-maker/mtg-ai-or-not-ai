@@ -228,7 +228,11 @@ def parse_array(text: str) -> list[dict]:
     m = re.search(r"\[.*\]", text, re.S)
     if not m:
         raise ValueError("no JSON array in answer")
-    return json.loads(m.group(0))
+    raw = m.group(0)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return json.loads(re.sub(r",\s*([\]}])", r"\1", raw))   # common LLM slip: trailing commas
 
 
 def validate(c: dict, spec: dict) -> str | None:
@@ -270,7 +274,34 @@ def name_is_new(s, name: str) -> bool:
 
 
 # ------------------------------------------------------------------------ images
+_REF_CACHE: dict[str, str] = {}
+
+
+def ref_data_uri(url: str) -> str:
+    """Download a reference illustration ourselves (Scryfall refuses Replicate's fetcher)
+    and embed it as a small JPEG data URI."""
+    if url not in _REF_CACHE:
+        img = Image.open(io.BytesIO(fetch_bytes(session(), url))).convert("RGB")
+        img.thumbnail((768, 768))
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=85)
+        _REF_CACHE[url] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    return _REF_CACHE[url]
+
+
 def gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = None) -> bytes | None:
+    """One illustration. With a reference-capable Replicate model, `refs` are sent as style
+    references; if that fails, the image is made once more without them."""
+    if refs and provider == "replicate" and ref_field(env("REPLICATE_MODEL", "")):
+        try:
+            return _gen_image(provider, prompt, seed, [ref_data_uri(u) for u in refs])
+        except (Exception, SystemExit) as e:
+            print(f"  references refused ({e}); retrying without them", file=sys.stderr)
+            prompt = prompt.replace(REF_NOTE + " ", "")
+    return _gen_image(provider, prompt, seed, None)
+
+
+def _gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = None) -> bytes | None:
     s = session()
     if provider == "replicate":
         token = env("REPLICATE_API_TOKEN") or sys.exit("REPLICATE_API_TOKEN missing")
