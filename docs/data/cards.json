@@ -3,11 +3,28 @@
   "count": 6,
   "cards": [
     {
-      "name": "Blessed Light",
-      "mana_cost": "{4}{W}",
-      "type_line": "Instant",
-      "oracle_text": "Exile target creature or enchantment.",
-      "flavor_text": "Enchanted by mage-smiths and blessed by priests, Benalish windows let in light and cast out darkness.",
+      "name": "Neverwinter Dryad",
+      "mana_cost": "{G}",
+      "type_line": "Creature — Dryad",
+      "oracle_text": "{2}, Sacrifice Neverwinter Dryad: Search your library for a basic Forest card, put it onto the battlefield tapped, then shuffle.",
+      "flavor_text": "Its life force entwined with its tree, a dryad is an elusive and solitary being that wishes only to be left alone.",
+      "power": "1",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "ce3313401b25812c.webp",
+      "s": "vA/uHK9Q/HRcNW9pjRe1Ntw03DBCg8GYtsQPmKRQVIi0DfUX7ki2K1wHcm6PVOFgyj+IQB3Cj7ShkEbW8kRUma5e6Fv0HPwKEy98aIcb0n3OP8t9FMLB9fKQH4S8BxzN5UXoDb5P5GFTMn5ukV30eMN/y30VjIC4oNZFl7ZXCdz+GLMXq0q7PAsoc2iNSbhw3SjJdkfWl7SNwQWDokZD0KZd9Vuz"
+    },
+    {
+      "name": "Skyward Shield",
+      "mana_cost": "{1}",
+      "type_line": "Artifact — Equipment",
+      "oracle_text": "Equipped creature gets +1/+1.\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
+      "flavor_text": "\"Even in the shadow of Phyrexia, we will stand united.\" \n—Alyssia, Defender of Valor's Reach",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -16,81 +33,64 @@
         "W"
       ],
       "card": true,
-      "img": "30ee2b1fba898082.webp",
-      "s": "lVRYHl45jFAW2JDhu1EqnSjdvwxuybKbiDuuuMbKnaTMWgpZXifaA0XYwK7+X0vRL9CkQC3JwL6LI6q0yJrY5cwDWBcdb45IXtiW5K1HJZAo27lXMoj8s8k1qLuI25W3illOFFJ6mUVUwIfnrRhukjfRrEYg1uWrigm0udLKl6DTF1oSHSg="
+      "img": "3225b1f4dcaa9736.webp",
+      "s": "mYafZ9i4Wnh+KaCm5m3xwMEdakl/T0IiB6e5CNoD3QvC0IVnmZkZITYmr6+3dQ=="
     },
     {
-      "name": "Nature's Reprisal",
+      "name": "Nature's Grasp",
       "mana_cost": "{2}{G}",
       "type_line": "Instant",
-      "oracle_text": "Destroy target artifact. You gain life equal to that artifact's mana value.",
-      "flavor_text": "\"Metal may rust, but the pulse of life is eternal.\"\n—Aryt, the verdant sage",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "4901a993b3b8d983.webp",
-      "s": "BY6p7LEqcoOsJIM2AR188CmBpUz7Y9n0MGbn5vNg3jQWyan692YH2P5gnw=="
-    },
-    {
-      "name": "Unleash Shell",
-      "mana_cost": "{3}{R}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Unleash Shell deals 5 damage to target creature or planeswalker and 2 damage to that permanent's controller.",
-      "flavor_text": "The new cannon's destructive power more than made up for its unpredictable blast radius.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "c470e58d4b882a4b.webp",
-      "s": "V2NMbpMkRU+966EAXehzaS0QQLGjwP8K+xIc0b2Np0NJM00s0h8GB7+z81dZticiLQEWqbnCnj/+B172o47zfEQoSm7QZEdX6O2/VwLkcSMqAUTgo8/yLfAFRfWujr8FTy5TJJEpFRGy/aEaF/VmfnEAWv/8ga42vgRU9qOO7F5YLGF4nT0VFviisgVR5i4="
-    },
-    {
-      "name": "Relic of Legends",
-      "mana_cost": "{3}",
-      "type_line": "Artifact",
-      "oracle_text": "{T}: Add one mana of any color.\nTap an untapped legendary creature you control: Add one mana of any color.",
-      "flavor_text": "\"If the worst parts of history can repeat themselves, it stands to reason that the best parts can as well.\"\n—Teferi",
+      "oracle_text": "Choose one —\n• Ensnare — Tap up to two target creatures. They don't untap during their controller's next untap step.\n• Empower — Target creature gets +3/+3 until end of turn.",
+      "flavor_text": null,
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "uncommon",
-      "colors": [],
+      "colors": [
+        "G"
+      ],
       "card": true,
-      "img": "17e33fedde1f2630.webp",
-      "s": "Un/il6R9a8ZoJVA1E2W2DZSHZCs8panQrRQl9yMp2DYJCP6bsXQt3mRxACEEPf9ck8AqKSTR4uC3CmzVNzXFMlt/vNLnZDuQamsCYh494l+U2D8mdeb57aQYIPVsON46Bj7xgKE+LZE9fhBzQGbkSouLcyRp46b4px4p9yYojiJdMM+BqmQ7ny1sQzAfa+s="
+      "img": "51d6fa6c6785bf05.webp",
+      "s": "nrYGDehVAX6Ihuo/1yDdO4yvPWS5J/ECYrYLrgZaiA+A51QB5xlXLM3AzTzWIp5v2rk2MMl4sExOoV+2"
     },
     {
-      "name": "Sprout's Embrace",
-      "mana_cost": "{G}",
-      "type_line": "Instant",
-      "oracle_text": "Untap target creature. That creature gets +1/+1 until end of turn.",
-      "flavor_text": "\"Even the smallest stirrings of nature can lead to great transformations.\"\n—*Tales of Yavimaya*",
+      "name": "Aether Confrontation",
+      "mana_cost": "{2}",
+      "type_line": "Artifact Creature — Construct",
+      "oracle_text": "When Aether Confrontation enters the battlefield, target creature an opponent controls gets -1/-1 until end of turn.",
+      "flavor_text": "The true test of innovation is not the design, but the disruption it brings.\n—Kiran, High Inventor",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "330094457a5878e7.webp",
+      "s": "POYVTS9AlMwacZpi/9qkCgs5cmEKu/u7Y6MGZvu4EBBluQ=="
+    },
+    {
+      "name": "Bladed Battle-Fan",
+      "mana_cost": "{1}{B}",
+      "type_line": "Artifact — Equipment",
+      "oracle_text": "Flash\nWhen Bladed Battle-Fan enters the battlefield, attach it to target creature you control. That creature gains indestructible until end of turn.\nEquipped creature gets +1/+0.\nEquip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
+      "flavor_text": null,
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "G"
+        "B"
       ],
       "card": true,
-      "img": "57c8f46763480c2a.webp",
-      "s": "1cnJh5KwigzpdmnThd/b9gjvqjQiXsV3qynBP2HdHBXPycY="
+      "img": "f40863d2f3df494e.webp",
+      "s": "CanzHs5i9b0bsmdYh/nbVJ5qA3zKSSUOADAIiKpIscoG4+Rb4m+071KocA/O9dkXn3seLYRLPWNDAQSM40n3qB3y5AmNIvelTrR5D9j12R6ZewctykYoMAIwEobrS7vEEeTsVMxvpeMUq3pAzezKWY9jFjqVDSohADYfjO8KsYsctPQPwlGk6E60dkjftIsfz3I="
     },
     {
-      "name": "Sudden Disruption",
-      "mana_cost": "{U}",
-      "type_line": "Instant",
-      "oracle_text": "Counter target spell. Draw a card.",
-      "flavor_text": "\"In the turmoil of battle, the most profound insights strike fastest.\"\n—Kellen, Tolarian Mage",
+      "name": "Malfunction",
+      "mana_cost": "{3}{U}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant artifact or creature\nWhen Malfunction enters the battlefield, tap enchanted permanent.\nEnchanted permanent doesn't untap during its controller's untap step.",
+      "flavor_text": "\"They don't make them like they used to.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -99,8 +99,8 @@
         "U"
       ],
       "card": true,
-      "img": "8fc084e7eb6da494.webp",
-      "s": "UAWhiy2fiRuwqyPMa371mAOGfo4AM4F2BPc+gy+YL2lKB4aAJYfORbKw"
+      "img": "77e16b034f4de904.webp",
+      "s": "uYy4emh7bUuSYpe05m3UxozOF+MnLDUiwvXb9A8VJS3ujuh+e2MmAsY03+GhCI6eholP4T95ZQWBo5qyAhI5f7GU5TB6dD0I1HeJra0im4nQyAKzeSN8Bce2j6VFCyxjpNukfH1+IB+NY5Gs3DKbkY3IBvx8fH5L3g=="
     }
   ]
 }
