@@ -21,11 +21,13 @@ Image providers (--images):
     none          skip images (drop your own files in pipeline/work/img/fake_<id>.jpg)
 
 Output: pipeline/work/fake.json + pipeline/work/img/fake_<id>.jpg (resumable)
+        pipeline/work/raw/: untouched full-resolution images + index.json (name, prompt), for reuse
 """
 from __future__ import annotations
 
 import argparse
 import base64
+import io
 import json
 import random
 import re
@@ -36,8 +38,12 @@ from urllib.parse import quote
 
 from collections import Counter
 
+from PIL import Image
+
 from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_bytes, load_json,
                     normalize_image, save_json, session)
+
+WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep
 
 BATCH = 8
@@ -152,11 +158,18 @@ def gen_image(provider: str, prompt: str, seed: int) -> bytes | None:
     if provider == "replicate":
         token = env("REPLICATE_API_TOKEN") or sys.exit("REPLICATE_API_TOKEN missing")
         h = {"authorization": f"Bearer {token}", "content-type": "application/json", "prefer": "wait"}
-        r = s.post("https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
-                   headers=h, timeout=180, json={"input": {
-                       "prompt": prompt, "aspect_ratio": "4:3", "output_format": "jpg",
-                       "output_quality": 95, "num_outputs": 1, "seed": seed, "go_fast": True}})
-        r.raise_for_status()
+        for attempt in range(8):                # low-credit accounts are heavily rate limited
+            r = s.post("https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
+                       headers=h, timeout=180, json={"input": {
+                           "prompt": prompt, "aspect_ratio": "4:3", "output_format": "jpg",
+                           "output_quality": 95, "num_outputs": 1, "seed": seed, "go_fast": True}})
+            if r.status_code != 429:
+                break
+            ra = r.headers.get("retry-after", "")
+            wait = float(ra) + 1 if ra.replace(".", "", 1).isdigit() else 10 + attempt * 5
+            print(f"  replicate rate limit, waiting {wait:.0f}s")
+            time.sleep(wait)
+        check(r, fatal=(401, 403, 404))
         pred = r.json()
         while pred.get("status") not in ("succeeded", "failed", "canceled"):
             time.sleep(1.5)
@@ -182,6 +195,17 @@ def gen_image(provider: str, prompt: str, seed: int) -> bytes | None:
         from placeholder import gradient_jpeg
         return gradient_jpeg(seed)
     return None
+
+
+def save_raw(raw: bytes, card: dict, prompt: str) -> None:
+    """Keep the untouched full-resolution image + an index (card name, prompt) for reuse."""
+    fmt = (Image.open(io.BytesIO(raw)).format or "jpg").lower().replace("jpeg", "jpg")
+    name = f"{re.sub(r'[^a-z0-9]+', '-', card['name'].lower()).strip('-')}_{card['id'][:6]}.{fmt}"
+    (WORK_RAW / name).write_bytes(raw)
+    index = load_json(WORK_RAW / "index.json", [])
+    index.append({"file": name, "name": card["name"], "set": card["set_name"],
+                  "type_line": card["type_line"], "prompt": prompt})
+    save_json(WORK_RAW / "index.json", index)
 
 
 # -------------------------------------------------------------------------- main
@@ -210,6 +234,7 @@ def main() -> None:
     args = ap.parse_args()
 
     ensure_dirs()
+    WORK_RAW.mkdir(parents=True, exist_ok=True)
     out_path = WORK / "fake.json"
     fakes = load_json(out_path, [])
     real = load_json(WORK / "real.json", [])
@@ -287,6 +312,7 @@ def main() -> None:
             except Exception as e:
                 print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
                 annotate("warning", f"image failed: {e}"); continue
+            save_raw(raw, c, prompt)
             normalize_image(raw, img)
             c["image"] = img.name
             save_json(out_path, fakes)
