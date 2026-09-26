@@ -3,46 +3,59 @@
   "count": 6,
   "cards": [
     {
-      "name": "Raucous Marauder",
-      "mana_cost": "{1}{B}{R}{G}",
-      "type_line": "Creature — Ogre Warrior",
-      "oracle_text": "Haste",
-      "flavor_text": "\"This city hums with life, and I’m here to make it roar!\"\n—Rax, the Thunderous",
-      "power": "4",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B",
-        "G",
-        "R"
-      ],
-      "card": true,
-      "img": "ea49e0d8cc3b2b71.webp",
-      "s": "26C5m0oUE9EqbKeqi+Gc19ELPtGVxRoOmLr1qDF5p53P5OuwTg8RqGt6o6iW5ZKK"
-    },
-    {
-      "name": "Phantom Interference",
-      "mana_cost": "{U}",
-      "type_line": "Instant",
-      "oracle_text": "Spree (Choose one or more additional costs.)\n+ {3} — Create a 2/2 white Spirit creature token with flying.\n+ {1} — Counter target spell unless its controller pays {2}.",
-      "flavor_text": "To his enemies' chagrin, Winston was every bit as meddlesome dead as he had been alive.",
+      "name": "Emberstone Outcrop",
+      "mana_cost": null,
+      "type_line": "Land — Mountain",
+      "oracle_text": "\nEmberstone Outcrop enters the battlefield tapped unless you control a red creature.",
+      "flavor_text": null,
       "power": null,
       "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "19eb6a364dbeb52e.webp",
+      "s": "kt6APdOSI1fS4trE48nUUaI/9Yiwr8OraN0Aadxf8hiP3Lc01oxgBJzhmdU="
+    },
+    {
+      "name": "Exploring Scholar",
+      "mana_cost": "{3}{U}",
+      "type_line": "Creature — Human Wizard",
+      "oracle_text": "When Exploring Scholar enters the battlefield, you may scry 2.",
+      "flavor_text": "\"The secrets of the jungle whisper to those who listen closely.\"\n—Elara, sage of the ancient trails",
+      "power": "2",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "U"
       ],
       "card": true,
-      "img": "ab7f0c30bd3e137a.webp",
-      "s": "i0JqZ9kkInd11b343OHckmOR/3qbSP/yrJCZwqCFLWOWQExqzSZkKCeBhfjXrojZf5qpdIFKvM+tjYbX9cwtLqIVYGvWLyAKNM7toZnvicJ81rF4gwCpyamXz4z4hW5+iQZ5btRmYyI4jqzsy6nT32SepG6QR63VuIqBzLrbZGKEBWpk3TplIzbE8PjNoKPDf4H5O8RVvM2wxog="
+      "img": "234edd0e4eb871aa.webp",
+      "s": "x6T9m1QqwcroYEmWxz9e8k6MEuolyO2RQKLXFxleQMacxe6IUDSNg+hpTtr9IhO+DZFV4w=="
     },
     {
-      "name": "Skyshaper Hatchling",
-      "mana_cost": "{1}{U}{U}",
-      "type_line": "Creature — Bird Wizard",
-      "oracle_text": "Flying\nOffspring — When this creature dies, create a 1/1 blue Bird creature token with flying.",
+      "name": "Outflank",
+      "mana_cost": "{W}",
+      "type_line": "Instant",
+      "oracle_text": "Outflank deals damage to target attacking or blocking creature equal to the number of creatures you control.",
+      "flavor_text": "\"With the drum of hooves and a flash of blades, the monster's terrifying roar changed to a cry of fear.\"\n—*Legend of the Gilded Knights*",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "2676a15fdad3543e.webp",
+      "s": "xHgAc4DiF9GO4v6WEihJBUJyuyEJL/7I2fNyq1tFUiqfHx5yk+9chcu0oMNVZRtTWGS7IQkv/srY4mmqTEV8KN43Fzas51uM2/P2wVskS1JDe+05Ey206MXxbv8RSk4vzSMUd43iG4jB+6OAFnYNCFR7qywBPPPzxPV7qV8LVnPKLh9JkuFAmc3zsYIHbUta"
+    },
+    {
+      "name": "Deluge Virtuoso",
+      "mana_cost": "{2}{U}",
+      "type_line": "Creature — Human Wizard",
+      "oracle_text": "When this creature enters, tap target creature an opponent controls and put a stun counter on it. (If a permanent with a stun counter would become untapped, remove one from it instead.)\nOpus — Whenever you cast an instant or sorcery spell, this creature gets +1/+1 until end of turn. If five or more mana was spent to cast that spell, this creature gets +2/+2 until end of turn instead.",
       "flavor_text": null,
       "power": "2",
       "toughness": "2",
@@ -52,59 +65,42 @@
         "U"
       ],
       "card": true,
-      "img": "54aaa1ed9960d56a.webp",
-      "s": "7uhCM9sI3leVJrgttEpRgjO71bOQGd0zmPmTHGtF0kznpUd0xw=="
+      "img": "df4203e64b0a127c.webp",
+      "s": "ypq5Y9RGg3XRC6pve0/QhY6eRQCEyOzlgcMcVvab2ZjXmJhyx0PZJ5AJvXQ8T9CFnIlFS82c7IzEgiRG8ZyQmdSYiHTAUINj0V2taHJByoffk0VWzpv0mcvTDUH7jpib3ZaoadgFwi6DG/dpcRDfk8/UVUfSnanTydYHQfadloTeh75y2HXSIIQNu38jAoDO34Y="
     },
     {
-      "name": "Duneclaw Stalker",
-      "mana_cost": "{4}{G}{G}",
-      "type_line": "Creature — Cat Beast",
-      "oracle_text": "Reach\nWhen Duneclaw Stalker enters the battlefield, target creature you control gains +2/+2 until end of turn.",
-      "flavor_text": null,
-      "power": "5",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "df230be846ebd9eb.webp",
-      "s": "pn0ybT542E0xu24/5ZeNmJY1Ahl6/xfq2SaFFD12XDiyOWBcN2GUE3SvLxnjnMLM3SkJTyU="
-    },
-    {
-      "name": "War Squeak",
-      "mana_cost": "{R}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant creature\nWhen War Squeak enters, target creature an opponent controls can't block this turn.\nEnchanted creature gets +1/+1 and has haste.",
-      "flavor_text": "Dangers sharper than thorns can hide among flowers.",
-      "power": null,
-      "toughness": null,
+      "name": "Plundering Pirate",
+      "mana_cost": "{2}{R}",
+      "type_line": "Creature — Orc Pirate",
+      "oracle_text": "When Plundering Pirate enters the battlefield, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this artifact: Add one mana of any color.\")",
+      "flavor_text": "\"Whatever it is, it set off a trap. It must be valuable!\"",
+      "power": "3",
+      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "R"
       ],
       "card": true,
-      "img": "b860adc21bf8d00f.webp",
-      "s": "NYNm3Xp+95vRrjou4VpoPPD14Z3FIKSojo5xgRXWfvUh1jaUOzC004WzOy+mTGg82f/5y55upqiNk3GfVY8spTvTeJohMvfJha44KL5ZZ23g4uzZnmzqxIGOc8MUwn7jYcN42jQj45HerSkpqQU5a+bx/oCKdOu1kY5rnhTGMeY+yDbF"
+      "img": "9217a0eadb1632b5.webp",
+      "s": "e0EwJ1sAAlFzkjxD9ac7phdok+Xn3HZBbXAXvHS6lkdDAjQnSAJTSzyAbn/o6nflCi/L5/+dJmFsZkPSIenAIXICLCFTH0MEc6snT/H5eqZILcWyr5B2LyU3X4RvuZFdL0wxIUgVRgo/imBV/+Y05wV/g+ixnz06NCMH32ullwlkBjArVAsNGzqUL0L1tG7wCVKUqKiON3A4dEeZObQ="
     },
     {
-      "name": "Most Wanted",
-      "mana_cost": "{2}{G}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "This land enters tapped.\n{T}: Add {U}, {R}, or {W}.",
-      "flavor_text": "Overnight, Elspeth was branded the most dangerous criminal in New Capenna.",
+      "name": "Mourning Grasp",
+      "mana_cost": "{2}{B}{B}",
+      "type_line": "Instant",
+      "oracle_text": "Target player discards two cards. You gain 2 life.",
+      "flavor_text": "\"Regret is a heavy burden, one that lingers long after you've said goodbye.\"\n—Professor Baldrin, Lorehold",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "G"
+        "B"
       ],
       "card": true,
-      "img": "b9ded004d5851d37.webp",
-      "s": "3NFd0M6Ax7v+85sjwLBrq06lNdfAMwY8N5evIXZ0uBjB02HQ2Mym4K7ihzjEvmepH6EzgZNgUE15xegWwa71Hoe5TtbemYr1/KvJdNDuJ6sH4GOdjmdUHHnK5TdhdeERxp9Dm8yDiK695psyiu8l6hLxdMbVfkscN8i9JWxz/ROYhlvY8J+K9KzkjGvE7CKrQA=="
+      "img": "023f78ccb2209ecb.webp",
+      "s": "Oi9Ur7z/j3qW680ggnk7u8hxNjqRVIaBphzIZVb4FB8uawaZqeHEON7s2imfPmo="
     }
   ]
 }
