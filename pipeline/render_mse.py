@@ -66,13 +66,14 @@ def esc(t: str) -> str:
 
 # "Landfall — Whenever..." : ability/flavor words are printed in italics. Keywords that also
 # use a dash (Boast, Exhaust...) and modal "Choose one —" stay roman.
-ABILITY_WORD = re.compile(r"^([A-Z][A-Za-z'’ ,-]{1,40}?) — ", re.M)
+# Also named modes: "• Smash the Chest — Destroy target artifact."
+ABILITY_WORD = re.compile(r"^(• ?)?([A-Z][A-Za-z'’ -]{1,40}?) — ", re.M)
 ROMAN_BEFORE_DASH = ("Choose", "Boast", "Companion", "Exhaust", "Forecast", "Max speed", "Solved")
 
 
 def _italic_ability_word(m: re.Match) -> str:
-    word = m.group(1)
-    return m.group(0) if word.startswith(ROMAN_BEFORE_DASH) else f"<i>{word}</i> — "
+    bullet, word = m.group(1) or "", m.group(2)
+    return m.group(0) if word.startswith(ROMAN_BEFORE_DASH) else f"{bullet}<i>{word}</i> — "
 
 
 def rules_text(text: str | None) -> str:

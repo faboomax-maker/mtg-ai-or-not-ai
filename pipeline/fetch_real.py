@@ -9,6 +9,8 @@ Output: pipeline/work/real.json + pipeline/work/img/real_<id>.jpg
 from __future__ import annotations
 
 import argparse
+import json
+import lzma
 import sys
 import time
 
@@ -39,6 +41,38 @@ def ensure_set_icon(s, code: str) -> None:
     save_json(meta, {k: info.get(k) for k in ("code", "name", "released_at", "card_count", "printed_size")})
     path.write_bytes(fetch_bytes(s, info["icon_svg_uri"]))
     time.sleep(0.12)
+
+
+MTGJSON = "https://mtgjson.com/api/v5"
+
+
+def printed_texts(s, code: str) -> dict[str, str]:
+    """{scryfall id: rules text as printed} for one set, from MTGJSON (cached).
+
+    Scryfall only has the current Oracle wording ("When this creature enters"); the
+    cards themselves say what was printed at the time ("When X enters the battlefield")."""
+    path = WORK_SETS / f"{code}.printed.json"
+    texts = load_json(path, None)
+    if texts is None:
+        texts = {}
+        try:
+            data = json.loads(lzma.decompress(fetch_bytes(s, f"{MTGJSON}/{code.upper()}.json.xz")))
+            for c in data["data"]["cards"]:
+                sid = c.get("identifiers", {}).get("scryfallId")
+                if sid and c.get("originalText") and c.get("language", "English") == "English":
+                    texts[sid] = c["originalText"]
+        except Exception as e:                     # fall back to Oracle text
+            print(f"  no printed text for {code}: {e}", file=sys.stderr)
+        save_json(path, texts)
+    return texts
+
+
+def with_printed_text(s, card: dict) -> dict:
+    """Card entry with the printed rules text (Oracle text kept in oracle_text_current)."""
+    printed = printed_texts(s, card["set"]).get(card["id"])
+    if printed and printed != card.get("oracle_text"):
+        card = {**card, "oracle_text_current": card.get("oracle_text"), "oracle_text": printed}
+    return card
 
 
 def keep(card: dict) -> bool:
@@ -84,7 +118,7 @@ def main() -> None:
         time.sleep(0.12)
         ensure_set_icon(s, card["set"])
 
-        entry = {"id": card["id"], "real": True, **{k: card.get(k) for k in FIELDS}}
+        entry = with_printed_text(s, {"id": card["id"], "real": True, **{k: card.get(k) for k in FIELDS}})
         entry["image"] = img.name
         cards.append(entry)
         seen.add(card["id"]); names.add(card["name"])

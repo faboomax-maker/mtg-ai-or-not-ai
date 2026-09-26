@@ -44,7 +44,7 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
                     normalize_image, save_json, session)
 
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
-from fetch_real import API, DEFAULT_QUERY, FIELDS, keep
+from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, with_printed_text
 
 BATCH = 8
 ART_STYLE = ("epic fantasy illustration, detailed digital painting, modern trading card game art, "
@@ -54,10 +54,13 @@ ART_STYLE = ("epic fantasy illustration, detailed digital painting, modern tradi
 SYSTEM = """You are a senior Magic: The Gathering designer at Wizards of the Coast.
 You write brand-new cards that are indistinguishable from cards printed in recent
 Standard-legal expansions. Rules you always follow:
-- Exact modern Oracle templating ("When this creature enters, ...", "any target",
-  "Ward {2}", "Create a 1/1 white Soldier creature token.", "Activate only as a sorcery.").
-  Since 2024, cards refer to themselves as "this creature"/"this artifact"/etc. except
-  legendary cards, which use their short name. Look at the examples and copy their style.
+- Exact templating of the set, as printed on its cards: the examples show the text as
+  printed at the time, so copy their wording exactly. Older cards say "enters the
+  battlefield" and refer to themselves by their own name ("When Grim Scavenger enters the
+  battlefield"); cards printed since 2024 say "enters" and "this creature". Include
+  reminder text in parentheses when the examples do for the same keyword.
+- Ability words and named modes are followed by " — " ("Landfall — Whenever...",
+  "• Smash the Chest — Destroy target artifact.").
 - Power level of a normal set: mostly commons/uncommons are modest; no broken cards,
   no joke cards, no references to real-world brands or franchises.
 - Use only existing keywords and mechanics; do not invent new keywords.
@@ -139,7 +142,7 @@ def validate(c: dict, spec: dict) -> str | None:
         return "creature without P/T"
     if "Planeswalker" in tl and not c.get("loyalty"):
         return "planeswalker without loyalty"
-    if len(c["oracle_text"]) > 420 or len(c.get("flavor_text") or "") > 200:
+    if len(c["oracle_text"]) > 480 or len(c.get("flavor_text") or "") > 200:
         return "too long"
     if re.search(r"\bCARDNAME\b|~", c["oracle_text"]):
         return "placeholder name in text"
@@ -219,7 +222,9 @@ def set_pool(code: str, quiz_ids: set[str]) -> list[dict]:
         time.sleep(0.12)
         cards = []
         if r.status_code == 200:
-            cards = [{"id": c["id"], **{k: c.get(k) for k in FIELDS}} for c in r.json()["data"] if keep(c)]
+            s = session()
+            cards = [with_printed_text(s, {"id": c["id"], **{k: c.get(k) for k in FIELDS}})
+                     for c in r.json()["data"] if keep(c)]
         save_json(path, cards)
     return [c for c in cards if c["id"] not in quiz_ids]
 
