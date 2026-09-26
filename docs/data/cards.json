@@ -3,79 +3,28 @@
   "count": 6,
   "cards": [
     {
-      "name": "Flamewrought Nomad",
-      "mana_cost": "{1}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Whenever Flamewrought Nomad attacks, it deals 1 damage to target creature defending player controls.",
-      "flavor_text": "\"The flicker of my flame leads the way, burning bright against the desolation.\"\n—Alaisha, Desert Scout",
-      "power": "2",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "bd75c7fc089d2d0f.webp",
-      "s": "RrwaeuBBOn2ZKN9AFqjWD2RMLwh3Atnu7+JVorkzCuQdrFgtsA9l"
-    },
-    {
-      "name": "Courageous Sentinel",
-      "mana_cost": "{W}",
-      "type_line": "Creature — Human Soldier",
-      "oracle_text": "Vigilance\nCourageous Sentinel can't be blocked by creatures with power 3 or less.",
-      "flavor_text": "\"We shall not falter. The dawn will rise, and so shall we.\"\n—Lydia, Dawnhart protector",
-      "power": "1",
-      "toughness": "2",
+      "name": "Blessed Light",
+      "mana_cost": "{4}{W}",
+      "type_line": "Instant",
+      "oracle_text": "Exile target creature or enchantment.",
+      "flavor_text": "Enchanted by mage-smiths and blessed by priests, Benalish windows let in light and cast out darkness.",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "W"
       ],
       "card": true,
-      "img": "a6380b2acb20f32e.webp",
-      "s": "GrhRbVYG+08GRRaYhRvmJJmGFzhTLGgwsbKLWQcHTw0FoANLRQO0BklNV6KZCeh5"
+      "img": "30ee2b1fba898082.webp",
+      "s": "lVRYHl45jFAW2JDhu1EqnSjdvwxuybKbiDuuuMbKnaTMWgpZXifaA0XYwK7+X0vRL9CkQC3JwL6LI6q0yJrY5cwDWBcdb45IXtiW5K1HJZAo27lXMoj8s8k1qLuI25W3illOFFJ6mUVUwIfnrRhukjfRrEYg1uWrigm0udLKl6DTF1oSHSg="
     },
     {
-      "name": "Hobblefiend",
-      "mana_cost": "{1}{R}",
-      "type_line": "Creature — Devil",
-      "oracle_text": "Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)\n{1}, Sacrifice another creature: Put a +1/+1 counter on Hobblefiend.",
-      "flavor_text": "Bedbugs aren't the only things you need to worry about biting you at night.",
-      "power": "2",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "69bded4918be4037.webp",
-      "s": "aNI4ipK7O023lc/dZUkw3McuTnt7i1h0o6I621gu+pIhwHje0fs5VfaTycFzETLElGl0MCLDFVuto3+8eS7p3WGJaMPT9WwF+8OHiCINZIrEOAB2btgZRbW2PpdnZe3dft8pjoGzNhql0JKZNVc/ltspWDUkzRNSorRgjn8m0cF8hTiMlup4B/7DwA=="
-    },
-    {
-      "name": "Mournful Vagrant",
-      "mana_cost": "{2}{B}",
-      "type_line": "Creature — Zombie",
-      "oracle_text": "When Mournful Vagrant enters the battlefield, you may return target creature card from your graveyard to your hand.",
-      "flavor_text": "\"Perhaps the return to life holds more promise than I believed.\"\n—A lost soul drifting through the mists.",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "83986fd56047e27c.webp",
-      "s": "6eYoZBDn9/e4nFmAlGPDTBmRzpYQt1ghTenY1gcf8tf9sj9zUcK7o/GJTJ6GYs0R"
-    },
-    {
-      "name": "Nature's Embrace",
+      "name": "Nature's Reprisal",
       "mana_cost": "{2}{G}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant creature or land\nAs long as enchanted permanent is a creature, it gets +2/+2.\nAs long as enchanted permanent is a land, it has \"{T}: Add two mana of any one color.\"",
-      "flavor_text": null,
+      "type_line": "Instant",
+      "oracle_text": "Destroy target artifact. You gain life equal to that artifact's mana value.",
+      "flavor_text": "\"Metal may rust, but the pulse of life is eternal.\"\n—Aryt, the verdant sage",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -84,15 +33,64 @@
         "G"
       ],
       "card": true,
-      "img": "6a6009600b7e5ed3.webp",
-      "s": "shAERvFNJpYYNO2NSqSxYOI9xkR25ucnJmNH72NBIgDzEjVR+Ux3w1ZgyZdYqr1isznAEiW1sUxyLQzYeF4qCqBZVm7xWGHeGmy/2lr6/WCreJAOOLK1HXIiAe90QToCqF4aDfNOaYNbIe2cAP7+Nb5qg1djqKQaPX9L7zpWLga7UxVGr1RwwWcz8I1d6/R/8CjbRDE="
+      "img": "4901a993b3b8d983.webp",
+      "s": "BY6p7LEqcoOsJIM2AR188CmBpUz7Y9n0MGbn5vNg3jQWyan692YH2P5gnw=="
     },
     {
-      "name": "Vessel of Paramnesia",
-      "mana_cost": "{1}{U}",
-      "type_line": "Enchantment",
-      "oracle_text": "{U}, Sacrifice Vessel of Paramnesia: Target player puts the top three cards of his or her library into his or her graveyard. Draw a card.",
-      "flavor_text": "\"Write everything down. Trust me.\"\n—Vallon, Thraben inspector",
+      "name": "Unleash Shell",
+      "mana_cost": "{3}{R}{R}",
+      "type_line": "Instant",
+      "oracle_text": "Unleash Shell deals 5 damage to target creature or planeswalker and 2 damage to that permanent's controller.",
+      "flavor_text": "The new cannon's destructive power more than made up for its unpredictable blast radius.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "c470e58d4b882a4b.webp",
+      "s": "V2NMbpMkRU+966EAXehzaS0QQLGjwP8K+xIc0b2Np0NJM00s0h8GB7+z81dZticiLQEWqbnCnj/+B172o47zfEQoSm7QZEdX6O2/VwLkcSMqAUTgo8/yLfAFRfWujr8FTy5TJJEpFRGy/aEaF/VmfnEAWv/8ga42vgRU9qOO7F5YLGF4nT0VFviisgVR5i4="
+    },
+    {
+      "name": "Relic of Legends",
+      "mana_cost": "{3}",
+      "type_line": "Artifact",
+      "oracle_text": "{T}: Add one mana of any color.\nTap an untapped legendary creature you control: Add one mana of any color.",
+      "flavor_text": "\"If the worst parts of history can repeat themselves, it stands to reason that the best parts can as well.\"\n—Teferi",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [],
+      "card": true,
+      "img": "17e33fedde1f2630.webp",
+      "s": "Un/il6R9a8ZoJVA1E2W2DZSHZCs8panQrRQl9yMp2DYJCP6bsXQt3mRxACEEPf9ck8AqKSTR4uC3CmzVNzXFMlt/vNLnZDuQamsCYh494l+U2D8mdeb57aQYIPVsON46Bj7xgKE+LZE9fhBzQGbkSouLcyRp46b4px4p9yYojiJdMM+BqmQ7ny1sQzAfa+s="
+    },
+    {
+      "name": "Sprout's Embrace",
+      "mana_cost": "{G}",
+      "type_line": "Instant",
+      "oracle_text": "Untap target creature. That creature gets +1/+1 until end of turn.",
+      "flavor_text": "\"Even the smallest stirrings of nature can lead to great transformations.\"\n—*Tales of Yavimaya*",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "57c8f46763480c2a.webp",
+      "s": "1cnJh5KwigzpdmnThd/b9gjvqjQiXsV3qynBP2HdHBXPycY="
+    },
+    {
+      "name": "Sudden Disruption",
+      "mana_cost": "{U}",
+      "type_line": "Instant",
+      "oracle_text": "Counter target spell. Draw a card.",
+      "flavor_text": "\"In the turmoil of battle, the most profound insights strike fastest.\"\n—Kellen, Tolarian Mage",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -101,8 +99,8 @@
         "U"
       ],
       "card": true,
-      "img": "2454178d9fb87128.webp",
-      "s": "Vg1hRiCIrtky3NgpTIB01wOjlstZzFjLYjMZmHIaahNbSmEDCIriimHc2D1NjnjVUqeQnQqfDrowcl+8bAw4HUMPSkIviumRMISKflzeONdK5sCBF5gK6zB9UoRmGzMaTEN/DSKL4cxxydg4Bt87nF//18YViQnrbz5QmGNEOh1fTn5NJJflgi3d3jF23zuAAqWH1AKcE7p3"
+      "img": "8fc084e7eb6da494.webp",
+      "s": "UAWhiy2fiRuwqyPMa371mAOGfo4AM4F2BPc+gy+YL2lKB4aAJYfORbKw"
     }
   ]
 }
