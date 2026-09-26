@@ -1,110 +1,181 @@
 {
   "generated": "2026-09-26",
-  "count": 6,
+  "count": 10,
   "cards": [
     {
-      "name": "Cunning Illusionist",
-      "mana_cost": "{1}{U}",
-      "type_line": "Creature — Human Wizard",
-      "oracle_text": "When Cunning Illusionist enters, venture into the dungeon. (Enter the first room of target dungeon you own.)\n{T}: Target creature you control gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)",
-      "flavor_text": "\"Reality bends at my whim, and the unsuspecting become my puppets.\" —Ithra, master of the arcane",
-      "power": "2",
-      "toughness": "2",
+      "name": "Dauntless Dismantler",
+      "mana_cost": "{1}{W}",
+      "type_line": "Creature — Human Artificer",
+      "oracle_text": "Artifacts your opponents control enter the battlefield tapped.\n{X}{X}{W}, Sacrifice Dauntless Dismantler: Destroy each artifact with mana value X.",
+      "flavor_text": "To their dismay, Brazen Coalition explorers soon found that the Oltec were not impressed by cannons.",
+      "power": "1",
+      "toughness": "4",
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "U"
+        "W"
       ],
       "card": true,
-      "img": "c65fb97145c580e5.webp",
-      "s": "CN7HnhJfnisJA708GMcl6DRtanOU0YvSr2Mky23lo8UWj5WSHRPIeUxFmj8ZxWa8YnthJ+SOypyDdHDT"
+      "img": "60896128c28a6926.webp",
+      "s": "d5M5tmXvgk0+KM1NC/rh//sp6tAqmL3AtnTdDYqW9dhP0D22du3TV3E6n3EWt6285m6y0jLZ7eC3Yolj38WjvGXTPrll7dQSPhLQWxqjs7PnbrLSMs3t+Pwr3WONkfWIf4tk/Hfg0g54PdNUQLWusKcv/4B0l/P3tz7FboGE9JZ43S6gd67EHm0x3lYauqSvtznqn0/L8OGscph8hJXo2nE="
     },
     {
-      "name": "Delver's Torch",
-      "mana_cost": "{1}{W}",
-      "type_line": "Artifact — Equipment",
-      "oracle_text": "Equipped creature gets +1/+1.\nWhenever equipped creature attacks, venture into the dungeon. (Enter the first room or advance to the next room.)\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)",
-      "flavor_text": "\"Not all of us have darkvision, okay?\"",
+      "name": "Fleeting Riches",
+      "mana_cost": "{1}{R}",
+      "type_line": "Instant",
+      "oracle_text": "Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nYou may sacrifice a Treasure. If you do, this spell deals 2 damage to any target.",
+      "flavor_text": "\"In the chaos of battle, even a moment of distraction can turn into a spark that ignites treasure.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "W"
+        "R"
       ],
       "card": true,
-      "img": "afe9559d5b871e65.webp",
-      "s": "ifxN3kw1wCR1s400MlirleXqgQkvV+amRi07NGbU9YOB/lbVDS2Ke3WBkDMwG//D8+HVeXAWqIpReXJ6MMD1kputS5kXecBcJ6aSYQQR58S0o9UJYAWoxRh7fDJm1feVyPEQyE4rm3g0q5NvNBvmmPXuh086FqKVDWpudXbE65CXrEyWWTaQfT34ijU6K/jY4/2WTigWtI4AJg=="
+      "img": "bff593728de2e1e3.webp",
+      "s": "i0Tike11xUZT9M0B9H4FrUt1gK2Ti9hmja84Xv5IkxWTCvmE/3yDXg4="
     },
     {
-      "name": "Effortless Master",
-      "mana_cost": "{2}{U}{R}",
-      "type_line": "Creature — Orc Monk",
-      "oracle_text": "Vigilance\nMenace (This creature can't be blocked except by two or more creatures.)\nThis creature enters with two +1/+1 counters on it if you've cast two or more spells this turn.",
-      "flavor_text": null,
-      "power": "4",
-      "toughness": "3",
+      "name": "In Bolas's Clutches",
+      "mana_cost": "{4}{U}{U}",
+      "type_line": "Legendary Enchantment — Aura",
+      "oracle_text": "Enchant permanent\nYou control enchanted permanent.\nEnchanted permanent is legendary.",
+      "flavor_text": "\"Your contract is in default. You belong to me now. Serve, or die.\"\n—Nicol Bolas",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "R",
         "U"
       ],
       "card": true,
-      "img": "40246524cdc3c9b6.webp",
-      "s": "326hm+bCSGYK+pGU1GGKsTbrHvbBXmLLip8oxJR1QEzWLbSR6d0eM1jjwc2Rb8vhMecZoNlEYL2nhCaNtSoUYcU7spClgkp+X/yPw4ttiPsx+hqnwVFv7IifOsuHIwwmxyO+0eTPGDgF+oeMnnySomrrDLKUDDTzjp4wgIsuE3zBPuyL88M1L0X7kYLUcMvjLKwX"
+      "img": "4d39d3e69f5f35c8.webp",
+      "s": "tShBZ27fCulfg9bNqlqNmh/D41QwWPJ6FmMWoxWYWVbsJhMgbsFcugyDhoLvVPfZD823JX4dvFIYLFPtVp9CW+wwEyBnx1yjDM2Ll7wV38EKx/saJBu/U1ZtHr8QxVRYoyUGNiDaRv4dmMjZvAWA2wDT4xViHaMBDHoSkgeFRUWtbw5jf9oKrg=="
     },
     {
-      "name": "Stormy Waters Acolyte",
-      "mana_cost": "{1}{U}{B}",
-      "type_line": "Creature — Human Mystic Ally",
-      "oracle_text": "Whenever Stormy Waters Acolyte enters, you may scry 1. (Look at the top card of your library. You may put it on the bottom.)\nWhenever you scry, you gain 1 life.",
-      "flavor_text": "The shifting tides reveal secrets untold, cradling the balance of chaos and calm.",
+      "name": "Ravaging Duelist",
+      "mana_cost": "{1}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "Whenever Ravaging Duelist attacks, it deals 1 damage to target creature defending player controls.",
+      "flavor_text": "Victory belongs to those who dare to challenge fate.",
       "power": "2",
-      "toughness": "3",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "fd2fec83cc3c2e2d.webp",
+      "s": "ltE/kgvTODE0jDeu1Rh+qKKvCoDKGsHN8QbpFSWe+A2M0TA="
+    },
+    {
+      "name": "Scholar's Insight",
+      "mana_cost": "{1}{B}{G}",
+      "type_line": "Sorcery",
+      "oracle_text": "You draw a card.\nLearn. (You may reveal a Lesson card you own from outside the game and put it into your hand, or discard a card to draw a card.)",
+      "flavor_text": "\"Knowledge is as much about failure as it is about success. Embrace both.\"",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B",
-        "U"
+        "G"
       ],
       "card": true,
-      "img": "f5e45ddc4581dee7.webp",
-      "s": "ipT6MJfopYRV1Md+kfIkKX7OU6mSdTzxe0S9TuM6gril3u11uuX0ylXzz2CA8mZtOc8UoA=="
+      "img": "384de14ec3a47f5f.webp",
+      "s": "ElxmzZ4HPiWsHxPHiyf4NUZoM65oS8WF/N1DxuqLr74MEC6IrAh0cOMVUsSeYpl0A34l+Dc="
     },
     {
-      "name": "Serpent of the Pass",
-      "mana_cost": "{5}{U}{U}",
-      "type_line": "Creature — Serpent",
-      "oracle_text": "If there are three or more Lesson cards in your graveyard, you may cast this spell as though it had flash.\nThis spell costs {1} less to cast for each noncreature, nonland card in your graveyard.",
-      "flavor_text": "Those who walk the Serpent's Pass quickly discover the origin of its name.",
-      "power": "6",
-      "toughness": "5",
+      "name": "Reject",
+      "mana_cost": "{1}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Counter target creature or planeswalker spell unless its controller pays {3}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
+      "flavor_text": "\"Grux, for the last time, you have to do more than simply shout 'Apply!' at the administrators.\"\n—Pavil, admissions officer",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
       "colors": [
         "U"
       ],
       "card": true,
-      "img": "c5853af7d150b5c7.webp",
-      "s": "rtg+gvWKCEzgg81NoLSi7OtovB5MewtEmDN7PyMYE3i9n2yr9ZVeVoGezVqg9uar6i/kHFQ6W3GHIXt8awIRabyQJcffh0QTpJadFOW697z0L/IcVDNdcZ4hNXF+UVBerJwti/jISRmt2NxZt/ytuvRs5wtGdFpgnCJqMCUPXEr4jiSCuZZLBbPIykyox/Gh7X+rWUs6WWzMLw=="
+      "img": "3de83de3c2b69178.webp",
+      "s": "Mgnf0chzgJ4NllmBJ4EUynD8mYoeZeETgse+hmmGk6cnEY3nynfNy0HCRJJi4FWPZurPhARnojKC3KSKI93F4BNEwcDIcYLmQpBEh2CBFMp264GKHmXhKILBp407yMqxKlnU0shzzopOjUbbIcxGjCzqmdALcPNvhNC9m2KT2rc9RvLHxmrQx0jfSoQrj0k="
     },
     {
-      "name": "Azurewing Tempest",
-      "mana_cost": "{4}{U}",
-      "type_line": "Creature — Dragon Spirit",
-      "oracle_text": "Flying\nWhenever Azurewing Tempest attacks, you may return target nonland permanent to its owner's hand.",
-      "flavor_text": null,
+      "name": "Boulder Dash",
+      "mana_cost": "{1}{R}",
+      "type_line": "Sorcery",
+      "oracle_text": "Boulder Dash deals 2 damage to any target and 1 damage to any other target.",
+      "flavor_text": "It was the first year the downhill event had been included in the Frogtosser Games. It would also be the last.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "ffb28bf1f8e5232a.webp",
+      "s": "biRHplOuHEdU9fCo5C16kHgyT3+Bd8LlQlM4Agv8Ew15b0WwV6YcUVSj46/1aCnGKW0bf/g/lcpGAQMODr01HTcqFeFHsFJfTqGgtfV1KsExeBQu2CWZz0xNI1UGsztBdmdHpx2nXRFbsLDqrmM1x2czXi+WM4HaRR46DwiDJQFgdFamD6NOFFb8"
+    },
+    {
+      "name": "Fleetfoot Dancer",
+      "mana_cost": "{1}{R}{G}{W}",
+      "type_line": "Creature — Elf Druid",
+      "oracle_text": "Trample, lifelink, haste",
+      "flavor_text": "The Vanto Beatdown began as an improvised dance-battle at the Rose Room lounge. When word spread of how many were slain at the first event, it became a citywide obsession.",
       "power": "4",
       "toughness": "4",
       "loyalty": null,
       "rarity": "rare",
       "colors": [
+        "G",
+        "R",
+        "W"
+      ],
+      "card": true,
+      "img": "f389f6fd00323be7.webp",
+      "s": "GEZeVzU0F341i3aYA18MFZYozPhpSq1IYA1lX9fsVs4FRGJXI3h2JWWaaoMHUQAXxyzKrjoZ+zkuXyJwzOwe1AJEflMkMFQhed0ozUQGXlvHd5j4Ox77a2dFLxXQ/ATYBQVAXno7Wik6nGWfAlxfWYZiieJrRel3cRp0XMzwAowHBUJRMSoKMWGSW54JBl5UgHDZqjpI8g=="
+    },
+    {
+      "name": "Ivor, Street Whisperer",
+      "mana_cost": "{2}{B}{U}",
+      "type_line": "Legendary Creature — Human Rogue",
+      "oracle_text": "Connive 1",
+      "flavor_text": null,
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "B",
+        "U",
+        "W"
+      ],
+      "card": true,
+      "img": "8a2005c34e930877.webp",
+      "s": "xgw0UEvk94p8AwAceC6inQDEEZF6uV2iNjDAU2mQn+PSSGZ7T//18z0VBB5lKqzA"
+    },
+    {
+      "name": "Cavern's Insight",
+      "mana_cost": "{2}{U}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Choose one —\n• Draw three cards.\n• Target creature you control explores.",
+      "flavor_text": "\"The echoes of ancient wisdom can guide our path through the dark.\"\n—Keira, Merfolk scholar",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
         "U"
       ],
       "card": true,
-      "img": "b35fd118c871b81a.webp",
-      "s": "6y65UkiJ77KPLZL6vZbfEFvOHVL4iKX8Lbe03E0Lo7vUfqpQRou+/MA5nrSz"
+      "img": "6923f8e94bc89ebc.webp",
+      "s": "3tAf1OnOgrE54B/EMYx1h70msPxA0BMdFu8La4AwYtuFsQzH7dDO+DnpGIgLkTjL/jv39Q=="
     }
   ]
 }
