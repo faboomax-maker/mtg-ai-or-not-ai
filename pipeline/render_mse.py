@@ -242,6 +242,33 @@ def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> None:
         img.save(dest / f"{code}{r}.png")
 
 
+# ------------------------------------------------------------- style tweaks
+# Rules text of the stock M15 style is a bit loosely spaced and grows up to size 14,
+# so long texts spill onto the P/T box. Measured against printed cards (same scale):
+# body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
+BODY_SIZE = "12.7"
+LINE_HEIGHTS = {"hard": "1.1", "line": "1.5", "soft": "0.82"}
+
+
+def tune_style(base: Path) -> None:
+    """Patch the installed M15 Main style once (idempotent: only matches stock values)."""
+    path = base / "data" / f"magic-{STYLE}.mse-style" / "style"
+    raw = path.read_bytes()
+    bom = raw.startswith(b"\xef\xbb\xbf")
+    text = raw.decode("utf-8-sig")
+    text, n1 = re.subn(
+        r'(swap_fonts_body2?_default := \[\r?\n\t\tname: \{"MPlantin"\},\r?\n\t\tsize: \{[^\r\n]*?else )14\}',
+        rf"\g<1>{BODY_SIZE}}}", text)
+    text, n2 = re.subn(
+        r"(?m)(^\ttext:\s*\r?\n(?:\t\t.*\r?\n)*?)\t\tline height hard: 1\.2(\r?\n)"
+        r"\t\tline height line: 1\.5(\r?\n)\t\tline height soft: 0\.9",
+        rf"\g<1>\t\tline height hard: {LINE_HEIGHTS['hard']}\g<2>\t\tline height line: "
+        rf"{LINE_HEIGHTS['line']}\g<3>\t\tline height soft: {LINE_HEIGHTS['soft']}", text, count=1)
+    if n1 or n2:
+        path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
+        print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
+
+
 # -------------------------------------------------------------------- render
 def mse_dir() -> tuple[Path, Path]:
     base = Path(env("MSE_DIR", str(ROOT / "mse")))
@@ -253,6 +280,7 @@ def mse_dir() -> tuple[Path, Path]:
 
 def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
     base, exe = mse_dir()
+    tune_style(base)
     out_dir.mkdir(parents=True, exist_ok=True)
     sym_dir = base / "data" / "magic-mainframe-extras.mse-include" / SYMBOL_DIR
     sym_dir.mkdir(parents=True, exist_ok=True)
