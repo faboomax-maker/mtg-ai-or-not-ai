@@ -76,8 +76,14 @@ def _italic_ability_word(m: re.Match) -> str:
     return m.group(0) if word.startswith(ROMAN_BEFORE_DASH) else f"{bullet}<i>{word}</i> — "
 
 
+def minus_signs(t: str) -> str:
+    """Printed cards use a real minus sign in stat changes: '−2/−0', '−1/−1 counter'."""
+    t = re.sub(r"(?<![\w/])-(?=[\dX]+/[+\-−]?[\dX])", "−", t)
+    return re.sub(r"(?<=[\dX]/)-(?=[\dX])", "−", t)
+
+
 def rules_text(text: str | None) -> str:
-    t = ABILITY_WORD.sub(_italic_ability_word, esc(text or ""))
+    t = ABILITY_WORD.sub(_italic_ability_word, minus_signs(esc(text or "")))
     t = re.sub(r"\{([A-Z0-9/]+)\}", r"<sym>\1</sym>", _mana_common(t))
     return t.replace("</sym><sym>", "")
 
@@ -130,9 +136,11 @@ def card_block(c: dict, image_name: str, meta: dict) -> str:
     if c.get("flavor_text"):
         fields["flavor text"] = f"<i-flavor>{esc(c['flavor_text'])}</i-flavor>"
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    out = "card:\n\thas styling: false\n"
     if pw:
-        out += f"\tstylesheet: {STYLE_PW}\n"
+        out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
+    else:   # text size chosen per card, like Wizards does (see text_size)
+        out = (f"card:\n\thas styling: true\n\tstyling data:\n"
+               f"\t\tfont cap: {text_size(c.get('oracle_text'), c.get('flavor_text'))}\n")
     out += f"\ttime created: {now}\n\ttime modified: {now}\n"
     return out + "".join(value(k, v) for k, v in fields.items())
 
@@ -266,8 +274,16 @@ def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> None:
 # Rules text of the stock M15 style is a bit loosely spaced and grows up to size 14,
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
-BODY_SIZE = "12.7"
-LINE_HEIGHTS = {"hard": "1.1", "line": "1.5", "soft": "0.82"}
+BODY_SIZE = env("MSE_BODY_SIZE", "14")
+LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.1,1.0,0.84").split(",")))
+
+
+def text_size(rules: str | None, flavor: str | None) -> str:
+    """Printed cards set smaller type as the text gets longer (before the box is full):
+    ~14.7 for 'T: Add G' + flavor, ~14.5 for a 3-line spell, ~12.7 for a 7-line modal card.
+    MSE still shrinks further if the text doesn't fit."""
+    length = len(rules or "") + len(flavor or "") / 2          # flavor text weighs half
+    return f"{max(11.0, min(14.7, 16.5 - 0.017 * length)):.1f}"
 
 
 def tune_style(base: Path) -> None:
@@ -279,11 +295,16 @@ def tune_style(base: Path) -> None:
     text, n1 = re.subn(
         r'(swap_fonts_body2?_default := \[\r?\n\t\tname: \{"MPlantin"\},\r?\n\t\tsize: \{[^\r\n]*?else )14\}',
         rf"\g<1>{BODY_SIZE}}}", text)
+    # "max" line heights let MSE spread short texts over the whole box (big gap before the
+    # flavor text); printed cards keep a compact block, centered: max = normal height.
+    lh = LINE_HEIGHTS
     text, n2 = re.subn(
         r"(?m)(^\ttext:\s*\r?\n(?:\t\t.*\r?\n)*?)\t\tline height hard: 1\.2(\r?\n)"
-        r"\t\tline height line: 1\.5(\r?\n)\t\tline height soft: 0\.9",
-        rf"\g<1>\t\tline height hard: {LINE_HEIGHTS['hard']}\g<2>\t\tline height line: "
-        rf"{LINE_HEIGHTS['line']}\g<3>\t\tline height soft: {LINE_HEIGHTS['soft']}", text, count=1)
+        r"\t\tline height line: 1\.5(\r?\n)\t\tline height soft: 0\.9(\r?\n)"
+        r"\t\tline height hard max: 1\.3(\r?\n)\t\tline height line max: 1\.6",
+        rf"\g<1>\t\tline height hard: {lh['hard']}\g<2>\t\tline height line: {lh['line']}\g<3>"
+        rf"\t\tline height soft: {lh['soft']}\g<4>\t\tline height hard max: {lh['hard']}\g<5>"
+        rf"\t\tline height line max: {lh['line']}", text, count=1)
     if n1 or n2:
         path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
         print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
