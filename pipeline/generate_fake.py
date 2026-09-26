@@ -63,12 +63,52 @@ BRANDS = re.compile(r"\b(?:(?-i:Magic)(?::? the Gathering)?|MTG|Wizards of the C
                     r"trading card(?: game)?s?|cards?)\b(?:[’']s)?", re.I)   # "magic" stays
 
 
+REF_NOTE = ("The attached images are official illustrations from this same world by different "
+            "artists: match their painting technique, brushwork, palette, lighting and level of detail, "
+            "but paint an entirely new scene - do not copy their subjects, characters or compositions.")
+
+
+def subject(type_line: str) -> str:
+    """What the image must visibly show, from the type line (a Human Soldier is a human)."""
+    if "Creature" not in type_line or "—" not in type_line:
+        return ""
+    kinds = type_line.split("—")[1].strip()
+    note = (" — an ordinary human being with a fully human face and body, no animal features"
+            if kinds.split()[0] == "Human" else "")
+    return f"Main subject: a {kinds}{note}. "
+
+
 def art_prompt(c: dict) -> str:
-    """Image prompt: the scene, the set's world and art direction, the era - no brand names."""
+    """Image prompt: the subject, the scene, the set's world and art direction, the era - no brand names."""
     year = (c.get("released_at") or "")[:4]
     world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
     world = re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", BRANDS.sub("", world))).strip()
-    return (f"{c['art_description']} {world} Fantasy art as painted around {year}. {ART_STYLE}")
+    refs = REF_NOTE + " " if c.get("style_refs") and ref_field(env("REPLICATE_MODEL", "")) else ""
+    return (f"{subject(c.get('type_line', ''))}{c['art_description']} {world} "
+            f"Fantasy art as painted around {year}. {refs}{ART_STYLE}")
+
+
+def ref_field(model: str) -> str | None:
+    """Replicate models that take reference images, and the name of that input."""
+    if "/flux-2" in model:
+        return "input_images"                    # FLUX 2 pro/flex/max: up to 8
+    if "nano-banana" in model or "seedream-4" in model:
+        return "image_input"                     # Nano Banana (Pro), Seedream 4.x
+    return None
+
+
+def style_refs(card: dict, pool: list[dict], k: int = 3) -> list[str]:
+    """Real illustrations of the set closest to this card (colors, type), by different artists."""
+    t, cols = type_bucket(card["type_line"]), set(card.get("colors") or [])
+    ranked = sorted((c for c in pool if c.get("art_crop")), key=lambda c: (
+        (type_bucket(c["type_line"]) != t) + len(set(c.get("colors") or []) ^ cols) + random.random()))
+    refs, artists = [], set()
+    for c in ranked:
+        if c.get("artist") not in artists:
+            refs.append(c["art_crop"]); artists.add(c.get("artist"))
+        if len(refs) == k:
+            break
+    return refs
 
 SYSTEM = """You are a senior Magic: The Gathering designer at Wizards of the Coast.
 You write brand-new cards that are indistinguishable from cards printed in recent
@@ -107,7 +147,8 @@ Standard-legal expansions. Rules you always follow:
   victory, knowledge or wisdom. Newlines inside flavor text are rare.
 - art_description is an art brief like the ones Wizards gives its illustrators: a specific
   subject of this world, what it is doing, the setting details, the light and mood, following
-  the profile's art_focus. Show faces and creatures clearly. Avoid AI clichés: hooded or
+  the profile's art_focus. The main subject is visibly the card's creature types (a Human
+  is an ordinary human, a Human Soldier is not a bird-man). Show faces and creatures clearly. Avoid AI clichés: hooded or
   cloaked figures with hidden faces, figures seen from behind, silhouettes against light,
   glowing tunnels, portals, orbs and magic wisps, "glowing" everything, perfectly centered
   symmetric scenes, lightning everywhere, modern cities or neon, generic "oriental" or
@@ -229,17 +270,21 @@ def name_is_new(s, name: str) -> bool:
 
 
 # ------------------------------------------------------------------------ images
-def gen_image(provider: str, prompt: str, seed: int) -> bytes | None:
+def gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = None) -> bytes | None:
     s = session()
     if provider == "replicate":
         token = env("REPLICATE_API_TOKEN") or sys.exit("REPLICATE_API_TOKEN missing")
         h = {"authorization": f"Bearer {token}", "content-type": "application/json", "prefer": "wait"}
         model = env("REPLICATE_MODEL", "black-forest-labs/flux-schnell")
-        inp = {"prompt": prompt, "aspect_ratio": "4:3", "seed": seed}
+        inp = {"prompt": prompt, "aspect_ratio": "4:3"}
         if model.startswith("black-forest-labs/"):
-            inp.update(output_format="jpg", output_quality=95)
+            inp.update(seed=seed, output_format="jpg", output_quality=95)
         if model.endswith("flux-schnell"):
             inp.update(num_outputs=1, go_fast=True)
+        if "nano-banana" in model:
+            inp.update(output_format="jpg")
+        if ref_field(model) and refs:            # real illustrations of the set as style references
+            inp[ref_field(model)] = refs
         for attempt in range(8):                # low-credit accounts are heavily rate limited
             r = s.post(f"https://api.replicate.com/v1/models/{model}/predictions",
                        headers=h, timeout=180, json={"input": inp})
@@ -302,7 +347,8 @@ def set_pool(code: str, quiz_ids: set[str]) -> list[dict]:
             if r.status_code != 200:
                 break
             page = r.json()
-            cards += [with_printed_text(s, {"id": c["id"], **{k: c.get(k) for k in FIELDS}})
+            cards += [with_printed_text(s, {"id": c["id"], **{k: c.get(k) for k in FIELDS},
+                                            "art_crop": c["image_uris"]["art_crop"]})
                       for c in page["data"] if keep(c)]
             if not page.get("has_more"):
                 break
@@ -472,7 +518,8 @@ logos, watermark or signature in the image; a hooded or cloaked figure with a hi
 a main figure seen from behind; neon colors or glowing haze dominating the image; anime,
 cartoon, 3D-render or photo look instead of a painting; malformed anatomy (hands, limbs,
 faces); modern objects (cars, skyscrapers, screens) that don't belong to the described world;
-a border or frame. Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
+a border or frame; a main subject that is not what the description says (e.g. a Human
+with an animal head or a bird face, a Dwarf drawn as a giant, the wrong creature). Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
 
 
 def art_check(llm: str, jpeg: bytes, brief: str) -> list[str]:
@@ -623,7 +670,9 @@ def main() -> None:
                           "set": code, "set_name": set_names[code], "artist": artist,
                           "collector_number": number, "released_at": meta["released_at"],
                           "set_description": brief.get("description", ""),
-                          "art_style": brief.get("art_style", ""), "image": None})
+                          "art_style": brief.get("art_style", ""),
+                          "style_refs": style_refs({"type_line": c["type_line"], "colors": colors}, pool),
+                          "image": None})
             print(f"[{len(fakes)}/{args.count}] {c['name']}")
         save_json(out_path, fakes)
 
@@ -639,14 +688,15 @@ def main() -> None:
             tries = max(1, int(env("ART_TRIES", "3")))
             for attempt in range(tries):
                 try:
-                    raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
+                    raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1),
+                                    refs=c.get("style_refs"))
                 except Exception as e:
                     print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
                     annotate("warning", f"image failed: {e}"); raw = None; break
                 if attempt == tries - 1 or args.images == "placeholder":
                     break
                 normalize_image(raw, img)
-                problems = art_check(args.llm, img.read_bytes(), c["art_description"])
+                problems = art_check(args.llm, img.read_bytes(), subject(c["type_line"]) + c["art_description"])
                 if not problems:
                     break
                 print(f"  art redo for {c['name']}: {problems}")

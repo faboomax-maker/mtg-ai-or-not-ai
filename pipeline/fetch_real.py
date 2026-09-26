@@ -149,7 +149,8 @@ def main() -> None:
         time.sleep(0.12)
         ensure_set_icon(s, card["set"])
 
-        entry = with_printed_text(s, {"id": card["id"], "real": True, **{k: card.get(k) for k in FIELDS}})
+        entry = with_printed_text(s, {"id": card["id"], "real": True, **{k: card.get(k) for k in FIELDS},
+                                      "art_crop": card["image_uris"]["art_crop"]})
         entry["image"] = img.name
         cards.append(entry)
         seen.add(card["id"]); names.add(card["name"])
