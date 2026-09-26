@@ -3,45 +3,43 @@
   "count": 6,
   "cards": [
     {
-      "name": "Neverwinter Dryad",
-      "mana_cost": "{G}",
-      "type_line": "Creature — Dryad",
-      "oracle_text": "{2}, Sacrifice Neverwinter Dryad: Search your library for a basic Forest card, put it onto the battlefield tapped, then shuffle.",
-      "flavor_text": "Its life force entwined with its tree, a dryad is an elusive and solitary being that wishes only to be left alone.",
-      "power": "1",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "ce3313401b25812c.webp",
-      "s": "vA/uHK9Q/HRcNW9pjRe1Ntw03DBCg8GYtsQPmKRQVIi0DfUX7ki2K1wHcm6PVOFgyj+IQB3Cj7ShkEbW8kRUma5e6Fv0HPwKEy98aIcb0n3OP8t9FMLB9fKQH4S8BxzN5UXoDb5P5GFTMn5ukV30eMN/y30VjIC4oNZFl7ZXCdz+GLMXq0q7PAsoc2iNSbhw3SjJdkfWl7SNwQWDokZD0KZd9Vuz"
-    },
-    {
-      "name": "Skyward Shield",
-      "mana_cost": "{1}",
-      "type_line": "Artifact — Equipment",
-      "oracle_text": "Equipped creature gets +1/+1.\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
-      "flavor_text": "\"Even in the shadow of Phyrexia, we will stand united.\" \n—Alyssia, Defender of Valor's Reach",
+      "name": "Shifting Nexus",
+      "mana_cost": null,
+      "type_line": "Land",
+      "oracle_text": "{T}: Add {C}. {T}: Add one mana of any color. Activate only if you control a creature or planeswalker.",
+      "flavor_text": "\"In the Nexus, you become both the hunter and the hunted.\"\n—Elysia, multiversal cartographer",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "d2d8844528010893.webp",
+      "s": "xSrcCOfccVPM7NT0pCYF/MwzClk6jt0dkthT4c+jlHX4es8O8sUhDM73"
+    },
+    {
+      "name": "Skyward Guardian",
+      "mana_cost": "{2}{W}",
+      "type_line": "Creature — Human Monk",
+      "oracle_text": "Flying\nMobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior creature tokens. Sacrifice them at the beginning of the next end step.)",
+      "flavor_text": "\"We soar above, honoring those who once protected this land.\"\n—Elsha",
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "uncommon",
       "colors": [
         "W"
       ],
       "card": true,
-      "img": "3225b1f4dcaa9736.webp",
-      "s": "mYafZ9i4Wnh+KaCm5m3xwMEdakl/T0IiB6e5CNoD3QvC0IVnmZkZITYmr6+3dQ=="
+      "img": "9c5a6509e11c558c.webp",
+      "s": "rBN3Fzy8jSIJrrRgvroSrUTSK0Rg1wryQF5NH1V76R6TQ2QVMr7cbEa6uC6w"
     },
     {
-      "name": "Nature's Grasp",
-      "mana_cost": "{2}{G}",
+      "name": "Flourishing Grapple",
+      "mana_cost": "{G}",
       "type_line": "Instant",
-      "oracle_text": "Choose one —\n• Ensnare — Tap up to two target creatures. They don't untap during their controller's next untap step.\n• Empower — Target creature gets +3/+3 until end of turn.",
-      "flavor_text": null,
+      "oracle_text": "Target creature or planeswalker an opponent controls that's red or white loses all abilities until end of turn. Target creature you control deals damage equal to its power to that permanent.",
+      "flavor_text": "Lorehold believed in learning from history. Hexhaven made sure that history was brief.",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -50,57 +48,59 @@
         "G"
       ],
       "card": true,
-      "img": "51d6fa6c6785bf05.webp",
-      "s": "nrYGDehVAX6Ihuo/1yDdO4yvPWS5J/ECYrYLrgZaiA+A51QB5xlXLM3AzTzWIp5v2rk2MMl4sExOoV+2"
+      "img": "32b4550d2e4f7a7a.webp",
+      "s": "PDCb/Jju4zeUDaN5hlTfLiTauDIMpMfcr2fX1g10Gzk1c4rtjPCkL5hZ822RDJZ/I532MBTLiO+4JuneAHRaEWU+ybuM8K0vjlnzZJcMj39tkONjVfac6Ktq15EaYlZQJHOb/dbks2ybSOE+zB6TYyLNpWNe7Yvp52HJ3gl9Vxp4Z530pvGueMYatDGCCJYuKg=="
     },
     {
-      "name": "Aether Confrontation",
-      "mana_cost": "{2}",
-      "type_line": "Artifact Creature — Construct",
-      "oracle_text": "When Aether Confrontation enters the battlefield, target creature an opponent controls gets -1/-1 until end of turn.",
-      "flavor_text": "The true test of innovation is not the design, but the disruption it brings.\n—Kiran, High Inventor",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "330094457a5878e7.webp",
-      "s": "POYVTS9AlMwacZpi/9qkCgs5cmEKu/u7Y6MGZvu4EBBluQ=="
-    },
-    {
-      "name": "Bladed Battle-Fan",
-      "mana_cost": "{1}{B}",
-      "type_line": "Artifact — Equipment",
-      "oracle_text": "Flash\nWhen Bladed Battle-Fan enters the battlefield, attach it to target creature you control. That creature gains indestructible until end of turn.\nEquipped creature gets +1/+0.\nEquip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
+      "name": "Fire-Rim Form",
+      "mana_cost": "{1}{R}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Flash\nEnchant creature\nWhen this Aura enters, enchanted creature gains first strike until end of turn.\nEnchanted creature gets +2/+0.",
       "flavor_text": null,
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "B"
+        "R"
       ],
       "card": true,
-      "img": "f40863d2f3df494e.webp",
-      "s": "CanzHs5i9b0bsmdYh/nbVJ5qA3zKSSUOADAIiKpIscoG4+Rb4m+071KocA/O9dkXn3seLYRLPWNDAQSM40n3qB3y5AmNIvelTrR5D9j12R6ZewctykYoMAIwEobrS7vEEeTsVMxvpeMUq3pAzezKWY9jFjqVDSohADYfjO8KsYsctPQPwlGk6E60dkjftIsfz3I="
+      "img": "32556d1ac9445efe.webp",
+      "s": "FTTOZjGZFYLqyk199FC41BK8gmiliG8+Tz+BpJAeEz4cd9tsPoZD17jTHSSxXvmEFbCFPr2SbUhoJIakkkETKg9x0Golhlia5p4dfeMQusxB+54+69g+UAFima6QXVUbAnqSYD+YGNurzFsn5Rj12VDpwWX5wT8PAz+DoM9CXAgDKcl3PapE17/MXG2sHeifQ6Q="
     },
     {
-      "name": "Malfunction",
-      "mana_cost": "{3}{U}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant artifact or creature\nWhen Malfunction enters the battlefield, tap enchanted permanent.\nEnchanted permanent doesn't untap during its controller's untap step.",
-      "flavor_text": "\"They don't make them like they used to.\"",
+      "name": "Rebel Flamekeeper",
+      "mana_cost": "{3}{R}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "When Rebel Flamekeeper attacks, it deals 1 damage to target player or planeswalker.",
+      "flavor_text": "\"Fire is not just a weapon; it’s a signal of our defiance. Our flames rise higher with each act of revolt.\"\n—Jaspar Thorn, Renegade leader",
+      "power": "3",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "03dfe166936387d1.webp",
+      "s": "Ag1y6ji7m9XPD3JB//G0h+lFnbB6WSzUlY37Rvv6hdUcWW/jLfXE"
+    },
+    {
+      "name": "Precise Strike",
+      "mana_cost": "{R}",
+      "type_line": "Instant",
+      "oracle_text": "Target creature gets +1/+0 and gains first strike until end of turn.",
+      "flavor_text": "\"Hit where it hurts, and always hit first.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "U"
+        "R"
       ],
       "card": true,
-      "img": "77e16b034f4de904.webp",
-      "s": "uYy4emh7bUuSYpe05m3UxozOF+MnLDUiwvXb9A8VJS3ujuh+e2MmAsY03+GhCI6eholP4T95ZQWBo5qyAhI5f7GU5TB6dD0I1HeJra0im4nQyAKzeSN8Bce2j6VFCyxjpNukfH1+IB+NY5Gs3DKbkY3IBvx8fH5L3g=="
+      "img": "9ccc9097c1295698.webp",
+      "s": "krtx9wKOmDMbpvqJt65EWoaTp4vRJQXmauR84L4B2Ruf9m/mQc6aK1qg/JWh9kZC1dSH0IdgVYdF8XfqrlLkEMu1I7AWkNYrAfKqlKb2FAvP2fzaiHdewW78eKuvTuZRivhx9kyD33sU67rTovABG5yFtoSYcVXOZPUr8LhM1A2G7HHxBt/beVLw9Q=="
     }
   ]
 }
