@@ -54,15 +54,17 @@ Les scripts **reprennent là où ils se sont arrêtés** : relancer une commande
 
 ## Coût par carte IA
 
-| Poste | Option | Coût approximatif |
-|---|---|---|
-| Texte | Claude Haiku 4.5 (`--llm anthropic`), lots de 8 cartes | ~0,002 $ |
-| Texte | Ollama en local (`--llm openai`, `LLM_BASE_URL=http://localhost:11434/v1`, `LLM_MODEL=llama3.1`) | 0 $ |
-| Image | FLUX schnell sur Replicate (`--images replicate`) | ~0,003 $ |
-| Image | Pollinations (`--images pollinations`, clé optionnelle `POLLINATIONS_KEY`) | gratuit ou quasi |
-| Vraies cartes | API Scryfall | 0 $ |
+Chaque carte IA passe par : **3 appels texte** par lot de 8 cartes (conception, relecture Play Design, relecture Creative), une **fiche par extension** (une fois par set), puis **1 à 3 illustrations** (chacune vérifiée par le modèle texte, qui voit l'image, et refaite si elle a un défaut). Les cartes rejetées par les contrôles sont redemandées, d'où une marge d'environ ×1,5 sur le texte.
 
-**Environ 0,5 centime par carte IA**, soit ~0,30 $ pour un quiz de 120 cartes (60 + 60). Tarifs indicatifs, à vérifier chez chaque fournisseur.
+| Poste | Option | Coût par carte IA |
+|---|---|---|
+| Texte (3 passes + marge des rejets) | gpt-4.1-mini (0,40 $ / 1,60 $ par million de jetons) | ~0,002 $ |
+| Vérification de l'image | même modèle, image en basse définition | ~0,0003 $ par image |
+| Illustration | FLUX 1.1 Pro sur Replicate (REPLICATE_MODEL=black-forest-labs/flux-1.1-pro) : 0,04 $ × 1,2 à 1,5 essai | ~0,05–0,06 $ |
+| Illustration | FLUX schnell (défaut) : 0,003 $ × essais | ~0,004 $ |
+| Vraies cartes, symboles, rendu MSE, GitHub Actions | Scryfall, MTGJSON, Keyrune, Magic Set Editor, runner GitHub (dépôt public) | 0 $ |
+
+**≈ 0,05–0,06 $ par carte IA avec FLUX 1.1 Pro**, soit **~3–4 $ pour un quiz de 120 cartes** (60 vraies + 60 IA). L'image représente ~95 % du coût. Pire cas (3 essais d'image par carte) : ~0,12 $ par carte. ART_TRIES=1 désactive la vérification des images (1 seule image par carte). Tarifs indicatifs de septembre 2026, à vérifier chez chaque fournisseur.
 
 Autres modes utiles : `--images placeholder` (dégradés, pour tester gratuitement) et `--images none` (tu déposes tes propres images dans `pipeline/work/img/fake_<id>.jpg`, par exemple générées en local avec ComfyUI ou Forge).
 

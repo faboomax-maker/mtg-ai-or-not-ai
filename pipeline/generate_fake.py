@@ -150,15 +150,19 @@ def check(r, fatal=(400, 401, 403, 404)) -> None:
     raise RuntimeError(msg)
 
 
-def call_llm(provider: str, system: str, user: str) -> str:
+def call_llm(provider: str, system: str, user: str, image: bytes | None = None) -> str:
+    """One chat call; `image` (JPEG bytes) is sent along for vision checks."""
     s = session()
+    b64 = base64.b64encode(image).decode() if image else None
     if provider == "anthropic":
         key = env("ANTHROPIC_API_KEY") or sys.exit("ANTHROPIC_API_KEY missing")
+        content = ([{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}}]
+                   if b64 else []) + [{"type": "text", "text": user}]
         r = s.post("https://api.anthropic.com/v1/messages", timeout=300, headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
             json={"model": env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
                   "temperature": 1.0, "system": system,
-                  "messages": [{"role": "user", "content": user}]})
+                  "messages": [{"role": "user", "content": content}]})
         check(r)
         return "".join(b.get("text", "") for b in r.json()["content"])
     key = env("LLM_API_KEY") or env("OPENAI_API_KEY")
@@ -169,9 +173,12 @@ def call_llm(provider: str, system: str, user: str) -> str:
     headers = {"content-type": "application/json"}
     if key:
         headers["authorization"] = f"Bearer {key}"
+    content = user if not b64 else [
+        {"type": "text", "text": user},
+        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}", "detail": "low"}}]
     r = s.post(f"{base}/chat/completions", timeout=600, headers=headers, json={
         "model": model, "temperature": 1.0,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]})
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}]})
     check(r)
     return r.json()["choices"][0]["message"]["content"]
 
@@ -426,6 +433,59 @@ def dev_review(llm: str, batch: list[dict], specs: list[dict], pool: list[dict],
     return batch
 
 
+CREATIVE_SYSTEM = """You are a senior writer on Magic: The Gathering's Creative team.
+You polish the names and flavor text of new cards so they read exactly like the real
+cards of their set. Good flavor text is concrete and specific to the world: a named
+character, place, creature, custom, rumor or event; often a quote with an in-world
+attribution on its own line ("\\n—Tasha, the witch queen"); sometimes dry humor or irony;
+short (usually under 25 words). Bad flavor text is a vague maxim about fate, victory,
+knowledge, wisdom, balance, legends or "the heart of" something - rewrite those.
+Names must sound like this set's real names: specific to the world, not generic
+adjective+class or colour+noun patterns; keep a name if it is already good.
+Never add flavor text to a card that has none, never change rules text.
+Answer with a JSON array of {"name": ..., "flavor_text": ...} in the same order, no commentary."""
+
+
+def creative_review(llm: str, batch: list[dict], flavors: list[str], brief: dict, set_name: str) -> list[dict]:
+    """Third pass: names and flavor text rewritten in the voice of the set's real cards."""
+    cards = [{"name": c.get("name"), "type_line": c.get("type_line"), "oracle_text": c.get("oracle_text"),
+              "flavor_text": c.get("flavor_text")} for c in batch]
+    user = (f"Set: «{set_name}». {brief.get('description', '')} {brief.get('factions', '')}\n"
+            "Real flavor texts of this set:\n" + json.dumps(flavors, ensure_ascii=False, indent=1)
+            + "\n\nNew cards to polish:\n" + json.dumps(cards, ensure_ascii=False, indent=1))
+    try:
+        out = parse_array(call_llm(llm, CREATIVE_SYSTEM, user))
+        if len(out) == len(batch):
+            for c, o in zip(batch, out):
+                if isinstance(o, dict) and o.get("name"):
+                    c["name"] = str(o["name"]).strip()
+                    if c.get("flavor_text"):            # never add flavor to a card without it
+                        c["flavor_text"] = o.get("flavor_text") or c["flavor_text"]
+    except (Exception, SystemExit) as e:          # a bonus, never a blocker
+        print(f"  creative pass skipped: {e}", file=sys.stderr)
+    return batch
+
+
+ART_CHECK_SYSTEM = """You are the art director of Magic: The Gathering, checking a freelance
+illustration before print. List only real, visible problems among: text, letters, signs,
+logos, watermark or signature in the image; a hooded or cloaked figure with a hidden face;
+a main figure seen from behind; neon colors or glowing haze dominating the image; anime,
+cartoon, 3D-render or photo look instead of a painting; malformed anatomy (hands, limbs,
+faces); modern objects (cars, skyscrapers, screens) that don't belong to the described world;
+a border or frame. Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
+
+
+def art_check(llm: str, jpeg: bytes, brief: str) -> list[str]:
+    """Vision check of a generated illustration; [] when fine or when the check is unavailable."""
+    try:
+        text = call_llm(llm, ART_CHECK_SYSTEM, f"The illustration should show: {brief}", image=jpeg)
+        data = json.loads(re.search(r"\{.*\}", text, re.S).group(0))
+        return [str(p) for p in data.get("problems", []) if p][:4]
+    except (Exception, SystemExit) as e:
+        print(f"  art check skipped: {e}", file=sys.stderr)
+        return []
+
+
 def subtypes(pool: list[dict]) -> list[str]:
     """Creature/other subtypes this set actually prints, most common first."""
     return [t for t, _ in Counter(w for c in pool if "—" in c["type_line"]
@@ -518,6 +578,7 @@ def main() -> None:
             time.sleep(3); continue
         batch = [c for c in batch if isinstance(c, dict)][:len(specs)]
         batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_names[code])   # balance pass
+        batch = creative_review(args.llm, batch, flavors, brief, set_names[code])        # names, flavor
         for c, spec in zip(batch, specs):
             err = validate(c, spec)
             if not err:
@@ -566,12 +627,27 @@ def main() -> None:
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
                 c["image"] = img.name; continue
-            prompt = art_prompt(c)
-            try:
-                raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
-            except Exception as e:
-                print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
-                annotate("warning", f"image failed: {e}"); continue
+            prompt, raw = art_prompt(c), None
+            # Up to ART_TRIES images: each is checked by the vision model (text in the image,
+            # hooded figures, glow, anime look, bad anatomy...) and redone with the problems named.
+            tries = max(1, int(env("ART_TRIES", "3")))
+            for attempt in range(tries):
+                try:
+                    raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
+                except Exception as e:
+                    print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
+                    annotate("warning", f"image failed: {e}"); raw = None; break
+                if attempt == tries - 1 or args.images == "placeholder":
+                    break
+                normalize_image(raw, img)
+                problems = art_check(args.llm, img.read_bytes(), c["art_description"])
+                if not problems:
+                    break
+                print(f"  art redo for {c['name']}: {problems}")
+                annotate("notice", f"art redo for {c['name']!r}: {problems}")
+                prompt = f"{art_prompt(c)} Must avoid: {'; '.join(problems)}."
+            if raw is None:
+                continue
             save_raw(raw, c, prompt)
             normalize_image(raw, img)
             c["image"] = img.name
