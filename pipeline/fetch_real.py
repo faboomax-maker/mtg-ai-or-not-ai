@@ -9,6 +9,7 @@ Output: pipeline/work/real.json + pipeline/work/img/real_<id>.jpg
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import lzma
 import random
@@ -94,9 +95,20 @@ def printed_texts(s, code: str) -> dict[str, str]:
     return texts
 
 
+def same_card_text(printed: str, oracle: str, name: str) -> bool:
+    """Printed and Oracle texts differ only by wording updates ('enters the battlefield',
+    self-reference by name...). MTGJSON sometimes attaches another card's text (SNC Most
+    Wanted got a tri-land's): reject printed texts that don't resemble the Oracle text."""
+    norm = lambda t: re.sub(r"\s+", " ", re.sub(r"\([^)]*\)", "", t.replace(name, "this")).lower()
+                            .replace("enters the battlefield", "enters")).strip()
+    return difflib.SequenceMatcher(None, norm(printed), norm(oracle)).ratio() >= 0.6
+
+
 def with_printed_text(s, card: dict) -> dict:
     """Card entry with the printed rules text (Oracle text kept in oracle_text_current)."""
     printed = printed_texts(s, card["set"]).get(card["id"])
+    if printed and card.get("oracle_text") and not same_card_text(printed, card["oracle_text"], card["name"]):
+        printed = None                                    # wrong text in MTGJSON: keep Oracle
     if printed and printed != card.get("oracle_text"):
         card = {**card, "oracle_text_current": card.get("oracle_text"), "oracle_text": printed}
     return card

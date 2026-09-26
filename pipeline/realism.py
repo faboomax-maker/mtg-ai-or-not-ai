@@ -108,6 +108,7 @@ ERA_TERMS = [
 def fix_templating(text: str, released_at: str = "") -> str:
     """Printed-card templating the LLM often gets wrong: 'Draw a card', not 'You draw a card';
     and the wording of the set's era ('any target' since 2017, 'mana value' since 2021)."""
+    text = re.sub(r"\bgains? ([+−-][\dX]+/[+−-][\dX]+)", r"gets \1", text)   # "gets +2/+2", never "gains"
     text = re.sub(r"(^|\n|[.:] |, | and | then |— |• )[Yy]ou (draw|create|scry|surveil|investigate)\b",
                   lambda m: m.group(1) + (m.group(2) if m.group(1) in (", ", " and ", " then ")
                                           else m.group(2).capitalize()),
@@ -121,9 +122,14 @@ def fix_templating(text: str, released_at: str = "") -> str:
 
 
 def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_words: set[str]) -> list[str]:
-    """Keyword actions/ability words written as a standalone keyword line ('Connive 1')."""
+    """Keyword actions/ability words written as a standalone keyword line ('Connive 1'), and
+    keyword abilities written like ability words ('Offspring — When this creature dies...')."""
     bad = []
     for line in PAREN.sub("", text).split("\n"):
+        m = re.match(r"^[•\s]*([A-Z][A-Za-z' -]+?) — ", line)
+        if m and m.group(1).lower() in abilities and m.group(1).lower() not in ability_words:
+            bad.append(f"{m.group(1)} — (a keyword, not an ability word)")
+            continue
         line = line.strip().rstrip(".")
         if not line or re.search(r"[.:—]", line):
             continue                               # a sentence or an activated ability
@@ -156,10 +162,14 @@ def rules_problem(text: str, type_line: str) -> str | None:
     return None
 
 
-def too_simple(text: str, rarity: str, type_line: str) -> bool:
-    """Rares and mythics are distinctive designs, not one short line."""
+def too_simple(text: str, rarity: str, type_line: str, colors: str = "") -> bool:
+    """Rares and mythics are distinctive designs, not one short line; a multicolor uncommon
+    does more than carry keywords (it shows off its color pair or faction)."""
     core = PAREN.sub("", text or "").strip()
-    return rarity in ("rare", "mythic") and "Planeswalker" not in type_line and len(core) < 70
+    if rarity in ("rare", "mythic") and "Planeswalker" not in type_line and len(core) < 70:
+        return True
+    multicolor = len([x for x in colors if x in "WUBRG"]) > 1
+    return rarity == "uncommon" and multicolor and "." not in core     # keywords only
 
 
 # ------------------------------------------------------------------- names

@@ -260,7 +260,9 @@ Standard-legal expansions. Rules you always follow:
   rares and mythics have distinctive, build-around designs. No broken or joke cards, no
   references to real-world brands or franchises.
 - Use the keywords/ability words listed in each profile (they are the ones of a real card
-  of this set); use only existing mechanics, never invent keywords. Creature types must be
+  of this set), exactly as their keyword_rules show: same syntax (costs and numbers such as
+  "Offspring {2}", "Mobilize 2", "Ward {1}"), same meaning as the reminder text. A keyword is
+  never followed by " — " like an ability word. Use only existing mechanics, never invent keywords. Creature types must be
   ones this set actually uses.
 - Names: original (never an existing card name), in the naming style of this set's cards —
   proper nouns, places, factions and turns of phrase of this world. Avoid generic AI
@@ -648,6 +650,9 @@ set, rarity, card type and mana value. Fix only what is wrong:
 - Rares and mythics must be distinctive build-around designs; commons stay simple.
 - Keyword actions (explore, connive, venture, scry, surveil, mill, investigate...) are verbs
   in sentences ("Whenever this creature attacks, it connives"), never standalone lines.
+- Keyword abilities keep their exact syntax and meaning: their cost or number ("Offspring {2}",
+  "Mobilize 2", "Ward {2}") and never a " — " after them as if they were ability words.
+  Stat changes "get" +N/+N (never "gain +N/+N").
 - Keep each card's colors, rarity, card type, name, flavor text and art description unless
   they are the problem; keep the set's templating and wording exactly.
 Answer with the full JSON array of cards, same order and same keys, no commentary."""
@@ -748,6 +753,19 @@ def art_check(llm: str, jpeg: bytes, brief: str, world: str = "") -> list[str]:
         return []
 
 
+def keyword_rules(keywords: list[str], pool: list[dict], by_keyword: dict) -> dict:
+    """{keyword: {"reminder": the set's reminder text, "real_example": a real line using it}},
+    so the LLM knows e.g. that Offspring takes a cost and what it does."""
+    rules = {}
+    for kw in keywords:
+        line = next((ln for c in pool for ln in (c.get("oracle_text") or "").split("\n")
+                     if re.search(rf"\b{re.escape(kw)}\w*", ln, re.I)), None)
+        entry = {k: v for k, v in (("reminder", by_keyword.get(kw.lower())), ("real_example", line)) if v}
+        if entry:
+            rules[kw] = entry
+    return rules
+
+
 def subtypes(pool: list[dict]) -> list[str]:
     """Creature/other subtypes this set actually prints, most common first."""
     return [t for t, _ in Counter(w for c in pool if "—" in c["type_line"]
@@ -812,6 +830,9 @@ def main() -> None:
         w = [weights.get(c["rarity"], 0) / per_rarity[c["rarity"]] for c in pool]
         sources = random.choices(pool, k=n, weights=w if sum(w) > 0 else None)
         specs = [spec_from(c) for c in sources]
+        for sp in specs:                         # how each keyword works, from the set's own cards
+            if sp["keywords"]:
+                sp["keyword_rules"] = keyword_rules(sp["keywords"], pool, by_keyword)
         # examples: a real card close to each profile (same rarity/type/cost) + random ones
         near = [comparables({"type_line": c["type_line"], "rarity": c["rarity"], "mana_value": c.get("cmc"),
                              "colors": "".join(c.get("colors") or [])},
@@ -855,7 +876,7 @@ def main() -> None:
                 c["type_line"] = fix_type_line(c["type_line"], c["oracle_text"])
                 bad_kw = misused_keywords(c["oracle_text"], *kw_catalogs)
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
-                       else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"])
+                       else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
                        else rules_problem(c["oracle_text"], c["type_line"])
                        or name_problem(c["name"], used_name_words) or art_problem(c["art_description"]))
             if not err and c["name"].lower() in banned:
