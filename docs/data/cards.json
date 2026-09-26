@@ -3,45 +3,10 @@
   "count": 10,
   "cards": [
     {
-      "name": "Shadows' Embrace",
-      "mana_cost": "{3}{B}",
-      "type_line": "Sorcery",
-      "oracle_text": "Target player sacrifices a creature. You gain life equal to that creature's toughness.",
-      "flavor_text": "\"In the dark, promises unravel like thread—lives tethered, fates entwined.\"\n—Malek of the Duskblades",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "4113fd3cc1276362.webp",
-      "s": "27k0C+DHG9t9l5yP6VbT5FBcCm7vGHxdcTFUmMROW5bB72Yl4NlVjivRsIL0XI3mDw=="
-    },
-    {
-      "name": "Spirit Mascot",
-      "mana_cost": "{R}{W}",
-      "type_line": "Creature — Spirit Ox",
-      "oracle_text": "Whenever one or more cards leave your graveyard, put a +1/+1 counter on this creature.",
-      "flavor_text": "Unflagging, unafraid, and undaunted.",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R",
-        "W"
-      ],
-      "card": true,
-      "img": "009ac18db0917ea0.webp",
-      "s": "RYiMvLahZTmNKgnDRwadQUeLsRPCwes4/VZ0mbx4lJdYiq2tpaQ/a8woHtgABp1BVZyxWIuV61G4F0OYr2rG2G1pX7e0pSJ5jRYS0kNG2gwWwuUTjZOlSaIVJJS8f8SLBIXRqrS/PmXMMheYQUXQTFePt1XXkqYYtwc1zOd4xJFMw4r0uqw0YMIqRMNWR+IQW5u3Up3cqBvxF3s="
-    },
-    {
-      "name": "Grow from the Ashes",
+      "name": "Jungle's Embrace",
       "mana_cost": "{2}{G}",
-      "type_line": "Sorcery",
-      "oracle_text": "Kicker {2} (You may pay an additional {2} as you cast this spell.)\nSearch your library for a basic land card, put it onto the battlefield, then shuffle your library. If this spell was kicked, instead search your library for two basic land cards, put them onto the battlefield, then shuffle your library.",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant land\nEnchanted land has \"{T}: Add two {G}.\nSacrifice Jungle's Embrace: Gain 3 life.\"",
       "flavor_text": null,
       "power": null,
       "toughness": null,
@@ -51,66 +16,32 @@
         "G"
       ],
       "card": true,
-      "img": "299a89ddbfb06033.webp",
-      "s": "+B8Lw5teyNOS3/oSvMYQT04NkQeb5Vvwc2p+WF6+B/KhEVmEm0CegMHfql35yGIEXgCEV8XlLsZ1YH9CHeBOsfZPFYTAEsiBxt/4FOPFHx5eGpxDwKkVmn9oehlcrRz3rFkWy9UD3N2dzPoIrsdWH1IFyFHJoFTVb29yRQC5Gv7cThbTiFGP1NPb4UWk"
+      "img": "f33bb3a8f65b6d89.webp",
+      "s": "5xXM/2cpcxlIzJntTkqQHmwcqHTRcLFncS3Nrt3sNck="
     },
     {
-      "name": "Aether Surge",
-      "mana_cost": "{1}{G}",
-      "type_line": "Sorcery",
-      "oracle_text": "Choose one —\n• You gain {E}.\n• Look at the top card of your library. You may put that card on the bottom of your library.",
-      "flavor_text": "\"In the heart of invention, a jolt of Aether reveals paths yet to be forged.\"",
-      "power": null,
-      "toughness": null,
+      "name": "Agents of S.H.I.E.L.D.",
+      "mana_cost": "{2}{W}",
+      "type_line": "Creature — Human Spy Hero",
+      "oracle_text": "Whenever a creature you control attacks alone, that creature gets +1/+1 until end of turn.",
+      "flavor_text": "Behind every S.H.I.E.L.D. solo mission are dozens of intelligence operatives, logistics coordinators, and backup agents.",
+      "power": "2",
+      "toughness": "4",
       "loyalty": null,
       "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "e1d8e92dae1bd918.webp",
-      "s": "o048E6+X6IUx0P3iYnPyyEtGqIxMaC/KhNMphSSB5HP6EQ=="
-    },
-    {
-      "name": "Reckless Guardian",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Human Soldier",
-      "oracle_text": "Whenever Reckless Guardian attacks, it gets +1/+1 until end of turn for each creature you control with toxic.",
-      "flavor_text": "\"Amidst the ruin, I fight not just for survival, but for every soul left uncorrupted.\"\n—Galen, Shield of the Unyielding",
-      "power": "2",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "uncommon",
       "colors": [
         "W"
       ],
       "card": true,
-      "img": "ab11debe6d666f22.webp",
-      "s": "a/5DGRg34P+yy0/srCl39yueCals5aF0/13x4bkaJN0q/HAQFXuVrP7BDsK6bBS5bM8R"
+      "img": "7b3c3ea2814e8a78.webp",
+      "s": "i43qksC1Hw1PEFg8NMdvCc7ivTt0FJcR3OoQz8h9eGyAyurX6bxPWAoXCGVxyS5Zye66bWwOlX7/9xTAxX17cJ7L+ZPO+xEXTRFYJXPRbwnV871pPQ6ac877FNPCPEd13sz3mo66XEULS0c6OcR6BNzgrHc6R5gz27UVws04R33P2uya/qpSQh0HT3QwmyYJwA=="
     },
     {
-      "name": "Eclipse of Despair",
-      "mana_cost": "{2}{B}{B}",
+      "name": "Cobalt Surge",
+      "mana_cost": "{1}{U}",
       "type_line": "Instant",
-      "oracle_text": "Target player discards two cards. You gain 2 life for each card discarded this way.",
-      "flavor_text": "\"In the shadows, truth becomes a weight that crushes the soul.\"\n—Tama, Sultai Whisperer",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "de2cd115d9372d54.webp",
-      "s": "d0jwyk31w3LMeebkkrhYCaR507FDPXSo+Vxqko3jfO9tSP8="
-    },
-    {
-      "name": "Malfunction",
-      "mana_cost": "{3}{U}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant artifact or creature\nWhen Malfunction enters the battlefield, tap enchanted permanent.\nEnchanted permanent doesn't untap during its controller's untap step.",
-      "flavor_text": "\"They don't make them like they used to.\"",
+      "oracle_text": "Tap up to two target creatures. Those creatures don’t untap during their controller’s next untap step.",
+      "flavor_text": "\"The storm stills as the tide retreats, a fleeting moment for the brave.\"\n—Talia of the Howling Waves",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -119,57 +50,126 @@
         "U"
       ],
       "card": true,
-      "img": "88cc248c55dc9d39.webp",
-      "s": "h87PblGZx2zYaFxyZGM1mecGPh9qF6PMP8Qekc2Ok9rQzJ9qQoGMJYw+FCcjBm/B7UFmHXJC8+t8kl/XwImPiI/WkiRDlpcvnn1Cay8seta7ACtPNBjq6zqHSsCHkJqUmpnTaEScijjHaVpqXjx6zuYALwAxR+ilIw=="
+      "img": "2ffceb4ecaa4840b.webp",
+      "s": "6ey7v2ee/a8PF8KjXZ2AtrE9+TbFmYM/EqYUDZODm56y/PnoN9Ci"
     },
     {
-      "name": "Toxin Analysis",
-      "mana_cost": "{B}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature gains deathtouch and lifelink until end of turn. Investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this artifact: Draw a card.\")",
-      "flavor_text": "\"Poison this deadly is only used by the Ochran. Either the Golgari are behind this, or someone wants us to think they are.\"",
-      "power": null,
-      "toughness": null,
+      "name": "Anointed Deacon",
+      "mana_cost": "{4}{B}",
+      "type_line": "Creature — Vampire Cleric",
+      "oracle_text": "At the beginning of combat on your turn, you may have target Vampire get +2/+0 until end of turn.",
+      "flavor_text": "Inspiration is red as rubies, flowing like honeyed wine.",
+      "power": "3",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "f699e3386f1d4db1.webp",
-      "s": "LvHeseAyeUwIkNwZl+bAK17BKPRriazxj3+dSbTw4aYh8+e18zI0AAipzwKduMIlDYY9pCXA/cjYN9kOj/GoqTTz4rvzOigZRMaCTNC/kmUPnnz0Od36zIk31gO14LO+M7LAuK89NBsHh88eluWNYkCLbeZmhvrTgmSXAaftoKssoMWnvisvG3eXwRmAqYU0TNQ19Cw="
+      "img": "6d7955214cb533bb.webp",
+      "s": "TUkPxcrJ2flrF3kkN+mmFHTBi84ce/bdSOwkuw+CqYgUCg/UwtaP4XFDKQY7q+lYZoSxiUoou/oSoWj4FNLpigxLX8jf0YuwcUwkIjG3/1BmyJPCRTS5u1PsOr5O2OnGGVNEj8rLlKolF241f6HjV2TLkdNTL7nLQ+I9qALFuMlGAl/d"
     },
     {
-      "name": "Phyrexian Atlas",
-      "mana_cost": "{3}",
-      "type_line": "Artifact",
-      "oracle_text": "{T}: Add one mana of any color.\nCorrupted — Whenever Phyrexian Atlas becomes tapped, each opponent who has three or more poison counters loses 1 life.",
-      "flavor_text": "Since conquering Mirrodin, Phyrexian engineers have worked tirelessly to transform the plane's original two layers into a more fitting array of nine.",
+      "name": "Rookie Mistake",
+      "mana_cost": "{U}",
+      "type_line": "Instant",
+      "oracle_text": "Until end of turn, target creature gets +0/+2 and another target creature gets -2/-0.\n",
+      "flavor_text": "\"Stop locking your knees as you strike! Now stand up and try again.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
-      "colors": [],
+      "colors": [
+        "U"
+      ],
       "card": true,
-      "img": "ab3573b702fb2934.webp",
-      "s": "9dvgcw5UcVThRHT2/OLkbNGZayua76u4MYQyvD7/Kc6uuP56T286Aq0QROa5gaorgNA/K8G9/YEqiWLjZrQbkf6N+3cBGBUPq0Jv4ve6q2yO3D180qOr0nnfKK0y5jvOodbhdR1BNQ+tXCjg9qPrLcOOeybPoezHa8539jb+MYbrgft3ARUyGq1RdbzsuqkR0ZNqe8OqtIkplGKk"
+      "img": "ace165e6ea24e787.webp",
+      "s": "dMVUCDd1QgqG3m0t7i0x5s+BbHlDhXgFmeC3O89L9CA91xRcdDVAEsfYazH4dTP+nMZCNBXROyjW0L1p812iLC/FUx86O1oQhMJrLPtyK+uTl3spAMM7Kpq8sXTxAeNhfYMJAGQoTwaQhW035Gp4oZGJcSgNxDEjyeemdsNd73V9hENQN2kJEts="
     },
     {
-      "name": "Dreamweaver Phoenix",
-      "mana_cost": "{4}{R}{R}",
-      "type_line": "Creature — Avatar Beast",
-      "oracle_text": "Flying\nWhenever this creature attacks, you may discard a card. If you do, this creature deals 2 damage to any target.",
-      "flavor_text": "\"Inspiration burns brighter than the fiercest flame. Best wield it wisely.\"\n—Fireborne Chronicle",
-      "power": "4",
-      "toughness": "4",
+      "name": "Voldaren Epicure",
+      "mana_cost": "{R}",
+      "type_line": "Creature — Vampire",
+      "oracle_text": "When Voldaren Epicure enters the battlefield, it deals 1 damage to each opponent. Create a Blood token. (It's an artifact with \"{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card.\")",
+      "flavor_text": "\"If you're not refining your tastes, what's the point of living forever?\"",
+      "power": "1",
+      "toughness": "1",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "R"
       ],
       "card": true,
-      "img": "981304450358f44a.webp",
-      "s": "+Q/PCoSDlzagO9ndxxLwRG3qa1pV/kaJ2oBuFal7Tb/tS508kZ3cdOg8ztTaVaE="
+      "img": "9db8cd8609989195.webp",
+      "s": "UzZb8+2xLv3wSdq5mC9SMNztAmBOaM3HfQ2aYSndze0SNGrk5bB/qL4d/qOKIV4yjekENh07m6wpQ9FfPN3Y4EZ1CdDtGYGsv0trbd8vUjDa+hpgTmjN5mcXg2FngIP6S2ZQ8O2xYOmzUsXjnmIAdoD+GTVbede8PBWcfjnO3uxGOUzm5b55tbUC3biQXAF92voVJ0kpn+cxHg=="
+    },
+    {
+      "name": "Torment of Hailfire",
+      "mana_cost": "{X}{B}{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Repeat the following process X times. Each opponent loses 3 life unless that player sacrifices a nonland permanent or discards a card.",
+      "flavor_text": "\"Your God-Pharaoh has returned.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "e38967a86c56c313.webp",
+      "s": "36yGUudKk84/dQkXQsCMvPW2a6lkCFB34sgxXpiPq13B+JVE8kfFnXBvWU4Hzs3s8rps/3wSUh3KzzkbkIb5Y4TcgUPtScaHdGhZTgfO2ezq8SWrfEAGS/3OeVHYmuhr3eiVW+oI0ptyLhgDVYiD9ummMLxpBwZQ/9AmEIPE5H+J5pVe6kDYhno+DhZKs9/x86F87mNJAlavwA=="
+    },
+    {
+      "name": "Harbor of Firelight",
+      "mana_cost": null,
+      "type_line": "Land",
+      "oracle_text": "This land enters tapped.\nWhen this land enters, you gain 1 life.\n{T}: Add {G} or {R}.",
+      "flavor_text": "\"At dusk, the Harbor ignites with ambition, where dreams collide in the fading light of day.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "5036df9bdd46649c.webp",
+      "s": "mT7txaVi4MZeN+0n16mH1+csmBj9burAaohrT7Rx1DCXbPrS5EanjhE0/2nZ"
+    },
+    {
+      "name": "Crowned Thornhorn",
+      "mana_cost": "{2}{B}{G}",
+      "type_line": "Creature — Beast",
+      "oracle_text": "Reach\nWhenever Crowned Thornhorn deals combat damage to a player, you may scry 1.",
+      "flavor_text": null,
+      "power": "3",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B",
+        "G"
+      ],
+      "card": true,
+      "img": "92c6980d81746547.webp",
+      "s": "e+OQN6oYhhFSEohwYZygbS9nXoYuiScp8i7FkcwD4DVEpJQzuADFXxsbhz5v"
+    },
+    {
+      "name": "Voidthorn Behemoth",
+      "mana_cost": "{3}{R}{R}",
+      "type_line": "Creature — Beast",
+      "oracle_text": "Reach\nWhen this creature enters, you may exile target creature until this creature leaves the battlefield.",
+      "flavor_text": "\"Its thorns pierce the veil of reality, sending even the swiftest into the abyss.\"\n—Eurn, Voidwalker",
+      "power": "5",
+      "toughness": "5",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "e8ced70914d87292.webp",
+      "s": "zDEJuhgn0L8HaRXTAis2DQnABKlXNx04hXmW5LPHXAzyZx6tFyKG7EJ8VsI="
     }
   ]
 }
