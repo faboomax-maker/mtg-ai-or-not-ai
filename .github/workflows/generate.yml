@@ -1,6 +1,7 @@
 # Regenerates the card pool directly on GitHub (no local setup needed).
 # Actions tab -> "Générer les cartes" -> Run workflow.
 # Requires the API keys as repository secrets (Settings -> Secrets and variables -> Actions).
+# Optional variable RARITY_WEIGHTS, e.g. "common=55,uncommon=40,rare=4,mythic=1" (the default).
 name: Générer les cartes
 
 on:
@@ -25,6 +26,7 @@ jobs:
     timeout-minutes: 90
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
+      RARITY_WEIGHTS: ${{ vars.RARITY_WEIGHTS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

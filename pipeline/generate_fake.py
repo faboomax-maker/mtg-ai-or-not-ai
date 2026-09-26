@@ -45,7 +45,7 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
                     normalize_image, save_json, session)
 
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
-from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, with_printed_text
+from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_printed_text
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_wording, misused_keywords, name_problem,
                      name_words, number_in_group, reminder_texts, tone_down, too_simple,
@@ -499,7 +499,10 @@ def main() -> None:
     ap.add_argument("--images", choices=["replicate", "openai", "pollinations", "placeholder", "none"],
                     default="replicate")
     ap.add_argument("--no-name-check", action="store_true")
+    ap.add_argument("--rarity-weights", default=None,
+                    help="e.g. 'common=55,uncommon=40,rare=4,mythic=1' (same as fetch_real.py)")
     args = ap.parse_args()
+    weights = parse_weights(args.rarity_weights or env("RARITY_WEIGHTS"))
 
     ensure_dirs()
     WORK_RAW.mkdir(parents=True, exist_ok=True)
@@ -541,7 +544,10 @@ def main() -> None:
         by_clause, by_keyword, remind_rates = reminder_texts(pool)   # the set's real reminder texts
         old_wording = uses_old_wording(pool)               # "enters the battlefield" or "enters"
         n = min(BATCH, args.count - len(fakes), max(deficits.get(code, 1), 1))
-        sources = random.choices(pool, k=n)
+        # profiles drawn with the quiz rarity weights (not the set's natural ~30% rares/mythics)
+        per_rarity = Counter(c["rarity"] for c in pool)
+        w = [weights.get(c["rarity"], 0) / per_rarity[c["rarity"]] for c in pool]
+        sources = random.choices(pool, k=n, weights=w if sum(w) > 0 else None)
         specs = [spec_from(c) for c in sources]
         # examples: a real card close to each profile (same rarity/type/cost) + random ones
         near = [comparables({"type_line": c["type_line"], "rarity": c["rarity"], "mana_value": c.get("cmc"),

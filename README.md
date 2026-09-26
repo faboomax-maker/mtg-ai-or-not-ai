@@ -70,6 +70,7 @@ Autres modes utiles : `--images placeholder` (dégradés, pour tester gratuiteme
 
 ## Ce qui rend les fausses cartes crédibles
 
+- **Peu de rares et de mythiques** : ce sont les cartes que les joueurs connaissent par cœur (une vraie mythique se reconnaît, une fausse aussi). Les deux pools sont tirés avec les mêmes poids : 55 % communes, 40 % peu communes, 4 % rares, 1 % mythiques. Réglable avec la variable GitHub `RARITY_WEIGHTS` (ex. `common=70,uncommon=30,rare=0,mythic=0`) ou l'option `--rarity-weights`.
 - **Même profil que les vraies** : chaque carte IA reprend les couleurs, le type, la rareté, la valeur de mana et la présence ou non de flavor text d'une vraie carte. Les deux pools ont donc la même distribution.
 - **Vrais symboles de set** : les vraies cartes affichent le symbole de leur extension (police [Keyrune](https://keyrune.andrewgioia.com)), coloré selon la rareté. Les extensions absentes de Keyrune sont ignorées. Chaque carte IA est « rangée » dans une extension des vraies cartes, avec la même répartition, et reçoit son symbole.
 - **Cohérence avec le set** : le prompt de chaque carte IA contient 10 vraies cartes *de la même extension*, pour reprendre ses mécaniques, types de créatures, factions et univers, ainsi que le templating Oracle et le niveau de puissance. Un symbole Bloomburrow sur une carte sans animaux ne trahira donc personne. Ces exemples ne sont jamais montrés dans le quiz.

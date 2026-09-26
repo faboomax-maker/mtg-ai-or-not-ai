@@ -11,11 +11,12 @@ from __future__ import annotations
 import argparse
 import json
 import lzma
+import random
 import re
 import sys
 import time
 
-from common import WORK, WORK_IMG, WORK_SETS, ensure_dirs, fetch_bytes, load_json, normalize_image, save_json, session
+from common import WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_bytes, load_json, normalize_image, save_json, session
 
 API = "https://api.scryfall.com"
 
@@ -24,6 +25,26 @@ DEFAULT_QUERY = (
     "game:paper layout:normal lang:en frame:2015 year>=2016 "
     "(st:expansion or st:core) -is:funny -is:reprint -is:promo -type:basic"
 )
+
+# Rares and mythics are the cards players know by heart: a famous real card is spotted at
+# once, and so is a fake "mythic" nobody has heard of. Both pools (real cards here, AI card
+# profiles in generate_fake.py) are drawn with these weights.
+RARITY_WEIGHTS = {"common": 55, "uncommon": 40, "rare": 4, "mythic": 1}
+
+
+def parse_weights(text: str | None) -> dict[str, float]:
+    """'common=55,uncommon=40,rare=4,mythic=1' -> dict (missing rarities keep the default)."""
+    weights = dict(RARITY_WEIGHTS)
+    for part in (text or "").split(","):
+        if "=" in part:
+            k, v = part.split("=", 1)
+            weights[k.strip().lower()] = float(v)
+    return weights
+
+
+def pick_rarity(weights: dict[str, float]) -> str:
+    return random.choices(list(weights), weights=list(weights.values()))[0]
+
 
 FIELDS = ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
           "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords", "produced_mana",
@@ -93,7 +114,10 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=60)
     ap.add_argument("--query", default=DEFAULT_QUERY)
+    ap.add_argument("--rarity-weights", default=None,
+                    help="e.g. 'common=55,uncommon=40,rare=4,mythic=1' (default: RARITY_WEIGHTS)")
     args = ap.parse_args()
+    weights = parse_weights(args.rarity_weights or env("RARITY_WEIGHTS"))
 
     ensure_dirs()
     out_path = WORK / "real.json"
@@ -105,7 +129,10 @@ def main() -> None:
     tries = 0
     while len(cards) < args.count and tries < args.count * 6:
         tries += 1
-        r = s.get(f"{API}/cards/random", params={"q": args.query}, timeout=30)
+        # rarity drawn first with the quiz weights, then a random card of that rarity
+        r = s.get(f"{API}/cards/random", params={"q": f"({args.query}) r:{pick_rarity(weights)}"}, timeout=30)
+        if r.status_code == 404:                          # no card of that rarity for this query
+            r = s.get(f"{API}/cards/random", params={"q": args.query}, timeout=30)
         if r.status_code != 200:
             print(f"Scryfall error {r.status_code}: {r.text[:300]}", file=sys.stderr)
             if r.status_code in (400, 404):
