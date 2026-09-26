@@ -68,6 +68,8 @@ def main() -> None:
                 secret.update(set=c.get("set_name"), artist=c.get("artist"), url=c.get("scryfall_uri"))
             else:
                 secret.update(set=c.get("set_name"))      # symbol borrowed, said so on reveal
+                if c.get("art_from"):                     # real art borrowed from another card
+                    secret.update(artist=c.get("artist"), art_from=c["art_from"])
             out.append({**{k: c.get(k) for k in PUBLIC}, "card": True, "img": name, "s": seal(secret, name)})
             continue
         name = secrets.token_hex(8) + ".jpg"

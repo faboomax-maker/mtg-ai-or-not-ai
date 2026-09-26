@@ -375,7 +375,7 @@ def parse_array(text: str) -> list[dict]:
 
 
 def validate(c: dict, spec: dict) -> str | None:
-    for k in ("name", "type_line", "oracle_text", "art_description"):
+    for k in ("name", "type_line", "oracle_text") + (() if "illustration" in spec else ("art_description",)):
         if not isinstance(c.get(k), str) or not c[k].strip():
             return f"missing {k}"
     if not MANA_RE.match(c.get("mana_cost") or ""):
@@ -753,6 +753,36 @@ def art_check(llm: str, jpeg: bytes, brief: str, world: str = "") -> list[str]:
         return []
 
 
+def real_art() -> bool:
+    """ART_SOURCE=real (default): AI cards reuse the illustration of the real card whose profile
+    they copy (credited to its real artist); 'generate': illustrations made by an image model."""
+    return env("ART_SOURCE", "real") == "real"
+
+
+def obscurity(card: dict) -> float:
+    """Weight favoring little-played cards, whose art players are unlikely to recognize."""
+    rank = card.get("edhrec_rank")
+    return 1.0 if not rank or rank > 8000 else 0.3 if rank > 3000 else 0.05
+
+
+DESCRIBE_SYSTEM = """You describe fantasy illustrations for a card designer. In 2-3 plain
+sentences: the main subject (what kind of creature, person or object, and what it looks like),
+what it is doing, the setting, the mood. Describe only what is visible; no game terms."""
+_ART_DESCRIPTIONS: dict[str, str] = {}
+
+
+def describe_art(llm: str, url: str) -> str:
+    """What a real illustration shows (vision), so the AI card's text can match its art."""
+    if url not in _ART_DESCRIPTIONS:
+        try:
+            _ART_DESCRIPTIONS[url] = call_llm(llm, DESCRIBE_SYSTEM, "Describe this illustration.",
+                                              image=ref_bytes(url)).strip()
+        except (Exception, SystemExit) as e:
+            print(f"  could not describe {url}: {e}", file=sys.stderr)
+            _ART_DESCRIPTIONS[url] = ""
+    return _ART_DESCRIPTIONS[url]
+
+
 def keyword_rules(keywords: list[str], pool: list[dict], by_keyword: dict) -> dict:
     """{keyword: {"reminder": the set's reminder text, "real_example": a real line using it}},
     so the LLM knows e.g. that Offspring takes a cost and what it does."""
@@ -803,6 +833,7 @@ def main() -> None:
     artists = real_artists(s)
     used_artists = {c["artist"] for c in fakes if c.get("artist")}
     used_name_words = {w for c in fakes for w in name_words(c["name"])}
+    used_art = {c["art_source_id"] for c in fakes if c.get("art_source_id")}   # one card per real art
     kw_catalogs = keyword_catalogs(s)
     numbers: dict[str, set[str]] = defaultdict(set)   # collector numbers already on a quiz card
     for c in real + fakes:
@@ -828,17 +859,23 @@ def main() -> None:
         # profiles drawn with the quiz rarity weights (not the set's natural ~30% rares/mythics)
         per_rarity = Counter(c["rarity"] for c in pool)
         w = [weights.get(c["rarity"], 0) / per_rarity[c["rarity"]] for c in pool]
+        if real_art():                           # the source card lends its art: prefer obscure ones
+            w = [x * obscurity(c) if c["id"] not in used_art else 0 for x, c in zip(w, pool)]
         sources = random.choices(pool, k=n, weights=w if sum(w) > 0 else None)
         specs = [spec_from(c) for c in sources]
-        for sp in specs:                         # how each keyword works, from the set's own cards
+        for sp, src in zip(specs, sources):      # how each keyword works, from the set's own cards
             if sp["keywords"]:
                 sp["keyword_rules"] = keyword_rules(sp["keywords"], pool, by_keyword)
-        # examples: a real card close to each profile (same rarity/type/cost) + random ones
+            if real_art():                       # the card is designed around its (real) art
+                sp["illustration"] = describe_art(args.llm, src["art_crop"])
+                sp.pop("art_focus", None)
+        # examples: a real card close to each profile (same rarity/type/cost) + random ones -
+        # never the source cards themselves (their art is reused, their text must not be)
+        others = [p for p in pool if p["id"] not in {s_["id"] for s_ in sources}]
         near = [comparables({"type_line": c["type_line"], "rarity": c["rarity"], "mana_value": c.get("cmc"),
-                             "colors": "".join(c.get("colors") or [])},
-                            [p for p in pool if p["id"] != c["id"]], 1)[0] for c in sources]
+                             "colors": "".join(c.get("colors") or [])}, others, 1)[0] for c in sources]
         shots = list({s_["name"]: s_ for s_ in near + [example_text(c) for c in
-                      random.sample(pool, min(8, len(pool)))]}.values())[:16]
+                      random.sample(others, min(8, len(others)))]}.values())[:16]
         flavors = [c["flavor_text"] for c in random.sample(pool, len(pool)) if c.get("flavor_text")][:10]
         about = "".join(f"{k.replace('_', ' ').capitalize()}: {v}\n" for k, v in brief.items() if v)
         wording = {True: 'This set says "enters the battlefield" and cards refer to themselves by name.',
@@ -853,13 +890,18 @@ def main() -> None:
             + json.dumps(shots, ensure_ascii=False, indent=1)
             + "\n\nReal flavor texts of this set (match their concreteness and voice):\n"
             + json.dumps(flavors, ensure_ascii=False, indent=1)
-            + f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
-              "the keywords listed in its profile, and its art must follow the profile's art_focus:\n"
-            + json.dumps(specs, indent=1)
+            + (f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
+               "the keywords listed in its profile. Its illustration is already chosen and described "
+               "in the profile ('illustration'): the card's name, creature types, abilities and flavor "
+               "text must fit what the illustration shows.\n" if real_art() else
+               f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
+               "the keywords listed in its profile, and its art must follow the profile's art_focus:\n")
+            + json.dumps(specs, ensure_ascii=False, indent=1)
             + "\n\nReturn a JSON array of objects with keys: name, mana_cost, type_line, oracle_text, "
               "flavor_text (null if the profile says false), power, toughness, loyalty (strings or null), "
-              "rarity, art_description (2-3 sentences: an art brief naming the subject, its action, "
-              "the setting details of this world, light and mood; no text in the image)."
+              "rarity" + ("." if real_art() else
+              ", art_description (2-3 sentences: an art brief naming the subject, its action, "
+              "the setting details of this world, light and mood; no text in the image).")
         )
         try:
             batch = parse_array(call_llm(args.llm, SYSTEM, user))
@@ -869,7 +911,7 @@ def main() -> None:
         batch = [c for c in batch if isinstance(c, dict)][:len(specs)]
         batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_names[code])   # balance pass
         batch = creative_review(args.llm, batch, flavors, brief, set_names[code])        # names, flavor
-        for c, spec in zip(batch, specs):
+        for c, spec, src in zip(batch, specs, sources):
             err = validate(c, spec)
             if not err:
                 c["oracle_text"] = fix_templating(c["oracle_text"], meta["released_at"])
@@ -878,7 +920,8 @@ def main() -> None:
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
                        else rules_problem(c["oracle_text"], c["type_line"])
-                       or name_problem(c["name"], used_name_words) or art_problem(c["art_description"]))
+                       or name_problem(c["name"], used_name_words)
+                       or (None if real_art() else art_problem(c["art_description"])))
             if not err and c["name"].lower() in banned:
                 err = "name already used"
             if not err and not args.no_name_check and not name_is_new(s, c["name"]):
@@ -893,10 +936,17 @@ def main() -> None:
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)
             text = add_missing_reminders(text, spec["rarity"], by_keyword, remind_rates, by_clause)
             c["oracle_text"] = fix_wording(text, c["name"], c["type_line"], old_wording)
-            c["art_description"] = tone_down(c["art_description"])
-            # Credits: an ordinary invented name (never a real Magic artist, no repeats), and a
-            # collector number in the range where this set prints this colour.
-            artist = artist_name(artists, used_artists)
+            # Credits: with real art, its real artist (and the card it comes from, told on reveal);
+            # otherwise an ordinary invented name (never a real Magic artist, no repeats).
+            # Collector number in the range where this set prints this colour.
+            if real_art():
+                artist, art = src.get("artist") or "", {
+                    "art_url": src["art_crop"], "art_source_id": src["id"], "art_from": src["name"],
+                    "art_description": spec.get("illustration", "")}
+                used_art.add(src["id"])
+            else:
+                c["art_description"] = tone_down(c["art_description"])
+                artist, art = artist_name(artists, used_artists), {}
             colors = list(spec["colors"]) if spec["colors"] != "colorless" else []
             number = number_in_group(pool, color_group(colors, c["type_line"]), numbers[code],
                                      meta.get("printed_size"))
@@ -910,8 +960,9 @@ def main() -> None:
                           "collector_number": number, "released_at": meta["released_at"],
                           "set_description": brief.get("description", ""),
                           "art_style": brief.get("art_style", ""),
-                          "style_refs": style_refs({"type_line": c["type_line"], "colors": colors}, pool),
-                          "image": None})
+                          "style_refs": [] if real_art() else
+                          style_refs({"type_line": c["type_line"], "colors": colors}, pool),
+                          **art, "image": None})
             print(f"[{len(fakes)}/{args.count}] {c['name']}")
         save_json(out_path, fakes)
 
@@ -923,12 +974,26 @@ def main() -> None:
                            f"({env('IMAGE_QUALITY', 'medium')}, {env('IMAGE_SIZE', '1536x1152')})"}.get(args.images, args.images)
         lora = (f"; LoRA {env('LORA_URL', LORA_DEFAULT).split('/')[4]} x{env('LORA_SCALE', '0.8')}"
                 if lora_active() else "")
-        annotate("notice", f"image model: {model}{lora}; reference images ({env('STYLE_REFS', 'mix')}): "
-                           f"{'yes' if refs_enabled() else 'no'}")
+        if real_art():
+            annotate("notice", "illustrations: real art of the source cards (ART_SOURCE=real), "
+                               "credited to their artists")
+        else:
+            annotate("notice", f"image model: {model}{lora}; reference images ({env('STYLE_REFS', 'mix')}): "
+                               f"{'yes' if refs_enabled() else 'no'}")
         for i, c in enumerate(fakes):
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
                 c["image"] = img.name; continue
+            if c.get("art_url"):                  # real illustration of the source card
+                try:
+                    normalize_image(fetch_bytes(session(), c["art_url"]), img)
+                    c["image"] = img.name
+                    save_json(out_path, fakes)
+                    print(f"  art {i + 1}/{len(fakes)}: {c['name']} <- {c.get('art_from')} ({c.get('artist')})")
+                except Exception as e:
+                    print(f"  art download failed for {c['name']}: {e}", file=sys.stderr)
+                    annotate("warning", f"art download failed: {e}")
+                continue
             prompt, best = art_prompt(c), None      # best = (problem count, raw, prompt)
             world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
             # Up to ART_TRIES images, each checked by the vision model (wrong world or creature,

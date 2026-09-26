@@ -142,7 +142,10 @@ async function answer(saysReal) {
   $("verdict-detail").innerHTML = secret.real
     ? `Vraie carte${secret.set ? " · " + esc(secret.set) : ""}${secret.artist ? " · illustration de " + esc(secret.artist) : ""}` +
       (secret.url ? ` · <a href="${esc(secret.url)}" target="_blank" rel="noopener">voir sur Scryfall</a>` : "")
-    : "Carte inventée par une IA : texte, nom et illustration." +
+    : (secret.art_from
+        ? `Carte inventée par une IA (nom et texte). Illustration de ${esc(secret.artist || "?")}, ` +
+          `empruntée à la vraie carte « ${esc(secret.art_from)} ».`
+        : "Carte inventée par une IA : texte, nom et illustration.") +
       (secret.set ? ` Le symbole de set (${esc(secret.set)}) a été emprunté pour brouiller les pistes.` : "");
   $("score").textContent = state.score; $("streak").textContent = state.streak;
   $("choices").hidden = true; $("verdict").hidden = false;

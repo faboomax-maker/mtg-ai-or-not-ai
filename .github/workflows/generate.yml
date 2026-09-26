@@ -27,6 +27,8 @@ jobs:
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
       RARITY_WEIGHTS: ${{ vars.RARITY_WEIGHTS }}
+      # AI cards illustrations: real (default: art of the real card they copy) or generate
+      ART_SOURCE: ${{ vars.ART_SOURCE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

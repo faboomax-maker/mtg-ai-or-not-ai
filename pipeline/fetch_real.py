@@ -48,7 +48,7 @@ def pick_rarity(weights: dict[str, float]) -> str:
 
 
 FIELDS = ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
-          "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords", "produced_mana",
+          "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords", "produced_mana", "edhrec_rank",
           "set", "set_name", "artist", "collector_number", "released_at", "scryfall_uri")
 
 

@@ -98,10 +98,18 @@ def add_missing_reminders(text: str, rarity: str, by_keyword: dict, rates: dict,
 
 
 # --------------------------------------------------------------- templating
-# Rules wording that changed over time: (date the new wording was first printed, old, new)
+# Rules wording that changed over time: (date the new wording was first printed,
+# old wording -> new wording for later sets, new wording -> old wording for earlier sets)
 ERA_TERMS = [
-    ("2017-04-28", r"\btarget creature or player\b", "any target"),                # Amonkhet
-    ("2021-04-23", r"\bconverted mana cost\b", "mana value"),                        # Strixhaven
+    ("2017-04-28", (r"\btarget creature or player\b", "any target"), None),        # Amonkhet
+    ("2021-04-23", (r"\bconverted mana cost\b", "mana value"),                    # Strixhaven
+                   (r"\bmana value\b", "converted mana cost")),
+    ("2020-07-03", (r"\bput the top (\w+) cards of your library into your graveyard\b", r"mill \1 cards"),
+                   (r"(?i)\bmill (\w+) cards\b", r"put the top \1 cards of your library into your graveyard")),
+    ("2020-07-03", (r"\bput the top card of your library into your graveyard\b", "mill a card"),  # M21
+                   (r"(?i)\bmill a card\b", "put the top card of your library into your graveyard")),
+    ("2024-09-27", (r"Sacrifice this artifact: Add one mana", "Sacrifice this token: Add one mana"),
+                   (r"Sacrifice this token: Add one mana", "Sacrifice this artifact: Add one mana")),
 ]
 
 
@@ -113,11 +121,14 @@ def fix_templating(text: str, released_at: str = "") -> str:
                   lambda m: m.group(1) + (m.group(2) if m.group(1) in (", ", " and ", " then ")
                                           else m.group(2).capitalize()),
                   text)
-    for since, old, new in ERA_TERMS:
-        if released_at and released_at >= since:
-            text = re.sub(old, new, text)
-        elif released_at and new == "mana value":
-            text = re.sub(r"\bmana value\b", "converted mana cost", text)
+    for since, to_new, to_old in ERA_TERMS:
+        if not released_at:
+            continue
+        rule = to_new if released_at >= since else to_old
+        if rule:
+            text = re.sub(rule[0], rule[1], text)
+            text = re.sub(r"(^|\n|[.:] |— |• )([a-z])", lambda m: m.group(1) + m.group(2).upper(), text) \
+                if rule is to_old else text          # "put the top..." may start a sentence
     return text
 
 
