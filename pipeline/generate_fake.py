@@ -14,7 +14,8 @@ LLM providers (--llm):
                LLM_API_KEY or OPENAI_API_KEY, LLM_MODEL, LLM_BASE_URL (default: OpenAI for
                an OpenAI key, otherwise https://openrouter.ai/api/v1)
 Image providers (--images):
-    replicate     REPLICATE_API_TOKEN, FLUX schnell (~0.003 $ / image)
+    replicate     REPLICATE_API_TOKEN, model REPLICATE_MODEL (default black-forest-labs/flux-schnell,
+                  ~0.003 $ / image; e.g. black-forest-labs/flux-1.1-pro ~0.04 $, flux-2-pro)
     openai        OPENAI_API_KEY, gpt-image-1 low quality (IMAGE_MODEL / IMAGE_QUALITY to change)
     pollinations  POLLINATIONS_KEY (optional depending on their current policy)
     placeholder   coloured gradients, for testing the site without spending anything
@@ -47,9 +48,22 @@ WORK_RAW = WORK / "raw"                      # original full-resolution AI image
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, with_printed_text
 
 BATCH = 8
-ART_STYLE = ("epic fantasy illustration, detailed digital painting, modern trading card game art, "
-             "dramatic cinematic lighting, rich colors, painterly brushwork, "
-             "no text, no letters, no border, no frame, no watermark")
+# Never name the game, a set or a "card" here: image models then paint logos and titles.
+ART_STYLE = ("Traditional fantasy oil painting by a seasoned professional illustrator: realistic anatomy "
+             "and proportions, confident painterly brushwork, dramatic yet natural lighting, rich detail, "
+             "strong readable composition with one clear focal subject, atmospheric depth. "
+             "Pure illustration with no text, no letters, no logo, no title, no signature, "
+             "no watermark, no border, no frame.")
+BRANDS = re.compile(r"\b(?:(?-i:Magic)(?::? the Gathering)?|MTG|Wizards of the Coast|"
+                    r"trading card(?: game)?s?|cards?)\b(?:[’']s)?", re.I)   # "magic" stays
+
+
+def art_prompt(c: dict) -> str:
+    """Image prompt: the scene, the set's world and art direction, the era - no brand names."""
+    year = (c.get("released_at") or "")[:4]
+    world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
+    world = re.sub(r"\s{2,}", " ", BRANDS.sub("", world)).strip()
+    return (f"{c['art_description']} {world} Fantasy art as painted around {year}. {ART_STYLE}")
 
 SYSTEM = """You are a senior Magic: The Gathering designer at Wizards of the Coast.
 You write brand-new cards that are indistinguishable from cards printed in recent
@@ -59,6 +73,8 @@ Standard-legal expansions. Rules you always follow:
   battlefield" and refer to themselves by their own name ("When Grim Scavenger enters the
   battlefield"); cards printed since 2024 say "enters" and "this creature". Include
   reminder text in parentheses when the examples do for the same keyword.
+- Modal cards put each mode on its own line after a bullet: "Choose one —\\n• Destroy
+  target artifact.\\n• Create a Treasure token." (never "Choose one — X; or Y").
 - Ability words and named modes are followed by " — " ("Landfall — Whenever...",
   "• Smash the Chest — Destroy target artifact.").
 - Power level of a normal set: mostly commons/uncommons are modest; no broken cards,
@@ -146,6 +162,8 @@ def validate(c: dict, spec: dict) -> str | None:
         return "too long"
     if re.search(r"\bCARDNAME\b|~", c["oracle_text"]):
         return "placeholder name in text"
+    if re.search(r"[Cc]hoose (?:one|two|one or both|one or more) —(?!\n•)", c["oracle_text"]):
+        return "modes not bulleted"
     return None
 
 
@@ -161,11 +179,15 @@ def gen_image(provider: str, prompt: str, seed: int) -> bytes | None:
     if provider == "replicate":
         token = env("REPLICATE_API_TOKEN") or sys.exit("REPLICATE_API_TOKEN missing")
         h = {"authorization": f"Bearer {token}", "content-type": "application/json", "prefer": "wait"}
+        model = env("REPLICATE_MODEL", "black-forest-labs/flux-schnell")
+        inp = {"prompt": prompt, "aspect_ratio": "4:3", "seed": seed}
+        if model.startswith("black-forest-labs/"):
+            inp.update(output_format="jpg", output_quality=95)
+        if model.endswith("flux-schnell"):
+            inp.update(num_outputs=1, go_fast=True)
         for attempt in range(8):                # low-credit accounts are heavily rate limited
-            r = s.post("https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
-                       headers=h, timeout=180, json={"input": {
-                           "prompt": prompt, "aspect_ratio": "4:3", "output_format": "jpg",
-                           "output_quality": 95, "num_outputs": 1, "seed": seed, "go_fast": True}})
+            r = s.post(f"https://api.replicate.com/v1/models/{model}/predictions",
+                       headers=h, timeout=180, json={"input": inp})
             if r.status_code != 429:
                 break
             ra = r.headers.get("retry-after", "")
@@ -250,7 +272,8 @@ def set_brief(llm: str, code: str, meta: dict, pool: list[dict]) -> dict:
         "- description: 2-3 sentences on the plane/world, story and themes of this set;\n"
         "- mechanics: the set's signature mechanics and how they are worded on cards;\n"
         "- art_style: 2-3 sentences for an illustrator: setting, architecture, costumes, "
-        "creatures, palette, lighting and the look of the set's official card illustrations."
+        "creatures, palette, lighting and painting style of the set's illustrations. Describe the "
+        "world only: never name the game, the set, the publisher or any product."
     )
     try:
         text = call_llm(llm, BRIEF_SYSTEM, user)
@@ -394,10 +417,7 @@ def main() -> None:
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
                 c["image"] = img.name; continue
-            year = (c.get("released_at") or "")[:4]
-            prompt = (f"{c['art_description']} Official Magic: The Gathering card illustration for the "
-                      f"set {c['set_name']} ({year}). {c.get('set_description') or ''} "
-                      f"Art direction: {c.get('art_style') or ''} {ART_STYLE}")
+            prompt = art_prompt(c)
             try:
                 raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
             except Exception as e:

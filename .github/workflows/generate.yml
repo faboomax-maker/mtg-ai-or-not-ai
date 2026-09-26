@@ -45,6 +45,8 @@ jobs:
           LLM_MODEL: ${{ vars.LLM_MODEL || secrets.LLM_MODEL }}
           IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}
           IMAGE_QUALITY: ${{ vars.IMAGE_QUALITY }}
+          # Replicate model, e.g. black-forest-labs/flux-1.1-pro (default: flux-schnell)
+          REPLICATE_MODEL: ${{ vars.REPLICATE_MODEL || secrets.REPLICATE_MODEL }}
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
         run: python pipeline/generate_fake.py --count ${{ inputs.count }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}
