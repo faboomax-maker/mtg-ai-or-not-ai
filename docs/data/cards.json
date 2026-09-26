@@ -3,94 +3,81 @@
   "count": 6,
   "cards": [
     {
-      "name": "Shifting Nexus",
-      "mana_cost": null,
-      "type_line": "Land",
-      "oracle_text": "{T}: Add {C}. {T}: Add one mana of any color. Activate only if you control a creature or planeswalker.",
-      "flavor_text": "\"In the Nexus, you become both the hunter and the hunted.\"\n—Elysia, multiversal cartographer",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "d2d8844528010893.webp",
-      "s": "xSrcCOfccVPM7NT0pCYF/MwzClk6jt0dkthT4c+jlHX4es8O8sUhDM73"
-    },
-    {
-      "name": "Skyward Guardian",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human Monk",
-      "oracle_text": "Flying\nMobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior creature tokens. Sacrifice them at the beginning of the next end step.)",
-      "flavor_text": "\"We soar above, honoring those who once protected this land.\"\n—Elsha",
-      "power": "2",
+      "name": "Raucous Marauder",
+      "mana_cost": "{1}{B}{R}{G}",
+      "type_line": "Creature — Ogre Warrior",
+      "oracle_text": "Haste",
+      "flavor_text": "\"This city hums with life, and I’m here to make it roar!\"\n—Rax, the Thunderous",
+      "power": "4",
       "toughness": "3",
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "W"
+        "B",
+        "G",
+        "R"
       ],
       "card": true,
-      "img": "9c5a6509e11c558c.webp",
-      "s": "rBN3Fzy8jSIJrrRgvroSrUTSK0Rg1wryQF5NH1V76R6TQ2QVMr7cbEa6uC6w"
+      "img": "ea49e0d8cc3b2b71.webp",
+      "s": "26C5m0oUE9EqbKeqi+Gc19ELPtGVxRoOmLr1qDF5p53P5OuwTg8RqGt6o6iW5ZKK"
     },
     {
-      "name": "Flourishing Grapple",
-      "mana_cost": "{G}",
+      "name": "Phantom Interference",
+      "mana_cost": "{U}",
       "type_line": "Instant",
-      "oracle_text": "Target creature or planeswalker an opponent controls that's red or white loses all abilities until end of turn. Target creature you control deals damage equal to its power to that permanent.",
-      "flavor_text": "Lorehold believed in learning from history. Hexhaven made sure that history was brief.",
+      "oracle_text": "Spree (Choose one or more additional costs.)\n+ {3} — Create a 2/2 white Spirit creature token with flying.\n+ {1} — Counter target spell unless its controller pays {2}.",
+      "flavor_text": "To his enemies' chagrin, Winston was every bit as meddlesome dead as he had been alive.",
       "power": null,
       "toughness": null,
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "ab7f0c30bd3e137a.webp",
+      "s": "i0JqZ9kkInd11b343OHckmOR/3qbSP/yrJCZwqCFLWOWQExqzSZkKCeBhfjXrojZf5qpdIFKvM+tjYbX9cwtLqIVYGvWLyAKNM7toZnvicJ81rF4gwCpyamXz4z4hW5+iQZ5btRmYyI4jqzsy6nT32SepG6QR63VuIqBzLrbZGKEBWpk3TplIzbE8PjNoKPDf4H5O8RVvM2wxog="
+    },
+    {
+      "name": "Skyshaper Hatchling",
+      "mana_cost": "{1}{U}{U}",
+      "type_line": "Creature — Bird Wizard",
+      "oracle_text": "Flying\nOffspring — When this creature dies, create a 1/1 blue Bird creature token with flying.",
+      "flavor_text": null,
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "54aaa1ed9960d56a.webp",
+      "s": "7uhCM9sI3leVJrgttEpRgjO71bOQGd0zmPmTHGtF0kznpUd0xw=="
+    },
+    {
+      "name": "Duneclaw Stalker",
+      "mana_cost": "{4}{G}{G}",
+      "type_line": "Creature — Cat Beast",
+      "oracle_text": "Reach\nWhen Duneclaw Stalker enters the battlefield, target creature you control gains +2/+2 until end of turn.",
+      "flavor_text": null,
+      "power": "5",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "common",
       "colors": [
         "G"
       ],
       "card": true,
-      "img": "32b4550d2e4f7a7a.webp",
-      "s": "PDCb/Jju4zeUDaN5hlTfLiTauDIMpMfcr2fX1g10Gzk1c4rtjPCkL5hZ822RDJZ/I532MBTLiO+4JuneAHRaEWU+ybuM8K0vjlnzZJcMj39tkONjVfac6Ktq15EaYlZQJHOb/dbks2ybSOE+zB6TYyLNpWNe7Yvp52HJ3gl9Vxp4Z530pvGueMYatDGCCJYuKg=="
+      "img": "df230be846ebd9eb.webp",
+      "s": "pn0ybT542E0xu24/5ZeNmJY1Ahl6/xfq2SaFFD12XDiyOWBcN2GUE3SvLxnjnMLM3SkJTyU="
     },
     {
-      "name": "Fire-Rim Form",
-      "mana_cost": "{1}{R}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Flash\nEnchant creature\nWhen this Aura enters, enchanted creature gains first strike until end of turn.\nEnchanted creature gets +2/+0.",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "32556d1ac9445efe.webp",
-      "s": "FTTOZjGZFYLqyk199FC41BK8gmiliG8+Tz+BpJAeEz4cd9tsPoZD17jTHSSxXvmEFbCFPr2SbUhoJIakkkETKg9x0Golhlia5p4dfeMQusxB+54+69g+UAFima6QXVUbAnqSYD+YGNurzFsn5Rj12VDpwWX5wT8PAz+DoM9CXAgDKcl3PapE17/MXG2sHeifQ6Q="
-    },
-    {
-      "name": "Rebel Flamekeeper",
-      "mana_cost": "{3}{R}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "When Rebel Flamekeeper attacks, it deals 1 damage to target player or planeswalker.",
-      "flavor_text": "\"Fire is not just a weapon; it’s a signal of our defiance. Our flames rise higher with each act of revolt.\"\n—Jaspar Thorn, Renegade leader",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "03dfe166936387d1.webp",
-      "s": "Ag1y6ji7m9XPD3JB//G0h+lFnbB6WSzUlY37Rvv6hdUcWW/jLfXE"
-    },
-    {
-      "name": "Precise Strike",
+      "name": "War Squeak",
       "mana_cost": "{R}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature gets +1/+0 and gains first strike until end of turn.",
-      "flavor_text": "\"Hit where it hurts, and always hit first.\"",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant creature\nWhen War Squeak enters, target creature an opponent controls can't block this turn.\nEnchanted creature gets +1/+1 and has haste.",
+      "flavor_text": "Dangers sharper than thorns can hide among flowers.",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -99,8 +86,25 @@
         "R"
       ],
       "card": true,
-      "img": "9ccc9097c1295698.webp",
-      "s": "krtx9wKOmDMbpvqJt65EWoaTp4vRJQXmauR84L4B2Ruf9m/mQc6aK1qg/JWh9kZC1dSH0IdgVYdF8XfqrlLkEMu1I7AWkNYrAfKqlKb2FAvP2fzaiHdewW78eKuvTuZRivhx9kyD33sU67rTovABG5yFtoSYcVXOZPUr8LhM1A2G7HHxBt/beVLw9Q=="
+      "img": "b860adc21bf8d00f.webp",
+      "s": "NYNm3Xp+95vRrjou4VpoPPD14Z3FIKSojo5xgRXWfvUh1jaUOzC004WzOy+mTGg82f/5y55upqiNk3GfVY8spTvTeJohMvfJha44KL5ZZ23g4uzZnmzqxIGOc8MUwn7jYcN42jQj45HerSkpqQU5a+bx/oCKdOu1kY5rnhTGMeY+yDbF"
+    },
+    {
+      "name": "Most Wanted",
+      "mana_cost": "{2}{G}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "This land enters tapped.\n{T}: Add {U}, {R}, or {W}.",
+      "flavor_text": "Overnight, Elspeth was branded the most dangerous criminal in New Capenna.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "b9ded004d5851d37.webp",
+      "s": "3NFd0M6Ax7v+85sjwLBrq06lNdfAMwY8N5evIXZ0uBjB02HQ2Mym4K7ihzjEvmepH6EzgZNgUE15xegWwa71Hoe5TtbemYr1/KvJdNDuJ6sH4GOdjmdUHHnK5TdhdeERxp9Dm8yDiK695psyiu8l6hLxdMbVfkscN8i9JWxz/ROYhlvY8J+K9KzkjGvE7CKrQA=="
     }
   ]
 }
