@@ -76,6 +76,16 @@ def example_text(c: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- LLM
+def check(r) -> None:
+    """Raise with the provider's own error message; stop at once on config errors."""
+    if r.ok:
+        return
+    msg = f"HTTP {r.status_code} from {r.url}: {r.text[:500]}"
+    if r.status_code in (400, 401, 403, 404):   # bad key / model / URL: retrying won't help
+        sys.exit(f"LLM config error -> {msg}")
+    raise RuntimeError(msg)
+
+
 def call_llm(provider: str, system: str, user: str) -> str:
     s = session()
     if provider == "anthropic":
@@ -85,7 +95,7 @@ def call_llm(provider: str, system: str, user: str) -> str:
             json={"model": env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
                   "temperature": 1.0, "system": system,
                   "messages": [{"role": "user", "content": user}]})
-        r.raise_for_status()
+        check(r)
         return "".join(b.get("text", "") for b in r.json()["content"])
     base = env("LLM_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")
     headers = {"content-type": "application/json"}
@@ -94,7 +104,7 @@ def call_llm(provider: str, system: str, user: str) -> str:
     r = s.post(f"{base}/chat/completions", timeout=600, headers=headers, json={
         "model": env("LLM_MODEL", "anthropic/claude-haiku-4.5"), "temperature": 1.0,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]})
-    r.raise_for_status()
+    check(r)
     return r.json()["choices"][0]["message"]["content"]
 
 
@@ -267,7 +277,12 @@ def main() -> None:
             if (WORK_IMG / f"fake_{c['id']}.jpg").exists():
                 c["image"] = f"fake_{c['id']}.jpg"
     save_json(out_path, fakes)
-    print(f"Done: {len(fakes)} AI cards, {sum(1 for c in fakes if c['image'])} with art.")
+    with_art = sum(1 for c in fakes if c["image"])
+    print(f"Done: {len(fakes)} AI cards, {with_art} with art.")
+    if not fakes:
+        sys.exit("No AI card generated: see the LLM errors / rejections above.")
+    if not with_art and args.images != "none":
+        sys.exit("No AI card got an illustration: see the image errors above.")
 
 
 if __name__ == "__main__":
