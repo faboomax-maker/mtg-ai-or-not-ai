@@ -3,108 +3,106 @@
   "count": 6,
   "cards": [
     {
-      "name": "Granite Witness",
-      "mana_cost": "{2}{W}{U}",
-      "type_line": "Artifact Creature — Gargoyle Detective",
-      "oracle_text": "Flying, vigilance\nDisguise {(}w/u){(}w/u)} (You may cast this card face down for {3} as a 2/2 creature with ward {2}. Turn it face up any time for its disguise cost.)\nWhen Granite Witness is turned face up, you may tap or untap target creature.",
-      "flavor_text": null,
-      "power": "3",
+      "name": "Flamewrought Nomad",
+      "mana_cost": "{1}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "Whenever Flamewrought Nomad attacks, it deals 1 damage to target creature defending player controls.",
+      "flavor_text": "\"The flicker of my flame leads the way, burning bright against the desolation.\"\n—Alaisha, Desert Scout",
+      "power": "2",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "bd75c7fc089d2d0f.webp",
+      "s": "RrwaeuBBOn2ZKN9AFqjWD2RMLwh3Atnu7+JVorkzCuQdrFgtsA9l"
+    },
+    {
+      "name": "Courageous Sentinel",
+      "mana_cost": "{W}",
+      "type_line": "Creature — Human Soldier",
+      "oracle_text": "Vigilance\nCourageous Sentinel can't be blocked by creatures with power 3 or less.",
+      "flavor_text": "\"We shall not falter. The dawn will rise, and so shall we.\"\n—Lydia, Dawnhart protector",
+      "power": "1",
       "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "U",
         "W"
       ],
       "card": true,
-      "img": "ed7cb8ca18c99a19.webp",
-      "s": "3t7FYflMRUXwgvX3PUjI2Ekrl2goLMhScylwOzMSxpbR3Pxl6kwICfC75uw3FsrWGmyCOGZlmWskYTR8FRSHmYW4wmv2R0c8uIOlrnhGnYhWbNlqMGSea3YoLnFuEoWF3JrWaPQOBBC92eTjKgDHl1EjzHgiOsV4dDp6NzUEy4DMiNlh61NYCqSb2PE3EZqZX3OCOnsulw=="
+      "img": "a6380b2acb20f32e.webp",
+      "s": "GrhRbVYG+08GRRaYhRvmJJmGFzhTLGgwsbKLWQcHTw0FoANLRQO0BklNV6KZCeh5"
     },
     {
-      "name": "Fervent Conflagration",
-      "mana_cost": "{2}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Fervent Conflagration deals 4 damage to target creature or planeswalker. If that creature or planeswalker would die this turn, exile it instead.",
-      "flavor_text": "\"Every ember carries the promise of a future flame.\"\n—Kaldera, igniter of hopes",
-      "power": null,
-      "toughness": null,
+      "name": "Hobblefiend",
+      "mana_cost": "{1}{R}",
+      "type_line": "Creature — Devil",
+      "oracle_text": "Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)\n{1}, Sacrifice another creature: Put a +1/+1 counter on Hobblefiend.",
+      "flavor_text": "Bedbugs aren't the only things you need to worry about biting you at night.",
+      "power": "2",
+      "toughness": "1",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "R"
       ],
       "card": true,
-      "img": "c166ae7ae1928a5a.webp",
-      "s": "4KwDhyzTWbsEGhRfVaKz6d47wgzgtn2R1LwiuLTNBEj+9x6MKZ8/5EUIHRFb"
+      "img": "69bded4918be4037.webp",
+      "s": "aNI4ipK7O023lc/dZUkw3McuTnt7i1h0o6I621gu+pIhwHje0fs5VfaTycFzETLElGl0MCLDFVuto3+8eS7p3WGJaMPT9WwF+8OHiCINZIrEOAB2btgZRbW2PpdnZe3dft8pjoGzNhql0JKZNVc/ltspWDUkzRNSorRgjn8m0cF8hTiMlup4B/7DwA=="
     },
     {
-      "name": "Masked Confrontation",
-      "mana_cost": "{4}{B}{R}",
-      "type_line": "Creature — Human Rogue",
-      "oracle_text": "Disguise {2}{B}{R} (You may cast this card face down for {3} as a 2/2 creature with ward {2}. Turn it face up any time for its disguise cost.)\nWhen Masked Confrontation is turned face up, target opponent reveals their hand. You choose a nonland card from it. That player discards that card.",
-      "flavor_text": "\"Your secrets will see the light, whether you like it or not.\"\n—Anya, sleuth of Karlov",
+      "name": "Mournful Vagrant",
+      "mana_cost": "{2}{B}",
+      "type_line": "Creature — Zombie",
+      "oracle_text": "When Mournful Vagrant enters the battlefield, you may return target creature card from your graveyard to your hand.",
+      "flavor_text": "\"Perhaps the return to life holds more promise than I believed.\"\n—A lost soul drifting through the mists.",
       "power": "3",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B",
-        "R"
-      ],
-      "card": true,
-      "img": "c6cbbc67c3a89a77.webp",
-      "s": "L6h5bbfHlLGGAmdzIfx1Waty2x8bx22ZumOfOly/bZ01/itDt9na5NBES3489itb9A=="
-    },
-    {
-      "name": "Mogis's Favor",
-      "mana_cost": "{B}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant creature\nEnchanted creature gets +2/-1.\nEscape—{2}{B}, Exile two other cards from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
-      "flavor_text": "Rage-crowned Mogis swiftly rewards the virtue of brutality.",
-      "power": null,
-      "toughness": null,
+      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "84b7ab67823d4447.webp",
-      "s": "k25VGiGNwsIyJnE22fejkt5T67TrlRUQ0jb0OBNA+YaRI0kbYKWFmWY6IW+c+eLC2V/s4vOPF2bvIe82CEDtjJwkBVNgw5WKfnA5Y56z98TdRaW5/sZUNsM15zsMTtiMhWNEHjKFz4x6MCxyjOys3cJR9uWimFElzDz0aBUU1rybI1INI4TdmWI7IT4="
+      "img": "83986fd56047e27c.webp",
+      "s": "6eYoZBDn9/e4nFmAlGPDTBmRzpYQt1ghTenY1gcf8tf9sj9zUcK7o/GJTJ6GYs0R"
     },
     {
-      "name": "Daring Escape",
-      "mana_cost": "{R}",
-      "type_line": "Instant",
-      "oracle_text": "Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)\nWhen Emry enters, mill four cards.\n{T}: Choose target artifact card in your graveyard. You may cast that card this turn.",
-      "flavor_text": "As the Adversary's forces descended upon the gala, Elspeth whispered to Giada, \"I can get you out of here, but we have to go now.\"",
+      "name": "Nature's Embrace",
+      "mana_cost": "{2}{G}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant creature or land\nAs long as enchanted permanent is a creature, it gets +2/+2.\nAs long as enchanted permanent is a land, it has \"{T}: Add two mana of any one color.\"",
+      "flavor_text": null,
       "power": null,
       "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "18b108c658249457.webp",
-      "s": "24gjECK8A3Lgujq3NXPZz+MML0lxqVzejmBEuFVfO7rGih8QNPBiKbCrJqwxfdXNsggpHyL6Cq/AMgOYSk1vsNLDPxRjklQ6ra8j4Hx/25jiBXlRa6sW+Y5iUucOA2i20tM3FC+8Dyuvo2ehMS2dwuMHOER6uUqinnNTtE9LNrDTyTAFJu9UPK2RO60lLZqIrQgrAmn0"
-    },
-    {
-      "name": "Raucous Reveler",
-      "mana_cost": "{3}{G}",
-      "type_line": "Creature — Elf Druid",
-      "oracle_text": "When Raucous Reveler enters the battlefield, create a tapped Treasure token. (It's an artifact with \"{T}, Sacrifice this artifact: Add one mana of any color.\")\nWhenever you create one or more Treasure tokens, Raucous Reveler gains +2/+2 until end of turn.",
-      "flavor_text": "In New Capenna, every toast is a chance to strike it rich.\n—A well-known party planner",
-      "power": "2",
-      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "G"
       ],
       "card": true,
-      "img": "5cf263e243fa2a2c.webp",
-      "s": "6tdzToyQopyuXKc4Vbv4drqztWU1STvZrdBQS4dKmw7+kyFliIug5e9KozpIv/Yr"
+      "img": "6a6009600b7e5ed3.webp",
+      "s": "shAERvFNJpYYNO2NSqSxYOI9xkR25ucnJmNH72NBIgDzEjVR+Ux3w1ZgyZdYqr1isznAEiW1sUxyLQzYeF4qCqBZVm7xWGHeGmy/2lr6/WCreJAOOLK1HXIiAe90QToCqF4aDfNOaYNbIe2cAP7+Nb5qg1djqKQaPX9L7zpWLga7UxVGr1RwwWcz8I1d6/R/8CjbRDE="
+    },
+    {
+      "name": "Vessel of Paramnesia",
+      "mana_cost": "{1}{U}",
+      "type_line": "Enchantment",
+      "oracle_text": "{U}, Sacrifice Vessel of Paramnesia: Target player puts the top three cards of his or her library into his or her graveyard. Draw a card.",
+      "flavor_text": "\"Write everything down. Trust me.\"\n—Vallon, Thraben inspector",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "2454178d9fb87128.webp",
+      "s": "Vg1hRiCIrtky3NgpTIB01wOjlstZzFjLYjMZmHIaahNbSmEDCIriimHc2D1NjnjVUqeQnQqfDrowcl+8bAw4HUMPSkIviumRMISKflzeONdK5sCBF5gK6zB9UoRmGzMaTEN/DSKL4cxxydg4Bt87nF//18YViQnrbz5QmGNEOh1fTn5NJJflgi3d3jF23zuAAqWH1AKcE7p3"
     }
   ]
 }
