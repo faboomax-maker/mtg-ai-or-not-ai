@@ -36,7 +36,7 @@ import time
 import uuid
 from urllib.parse import quote
 
-from collections import Counter
+from collections import Counter, defaultdict
 
 from PIL import Image
 
@@ -224,6 +224,71 @@ def set_pool(code: str, quiz_ids: set[str]) -> list[dict]:
     return [c for c in cards if c["id"] not in quiz_ids]
 
 
+BRIEF_SYSTEM = """You are an expert on Magic: The Gathering sets and their art direction.
+Answer with one JSON object only, no commentary."""
+
+
+def set_brief(llm: str, code: str, meta: dict, pool: list[dict]) -> dict:
+    """Description, mechanics and art direction of a real set, written once by the LLM (cached)."""
+    path = WORK_SETS / f"{code}.brief.json"
+    brief = load_json(path, None)
+    if brief:
+        return brief
+    keywords = Counter(k for c in pool for k in (c.get("keywords") or [])).most_common(15)
+    types = Counter(w for c in pool if "—" in c["type_line"]
+                    for w in c["type_line"].split("—")[1].split()).most_common(15)
+    user = (
+        f"Set: «{meta['name']}» ({code.upper()}), released {meta['released_at']}.\n"
+        f"Most frequent keywords/ability words in its cards: {[k for k, _ in keywords]}\n"
+        f"Most frequent subtypes: {[t for t, _ in types]}\n\n"
+        "Return a JSON object with keys:\n"
+        "- description: 2-3 sentences on the plane/world, story and themes of this set;\n"
+        "- mechanics: the set's signature mechanics and how they are worded on cards;\n"
+        "- art_style: 2-3 sentences for an illustrator: setting, architecture, costumes, "
+        "creatures, palette, lighting and the look of the set's official card illustrations."
+    )
+    try:
+        text = call_llm(llm, BRIEF_SYSTEM, user)
+        brief = json.loads(re.search(r"\{.*\}", text, re.S).group(0))
+    except Exception as e:                       # the brief is a bonus, never a blocker
+        print(f"  no brief for {code}: {e}", file=sys.stderr)
+        brief = {}
+    brief = {k: str(brief.get(k) or "") for k in ("description", "mechanics", "art_style")}
+    save_json(path, brief)
+    return brief
+
+
+def real_artists(s) -> set[str]:
+    """Names of every real Magic illustrator (Scryfall catalog), to never reuse one."""
+    path = WORK_SETS / "artists.json"
+    names = load_json(path, None)
+    if names is None:
+        r = s.get(f"{API}/catalog/artist-names", timeout=60)
+        names = r.json().get("data", []) if r.ok else []
+        save_json(path, names)
+    return {n.lower() for n in names}
+
+
+def set_meta(code: str, name: str, pool: list[dict]) -> dict:
+    """Release date and size of a real set (saved by fetch_real.py)."""
+    meta = load_json(WORK_SETS / f"{code}.meta.json", None) or {}
+    dates = sorted(c["released_at"] for c in pool if c.get("released_at"))
+    return {"name": name, "printed_size": None, "card_count": None,
+            **meta, "released_at": meta.get("released_at") or (dates[0] if dates else "2020-01-01")}
+
+
+# Used only if the LLM gives no name or a real artist's name (checked against Scryfall).
+FALLBACK_ARTISTS = ["Mireille Castan", "Tobiah Wrenfield", "Anouk Velder", "Dario Mestrovic",
+                    "Selene Adebayo", "Jorund Haakes", "Ines Carvalho-Roth", "Kenji Arakawa-Bell"]
+
+
+def collector_number(meta: dict, taken: set[str]) -> str:
+    """A free number within the set's main range, like a real card of that set."""
+    size = meta.get("printed_size") or meta.get("card_count") or 250
+    free = [str(n) for n in range(1, size + 1) if str(n) not in taken]
+    return random.choice(free or [str(size + 1)])
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=60)
@@ -248,6 +313,11 @@ def main() -> None:
     # and is designed from that set's own cards, so its mechanics match the symbol.
     real_sets = Counter(c["set"] for c in real)
     set_names = {c["set"]: c["set_name"] for c in real}
+    artists = real_artists(s)
+    FALLBACK_ARTISTS[:] = [a for a in FALLBACK_ARTISTS if a.lower() not in artists] or ["Mireille Castan"]
+    numbers: dict[str, set[str]] = defaultdict(set)   # collector numbers already on a quiz card
+    for c in real + fakes:
+        numbers[c["set"]].add(str(c.get("collector_number")))
     target = {code: round(k * args.count / len(real)) for code, k in real_sets.items()}
     fails = 0
     while len(fakes) < args.count and fails < 10:
@@ -261,12 +331,16 @@ def main() -> None:
                 sys.exit("No usable set pools (Scryfall unreachable?)")
             continue
         banned |= {c["name"].lower() for c in pool}
+        meta = set_meta(code, set_names[code], pool)
+        brief = set_brief(args.llm, code, meta, pool)
         n = min(BATCH, args.count - len(fakes), max(deficits.get(code, 1), 1))
         specs = [spec_from(c) for c in random.choices(pool, k=n)]
         shots = [example_text(c) for c in random.sample(pool, min(10, len(pool)))]
+        about = "".join(f"{k.replace('_', ' ').capitalize()}: {v}\n" for k, v in brief.items() if v)
         user = (
-            f"All cards below come from the real set «{set_names[code]}». Your new cards will be printed "
-            "in that same set: reuse its mechanics, keywords, creature types, factions and world.\n"
+            f"All cards below come from the real set «{set_names[code]}» ({meta['released_at'][:4]}). "
+            "Your new cards will be printed in that same set: reuse its mechanics, keywords, "
+            "creature types, factions and world.\n" + about +
             "Examples from the set (match their templating, tone and power level):\n"
             + json.dumps(shots, ensure_ascii=False, indent=1)
             + f"\n\nDesign {n} NEW cards, one per profile below, in this order:\n"
@@ -274,7 +348,8 @@ def main() -> None:
             + "\n\nReturn a JSON array of objects with keys: name, mana_cost, type_line, oracle_text, "
               "flavor_text (null if the profile says false), power, toughness, loyalty (strings or null), "
               "rarity, art_description (one or two sentences describing the illustration: subject, "
-              "setting, mood; no artist names, no text in the image)."
+              "setting, mood; no artist names, no text in the image), artist (an invented, "
+              "believable illustrator full name; never the name of a real Magic artist)."
         )
         try:
             batch = parse_array(call_llm(args.llm, SYSTEM, user))
@@ -291,12 +366,20 @@ def main() -> None:
                 print(f"  rejected {c.get('name')!r}: {err}")
                 annotate("notice", f"rejected {c.get('name')!r}: {err}"); continue
             banned.add(c["name"].lower())
+            artist = str(c.get("artist") or "").strip()
+            if not artist or artist.lower() in artists:  # never credit a real artist for AI art
+                artist = random.choice(FALLBACK_ARTISTS)
+            number = collector_number(meta, numbers[code])
+            numbers[code].add(number)
             fakes.append({"id": uuid.uuid4().hex, "real": False,
                           **{k: (c.get(k) or None) for k in
                              ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
                               "power", "toughness", "loyalty", "art_description")},
                           "rarity": spec["rarity"], "colors": list(spec["colors"]) if spec["colors"] != "colorless" else [],
-                          "set": code, "set_name": set_names[code], "image": None})
+                          "set": code, "set_name": set_names[code], "artist": artist,
+                          "collector_number": number, "released_at": meta["released_at"],
+                          "set_description": brief.get("description", ""),
+                          "art_style": brief.get("art_style", ""), "image": None})
             print(f"[{len(fakes)}/{args.count}] {c['name']}")
         save_json(out_path, fakes)
 
@@ -306,7 +389,10 @@ def main() -> None:
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
                 c["image"] = img.name; continue
-            prompt = f"{c['art_description']} {ART_STYLE}"
+            year = (c.get("released_at") or "")[:4]
+            prompt = (f"{c['art_description']} Official Magic: The Gathering card illustration for the "
+                      f"set {c['set_name']} ({year}). {c.get('set_description') or ''} "
+                      f"Art direction: {c.get('art_style') or ''} {ART_STYLE}")
             try:
                 raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
             except Exception as e:

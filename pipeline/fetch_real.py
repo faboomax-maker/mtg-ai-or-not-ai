@@ -23,19 +23,21 @@ DEFAULT_QUERY = (
 )
 
 FIELDS = ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
-          "power", "toughness", "loyalty", "rarity", "colors", "cmc",
-          "set", "set_name", "artist", "scryfall_uri")
+          "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords",
+          "set", "set_name", "artist", "collector_number", "released_at", "scryfall_uri")
 
 
 def ensure_set_icon(s, code: str) -> None:
-    """Download the official set symbol (SVG) once; the site colours it by rarity."""
-    path = WORK_SETS / f"{code}.svg"
-    if path.exists():
+    """Download the set symbol (SVG, for the HTML fallback) and set info (size, date) once."""
+    path, meta = WORK_SETS / f"{code}.svg", WORK_SETS / f"{code}.meta.json"
+    if path.exists() and meta.exists():
         return
     r = s.get(f"{API}/sets/{code}", timeout=30)
     time.sleep(0.12)
     r.raise_for_status()
-    path.write_bytes(fetch_bytes(s, r.json()["icon_svg_uri"]))
+    info = r.json()
+    save_json(meta, {k: info.get(k) for k in ("code", "name", "released_at", "card_count", "printed_size")})
+    path.write_bytes(fetch_bytes(s, info["icon_svg_uri"]))
     time.sleep(0.12)
 
 

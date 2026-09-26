@@ -28,7 +28,7 @@ from pathlib import Path
 
 from PIL import Image, ImageColor, ImageDraw, ImageFont, ImageOps
 
-from common import DOCS, ROOT, WORK, WORK_IMG, env, fetch_bytes, load_json, session
+from common import DOCS, ROOT, WORK, WORK_IMG, WORK_SETS, env, fetch_bytes, load_json, session
 
 WORK_CARDS = WORK / "cards"
 KEYRUNE = WORK / "keyrune"
@@ -64,8 +64,20 @@ def esc(t: str) -> str:
     return t.replace("<", "").replace(">", "")
 
 
+# "Landfall — Whenever..." : ability/flavor words are printed in italics. Keywords that also
+# use a dash (Boast, Exhaust...) and modal "Choose one —" stay roman.
+ABILITY_WORD = re.compile(r"^([A-Z][A-Za-z'’ ,-]{1,40}?) — ", re.M)
+ROMAN_BEFORE_DASH = ("Choose", "Boast", "Companion", "Exhaust", "Forecast", "Max speed", "Solved")
+
+
+def _italic_ability_word(m: re.Match) -> str:
+    word = m.group(1)
+    return m.group(0) if word.startswith(ROMAN_BEFORE_DASH) else f"<i>{word}</i> — "
+
+
 def rules_text(text: str | None) -> str:
-    t = re.sub(r"\{([A-Z0-9/]+)\}", r"<sym>\1</sym>", _mana_common(esc(text or "")))
+    t = ABILITY_WORD.sub(_italic_ability_word, esc(text or ""))
+    t = re.sub(r"\{([A-Z0-9/]+)\}", r"<sym>\1</sym>", _mana_common(t))
     return t.replace("</sym><sym>", "")
 
 
@@ -75,15 +87,15 @@ def split_type(type_line: str) -> tuple[str, str]:
 
 
 def planeswalker_fields(text: str) -> dict:
-    """'+1: Draw a card.\\n−3: ...' -> loyalty costs + one ability per line."""
-    fields, lines = {}, []
+    """'+1: Draw a card.\\n−3: ...' -> one 'level N text' per ability + its loyalty cost
+    (the planeswalker style lays each ability out after its '[+1]:' badge)."""
+    fields = {}
     for i, line in enumerate((text or "").split("\n"), 1):
         m = re.match(r"^([+−\-]?(?:\d+|X)):\s*(.*)$", line)
         if m:
             fields[f"loyalty cost {i}"] = m.group(1).replace("-", "−")
             line = m.group(2)
-        lines.append(line)
-    fields["rule text"] = rules_text("\n".join(lines))
+        fields[f"level {i} text"] = rules_text(line)
     return fields
 
 
@@ -95,12 +107,14 @@ def value(key: str, v: str, indent: int = 1) -> str:
     return f"{tab}{key}:\n" + "".join(f"{tab}\t{line}\n" for line in v.split("\n"))
 
 
-def card_block(c: dict, image_name: str) -> str:
+def card_block(c: dict, image_name: str, meta: dict) -> str:
     sup, sub = split_type(c["type_line"])
     pw = "Planeswalker" in sup
     fields = {
         "notes": c["id"],                    # used as the export file name
         "name": esc(c["name"]),
+        "illustrator": esc(c.get("artist") or ""),
+        "custom card number": card_number(c, meta),
         "casting cost": mana_cost(c.get("mana_cost")),
         "image": image_name,
         "super type": esc(sup),
@@ -122,12 +136,32 @@ def card_block(c: dict, image_name: str) -> str:
     return out + "".join(value(k, v) for k, v in fields.items())
 
 
-def set_header(code: str) -> str:
+NEW_NUMBERING = "2023-04-01"                 # from March of the Machine: "C 0100" instead of "100/281 C"
+
+
+def card_number(c: dict, meta: dict) -> str:
+    n = str(c.get("collector_number") or "")
+    if not n.isdigit():                      # e.g. "123a", "★": print as is
+        return n
+    if meta["released_at"] >= NEW_NUMBERING:
+        return n.zfill(4)
+    size = meta.get("printed_size") or meta.get("card_count")
+    return f"{n.zfill(3)}/{str(size).zfill(3)}" if size else n.zfill(3)
+
+
+def set_header(code: str, meta: dict) -> str:
     return f"""mse version: 2.0.2
 game: magic
 stylesheet: {STYLE}
 set info:
 \ttitle: quiz
+\tset code: {code.upper()}
+\tset language: EN
+\tcopyright: ™ & © {meta['released_at'][:4]} Wizards of the Coast
+\tautomatic copyright: yes
+\tautomatic card numbers: no
+\tcard number style: {"0001" if meta["released_at"] >= NEW_NUMBERING else "001/099"}
+\trarity codes: yes
 \tmainframe rarity name: {SYMBOL_DIR}/{code}.png
 \tautomatic reminder text:
 \tmark errors: no
@@ -135,10 +169,14 @@ set info:
 \tauto errata: no
 \tcurly quotes: yes
 \tmana cost sorting: unsorted
-\tautomatic copyright: no
-\tautomatic card numbers: no
-\trarity codes: no
 """
+
+
+def set_meta(code: str, cards: list[dict]) -> dict:
+    """Release date and size of the set (saved by fetch_real.py), else guessed from the cards."""
+    meta = load_json(WORK_SETS / f"{code}.meta.json", None) or {}
+    dates = sorted(c["released_at"] for c in cards if c.get("released_at"))
+    return {**meta, "released_at": meta.get("released_at") or (dates[0] if dates else "2020-01-01")}
 
 
 def art_bytes(path: Path, planeswalker: bool) -> bytes:
@@ -151,11 +189,12 @@ def art_bytes(path: Path, planeswalker: bool) -> bytes:
 
 
 def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path) -> None:
-    text = set_header(code)
+    meta = set_meta(code, [c for c, _ in cards])
+    text = set_header(code, meta)
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for i, (c, art) in enumerate(cards, 1):
             z.writestr(f"image{i}", art_bytes(art, "Planeswalker" in c["type_line"]))
-            text += card_block(c, f"image{i}")
+            text += card_block(c, f"image{i}", meta)
         z.writestr("set", text)
 
 
@@ -251,14 +290,17 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
 
 
 SAMPLES = [
-    {"id": "sample-pw", "set": "dom", "name": "Kasra, Tidecaller", "mana_cost": "{2}{U}{U}",
+    {"id": "sample-pw", "set": "dom", "released_at": "2018-04-27", "collector_number": "56",
+     "artist": "Anouk Velder", "name": "Kasra, Tidecaller", "mana_cost": "{2}{U}{U}",
      "type_line": "Legendary Planeswalker — Kasra", "rarity": "mythic", "loyalty": "4",
      "oracle_text": "+1: Draw a card, then discard a card.\n−2: Tap target creature. It doesn't untap "
                     "during its controller's next untap step.\n−7: You get an emblem with \"Spells you "
                     "cast cost {1} less to cast.\""},
-    {"id": "sample-tap", "set": "blb", "name": "Warden of the Grove", "mana_cost": "{1}{G/W}{G/W}",
-     "type_line": "Creature — Elf Druid", "rarity": "uncommon", "power": "2", "toughness": "3",
-     "oracle_text": "Vigilance\n{T}: Add {G} or {W}.\n{2}{G/P}, {T}: Put a +1/+1 counter on target creature.",
+    {"id": "sample-tap", "set": "blb", "released_at": "2024-08-02", "collector_number": "187",
+     "artist": "Mireille Castan", "name": "Warden of the Grove", "mana_cost": "{1}{G/W}{G/W}",
+     "type_line": "Creature — Rabbit Druid", "rarity": "uncommon", "power": "2", "toughness": "3",
+     "oracle_text": "Vigilance\n{T}: Add {G} or {W}.\nValiant — Whenever this creature becomes the target "
+                    "of a spell or ability you control for the first time each turn, put a +1/+1 counter on it.",
      "flavor_text": "\"Roots remember what the wind forgets.\"\n—Maelis, grove warden"},
 ]
 
