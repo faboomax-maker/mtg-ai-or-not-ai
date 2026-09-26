@@ -1,0 +1,51 @@
+# Regenerates the card pool directly on GitHub (no local setup needed).
+# Actions tab -> "Générer les cartes" -> Run workflow.
+# Requires the API keys as repository secrets (Settings -> Secrets and variables -> Actions).
+name: Générer les cartes
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Nombre de cartes de chaque type (vraies / IA)"
+        default: "60"
+      llm:
+        description: "Fournisseur texte (anthropic | openai)"
+        default: "anthropic"
+      images:
+        description: "Fournisseur images (replicate | pollinations | placeholder)"
+        default: "replicate"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Vraies cartes (Scryfall)
+        run: python pipeline/fetch_real.py --count ${{ inputs.count }}
+      - name: Cartes IA
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
+        run: python pipeline/generate_fake.py --count ${{ inputs.count }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}
+      - name: Construire le site
+        run: python pipeline/build.py
+      - name: Publier
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Nouveau jeu de cartes (${{ inputs.count }} + ${{ inputs.count }})" || echo "Rien à publier"
+          git push

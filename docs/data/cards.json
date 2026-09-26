@@ -1,0 +1,196 @@
+{
+  "generated": "demo",
+  "count": 12,
+  "cards": [
+    {
+      "name": "Giant Growth",
+      "mana_cost": "{G}",
+      "type_line": "Instant",
+      "oracle_text": "Target creature gets +3/+3 until end of turn.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "img": "969de45b79fec226.jpg",
+      "s": "qx6ifIN2DXB88mmVzGHqYjNI2SNDIC4B7czwPOVKqXOjT7lol38PYjhFso3GZOhsYA/Mcw1pfzauhKQ3sEWpPvAepWuOOBVqfu5vlNk+8G9vXs5zAGZtLuCQ5zaoBrZ3sU6zcd1rEm9utz7SmwqjIS5ZiDNJR34t+8rsfPcb528="
+    },
+    {
+      "name": "Emberwake Duelist",
+      "mana_cost": "{1}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "First strike\nWhenever you cast an instant or sorcery spell, this creature gets +1/+0 until end of turn.",
+      "flavor_text": "\"Steel is patient. Fire is not.\"",
+      "power": "2",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "R"
+      ],
+      "img": "65c5bcf387563437.jpg",
+      "s": "f+x6cxY8qCsDgn/YAPmL"
+    },
+    {
+      "name": "Lightning Bolt",
+      "mana_cost": "{R}",
+      "type_line": "Instant",
+      "oracle_text": "Lightning Bolt deals 3 damage to any target.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "img": "27411dc79115883e.jpg",
+      "s": "/5ByLbWfNLT0nzLPDIEDLFtNrxF0YNzULDqK+UINIzr3wWk5oZY2prAo6dcGhAEiCAq6QTopjeNvct7yFwIjd6SQdTq40Syu9oM0zhneGSEHW7hBNyaf+yFmnfMPQTw+5cBjIOuCK6vm2mWIW+FKaUBctVogJ9ulfQqR8BZLfWmmzw=="
+    },
+    {
+      "name": "Mossback Sentinel",
+      "mana_cost": "{3}{G}",
+      "type_line": "Creature — Plant Elemental",
+      "oracle_text": "Reach\nWhen this creature enters, you gain 3 life.",
+      "flavor_text": null,
+      "power": "3",
+      "toughness": "5",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "img": "1c81e99b6c5b66c7.jpg",
+      "s": "vhoF76kqTVLy1dY0ALYj"
+    },
+    {
+      "name": "Dawnbreak Vigil",
+      "mana_cost": "{1}{W}",
+      "type_line": "Enchantment",
+      "oracle_text": "When this enchantment enters, create a 1/1 white Soldier creature token.\nCreatures you control get +0/+1.",
+      "flavor_text": "—Captain Ilsa Marrow",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "img": "ffdcdb569c70b8f7.jpg",
+      "s": "T3syentFAaYcsB5/9OL0"
+    },
+    {
+      "name": "Counterspell",
+      "mana_cost": "{U}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Counter target spell.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "U"
+      ],
+      "img": "af351fca206fb0b1.jpg",
+      "s": "UKuGdhpP0IzELzY9+zvzpn8Odt8xf+nUhFDB1ybMi6JY+p1iDkbSnoCY7SXxPvGoLEljj382uOPHGJXcc8OL7wurgWEXAciWxjMwPO5k6asjGGGPcjmq+4kM1t1rgJSmSvuXe0RSz5PWamF6rFS88WIfZ494L677iQeHgCTS"
+    },
+    {
+      "name": "Tidecaller's Rebuke",
+      "mana_cost": "{1}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Return target nonland permanent to its owner's hand. Scry 1.",
+      "flavor_text": "The sea gives back everything, eventually.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "img": "350e2d1f700650bc.jpg",
+      "s": "Sk1Erf5pHTkXDYyoSUIi"
+    },
+    {
+      "name": "Clockwork Harrier",
+      "mana_cost": "{3}",
+      "type_line": "Artifact Creature — Construct",
+      "oracle_text": "Flying\n{1}: This creature gets +1/-1 until end of turn.",
+      "flavor_text": null,
+      "power": "1",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "img": "04050a30ec1047ed.jpg",
+      "s": "y83Y7HBuFnuCRgIgpBmv"
+    },
+    {
+      "name": "Gravewhisper Toll",
+      "mana_cost": "{2}{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Each opponent sacrifices a creature. You draw a card.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "img": "3dbe04d7a3aea112.jpg",
+      "s": "eKDKQI4mnuw3vd8ONCl6"
+    },
+    {
+      "name": "Doom Blade",
+      "mana_cost": "{1}{B}",
+      "type_line": "Instant",
+      "oracle_text": "Destroy target nonblack creature.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "img": "ed1ba20efed0f0a3.jpg",
+      "s": "W585TW2lEoQB2ZZQZG4zCPQMpvKvOXNtafk6WmexpIZTziJZeawQlkVuTUhuazEGp0uzouFwIloqsW5RMr6kywCfPlpg6wqeA8WQUXExKQWoGrGi7H8wQmSlLVAq/buCQc8oQDO4DZsTnMEXMwZ8RepM4ODXdTBKba58DWWv"
+    },
+    {
+      "name": "Llanowar Elves",
+      "mana_cost": "{G}",
+      "type_line": "Creature — Elf Druid",
+      "oracle_text": "{T}: Add {G}.",
+      "flavor_text": null,
+      "power": "1",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "img": "6addccb20e69c27c.jpg",
+      "s": "YvMSoRSBm/rGnuh0Gg4fACWmqUI+p2vMY5n+j3btUMlqogm1AIiZ6IIpM2wQCx0OduG8EnDuOvsg0aqEI+JQhDnzFbYZz4PgxILudQ9RBQ15sL4SfeEo427F6YU7oU/NeKMDrEqchOXU278zTW5TQzisqgF2onu/R4f8jyWrDpo7rA=="
+    },
+    {
+      "name": "Serra Angel",
+      "mana_cost": "{3}{W}{W}",
+      "type_line": "Creature — Angel",
+      "oracle_text": "Flying, vigilance",
+      "flavor_text": null,
+      "power": "4",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "img": "134371d674ef06cf.jpg",
+      "s": "lqK7L6xCipOla6W6E7AdBVXWOnHbA8wwSva+sjSQ6Uae86A7uEuIgeHcfqIZtR8LBpEvIZVKnQcJvuq5YZ/pC82ivDihDJKJp3ejuwbvBwgJwC0hmEWPH0eqqbh53PZCjPKqIvJflYy3LvL9RM9YVVTSa2HRYoAUTujv5SbR+A=="
+    }
+  ]
+}
