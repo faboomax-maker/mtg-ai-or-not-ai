@@ -21,14 +21,18 @@ permissions:
 
 jobs:
   generate:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest          # Magic Set Editor is a Windows program
     timeout-minutes: 90
+    env:
+      PYTHONUTF8: "1"                # card names/text contain — ’ etc.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
+      - name: Magic Set Editor (cadres M15)
+        run: ./pipeline/setup_mse.ps1 -Dir mse
       - name: Vraies cartes (Scryfall)
         run: python pipeline/fetch_real.py --count ${{ inputs.count }}
       - name: Cartes IA
@@ -51,9 +55,14 @@ jobs:
           name: images-ia
           path: pipeline/work/raw/
           if-no-files-found: ignore
+      - name: Rendu des cartes (Magic Set Editor)
+        env:
+          MSE_DIR: ${{ github.workspace }}/mse
+        run: python pipeline/render_mse.py
       - name: Construire le site
         run: python pipeline/build.py
       - name: Publier
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"

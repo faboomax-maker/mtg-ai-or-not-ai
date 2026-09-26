@@ -2,11 +2,11 @@
 
 Un quiz web : chaque carte est soit une **vraie carte Magic**, soit une carte **inventée par une IA** (texte et illustration). Le joueur doit deviner laquelle.
 
-Toutes les cartes passent par **le même rendu** : même cadre CSS, illustrations recadrées et recompressées à l'identique, métadonnées supprimées, fichiers renommés au hasard. Seul le contenu peut trahir une carte.
+Toutes les cartes passent par **le même rendu** : [Magic Set Editor](https://github.com/twanvl/MagicSetEditor2) les dessine avec le même cadre M15 (templates du [Full Magic Pack](https://github.com/MagicSetEditorPacks/Full-Magic-Pack)), illustrations recadrées à l'identique, symbole de set dessiné pareil, fichiers renommés au hasard. Seul le contenu peut trahir une carte.
 
 ```
 Scryfall (gratuit) ──► vraies cartes : texte + « art crop »  ─┐
-                                                             ├─► build.py ─► docs/ (GitHub Pages)
+                                                             ├─► render_mse.py (Magic Set Editor) ─► build.py ─► docs/
 LLM (texte) + FLUX (image) ──► cartes IA                     ─┘
 ```
 
@@ -44,7 +44,9 @@ python pipeline/fetch_real.py --count 60                # 1. vraies cartes (Scry
 export ANTHROPIC_API_KEY=...  REPLICATE_API_TOKEN=...
 python pipeline/generate_fake.py --count 60             # 2. cartes IA
 
-python pipeline/build.py                                # 3. assemble docs/
+powershell -ExecutionPolicy Bypass -File pipeline/setup_mse.ps1   # une fois : MSE + polices (Windows)
+python pipeline/render_mse.py                           # 3. rendu des cartes avec MSE
+python pipeline/build.py                                # 4. assemble docs/
 python -m http.server -d docs 8000                      # aperçu sur http://localhost:8000
 ```
 
@@ -67,7 +69,7 @@ Autres modes utiles : `--images placeholder` (dégradés, pour tester gratuiteme
 ## Ce qui rend les fausses cartes crédibles
 
 - **Même profil que les vraies** : chaque carte IA reprend les couleurs, le type, la rareté, la valeur de mana et la présence ou non de flavor text d'une vraie carte. Les deux pools ont donc la même distribution.
-- **Vrais symboles de set** : les vraies cartes affichent le symbole officiel de leur extension (SVG fourni par Scryfall), coloré selon la rareté. Chaque carte IA est « rangée » dans une extension des vraies cartes, avec la même répartition, et reçoit son symbole.
+- **Vrais symboles de set** : les vraies cartes affichent le symbole de leur extension (police [Keyrune](https://keyrune.andrewgioia.com)), coloré selon la rareté. Les extensions absentes de Keyrune sont ignorées. Chaque carte IA est « rangée » dans une extension des vraies cartes, avec la même répartition, et reçoit son symbole.
 - **Cohérence avec le set** : le prompt de chaque carte IA contient 10 vraies cartes *de la même extension*, pour reprendre ses mécaniques, types de créatures, factions et univers, ainsi que le templating Oracle et le niveau de puissance. Un symbole Bloomburrow sur une carte sans animaux ne trahira donc personne. Ces exemples ne sont jamais montrés dans le quiz.
 - **Honnêteté à la révélation** : après la réponse, une carte IA indique que son symbole de set a été emprunté.
 - **Filtres** : coût de mana valide, force/endurance présentes, longueur raisonnable, et **nom vérifié inexistant** sur Scryfall.
@@ -82,12 +84,13 @@ Réglages : modèle via `LLM_MODEL`, requête Scryfall via `--query` (par exempl
 docs/                 site statique publié par GitHub Pages
   index.html  style.css  app.js
   data/cards.json     cartes (réponse légèrement obfusquée)
-  img/                illustrations normalisées 640×468
-  sets/               symboles de set (SVG)
+  img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/
   fetch_real.py       1. vraies cartes depuis Scryfall
   generate_fake.py    2. cartes IA (texte + image)
-  build.py            3. fusion, mélange, export vers docs/
+  render_mse.py       3. rendu des cartes avec Magic Set Editor (cadre M15, symboles Keyrune)
+  setup_mse.ps1       installe MSE (Full Magic Pack, templates M15) et ses polices
+  build.py            4. fusion, mélange, export vers docs/
   demo.py             jeu de démo hors ligne
   common.py  placeholder.py
 .github/workflows/generate.yml   génération à la demande sur GitHub
@@ -97,7 +100,8 @@ pipeline/
 
 - La réponse est seulement **obfusquée** dans `cards.json` : un joueur qui fouille le code peut tricher. C'est un jeu entre amis, pas un examen.
 - Les cartes sont en anglais : c'est la langue de référence de Scryfall et des modèles.
-- Cadre maison, sans les éléments graphiques officiels de Wizards. Il est identique pour toutes les cartes, et c'est ce qui compte pour le quiz.
+- Le rendu demande Windows (Magic Set Editor) : le workflow GitHub tourne donc sur un runner Windows.
+- Sans ender_mse.py, uild.py retombe sur l'ancien cadre HTML/CSS.
 
 ## Crédits et licences
 

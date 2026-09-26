@@ -62,6 +62,9 @@ function setSymbol(c) {
 }
 
 function renderCard(c) {
+  if (c.card) {  // full card rendered by Magic Set Editor (same frame for real and AI cards)
+    return `<div class="card-wrap"><img class="card-img" src="img/${c.img}" alt="${esc(c.name)}"></div>`;
+  }
   const cost = (c.mana_cost || "").match(/\{[^}]+\}/g) || [];
   const flavor = c.flavor_text
     ? `<p class="flavor${c.oracle_text ? "" : " solo"}">${esc(c.flavor_text).replace(/\n/g, "<br>")}</p>` : "";
@@ -109,7 +112,8 @@ function show() {
   const c = state.deck[state.i];
   state.answered = false;
   $("card-slot").innerHTML = renderCard(c);
-  document.fonts.ready.then(() => fitText($("card-slot").querySelector(".textbox")));
+  const box = $("card-slot").querySelector(".textbox");
+  if (box) document.fonts.ready.then(() => fitText(box));
   $("choices").hidden = false; $("verdict").hidden = true;
   $("progress").textContent = `${state.i + 1} / ${state.deck.length}`;
   $("score").textContent = state.score; $("streak").textContent = state.streak;
