@@ -3,179 +3,172 @@
   "count": 10,
   "cards": [
     {
-      "name": "Dauntless Dismantler",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Human Artificer",
-      "oracle_text": "Artifacts your opponents control enter the battlefield tapped.\n{X}{X}{W}, Sacrifice Dauntless Dismantler: Destroy each artifact with mana value X.",
-      "flavor_text": "To their dismay, Brazen Coalition explorers soon found that the Oltec were not impressed by cannons.",
-      "power": "1",
+      "name": "Rustling Grove Spirit",
+      "mana_cost": "{3}{G}",
+      "type_line": "Creature — Spirit",
+      "oracle_text": "When Rustling Grove Spirit enters the battlefield, you may search your library for a Forest card, reveal it, put it into your hand, then shuffle.",
+      "flavor_text": "Legends speak of a spirit that guards the grove, guiding lost wanderers back to the light of day.",
+      "power": "2",
       "toughness": "4",
       "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "60896128c28a6926.webp",
-      "s": "d5M5tmXvgk0+KM1NC/rh//sp6tAqmL3AtnTdDYqW9dhP0D22du3TV3E6n3EWt6285m6y0jLZ7eC3Yolj38WjvGXTPrll7dQSPhLQWxqjs7PnbrLSMs3t+Pwr3WONkfWIf4tk/Hfg0g54PdNUQLWusKcv/4B0l/P3tz7FboGE9JZ43S6gd67EHm0x3lYauqSvtznqn0/L8OGscph8hJXo2nE="
-    },
-    {
-      "name": "Fleeting Riches",
-      "mana_cost": "{1}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nYou may sacrifice a Treasure. If you do, this spell deals 2 damage to any target.",
-      "flavor_text": "\"In the chaos of battle, even a moment of distraction can turn into a spark that ignites treasure.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
       "rarity": "common",
       "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "bff593728de2e1e3.webp",
-      "s": "i0Tike11xUZT9M0B9H4FrUt1gK2Ti9hmja84Xv5IkxWTCvmE/3yDXg4="
-    },
-    {
-      "name": "In Bolas's Clutches",
-      "mana_cost": "{4}{U}{U}",
-      "type_line": "Legendary Enchantment — Aura",
-      "oracle_text": "Enchant permanent\nYou control enchanted permanent.\nEnchanted permanent is legendary.",
-      "flavor_text": "\"Your contract is in default. You belong to me now. Serve, or die.\"\n—Nicol Bolas",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "4d39d3e69f5f35c8.webp",
-      "s": "tShBZ27fCulfg9bNqlqNmh/D41QwWPJ6FmMWoxWYWVbsJhMgbsFcugyDhoLvVPfZD823JX4dvFIYLFPtVp9CW+wwEyBnx1yjDM2Ll7wV38EKx/saJBu/U1ZtHr8QxVRYoyUGNiDaRv4dmMjZvAWA2wDT4xViHaMBDHoSkgeFRUWtbw5jf9oKrg=="
-    },
-    {
-      "name": "Ravaging Duelist",
-      "mana_cost": "{1}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Whenever Ravaging Duelist attacks, it deals 1 damage to target creature defending player controls.",
-      "flavor_text": "Victory belongs to those who dare to challenge fate.",
-      "power": "2",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "fd2fec83cc3c2e2d.webp",
-      "s": "ltE/kgvTODE0jDeu1Rh+qKKvCoDKGsHN8QbpFSWe+A2M0TA="
-    },
-    {
-      "name": "Scholar's Insight",
-      "mana_cost": "{1}{B}{G}",
-      "type_line": "Sorcery",
-      "oracle_text": "You draw a card.\nLearn. (You may reveal a Lesson card you own from outside the game and put it into your hand, or discard a card to draw a card.)",
-      "flavor_text": "\"Knowledge is as much about failure as it is about success. Embrace both.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B",
         "G"
       ],
       "card": true,
-      "img": "384de14ec3a47f5f.webp",
-      "s": "ElxmzZ4HPiWsHxPHiyf4NUZoM65oS8WF/N1DxuqLr74MEC6IrAh0cOMVUsSeYpl0A34l+Dc="
+      "img": "8171c830bbc8a279.webp",
+      "s": "aNJC18A7Mk7r9iX4/l8rPaEHtRdcfmnRxo0QVrfYDYcp0H7XzjkwMLL+Jef5QyVg"
     },
     {
-      "name": "Reject",
-      "mana_cost": "{1}{U}",
+      "name": "Kykar, Wind's Fury",
+      "mana_cost": "{1}{U}{R}{W}",
+      "type_line": "Legendary Creature — Bird Wizard",
+      "oracle_text": "Flying\nWhenever you cast a noncreature spell, create a 1/1 white Spirit creature token with flying.\nSacrifice a Spirit: Add {R}.",
+      "flavor_text": "\"The raging gale fans the flames of righteous wrath.\"",
+      "power": "3",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "mythic",
+      "colors": [
+        "R",
+        "U",
+        "W"
+      ],
+      "card": true,
+      "img": "f70dbd840ebb9b2f.webp",
+      "s": "rMHFqNezxDn5fWQkYuEhxN3wVyv6jaW+7EobIdGCgxnl04X9lPPGIbh7Yjh0uSPcjrdkJKjC9ImjdBtkoMvXG6KR2++M/8RrrX1mIj3iLpXN51pvocHr0+BXEy7hhoVd+I6F/Znt1zH2Ym86Zr8skcf7R3rty/KP+gcLde+4hFaikdSoi76Wavt0"
+    },
+    {
+      "name": "Fractured Expanse",
+      "mana_cost": null,
+      "type_line": "Land",
+      "oracle_text": "This land enters tapped.\n{T}: Add {C}.",
+      "flavor_text": "In the heart of a dimension's rift, the landscape shifts and writhes, revealing hidden wonders and lurking dangers.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "e65e81be0a8271ad.webp",
+      "s": "nhMfm/VuY3Pu5TbPYg+gCOrG261wQ7KqQKSIIMxAFSijQwyd4HczLOz+"
+    },
+    {
+      "name": "Verdant Sanctum",
+      "mana_cost": "{4}{G}",
+      "type_line": "Enchantment",
+      "oracle_text": "Whenever you cast a creature spell, you gain 2 life.\nSacrifice Verdant Sanctum: Return target creature card from your graveyard to your hand.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "6905fb95cdd2dc25.webp",
+      "s": "TJHJ3pLUdE5EwdoPUbZdssGTeJqSzaBkKgpN64GXPN4XgYuJw5or"
+    },
+    {
+      "name": "Cinderflare Sentinel",
+      "mana_cost": "{3}{R}",
+      "type_line": "Artifact Creature — Robot Warrior",
+      "oracle_text": "Haste\nWhenever this creature attacks, it deals 1 damage to target creature or player.",
+      "flavor_text": "\"Embers of the past forge futures anew—the flames of progress shall never die.\"",
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "72e1c1995a57963c.webp",
+      "s": "cJl0hpENk1z6PRaLZlDsSd8VoHAitKDKU9mWZlEE00ROz2ORngjFD78oVZo="
+    },
+    {
+      "name": "Frosted Summit",
+      "mana_cost": null,
+      "type_line": "Snow Land",
+      "oracle_text": "{T}: Add {C}.",
+      "flavor_text": "\"Where ice meets the sky, echoes of ancient battles linger in the chill air.\"\n—Iskene, Kannah storyteller",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "573d010748c008a0.webp",
+      "s": "Dd9a03lb4/J9EZl2IFEPPJX/Z1I7HH7xSN7xmWK5TBBUgA=="
+    },
+    {
+      "name": "Mammoth Growth",
+      "mana_cost": "{2}{G}",
       "type_line": "Instant",
-      "oracle_text": "Counter target creature or planeswalker spell unless its controller pays {3}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
-      "flavor_text": "\"Grux, for the last time, you have to do more than simply shout 'Apply!' at the administrators.\"\n—Pavil, admissions officer",
+      "oracle_text": "Target creature gets +4/+4 until end of turn.\nForetell {G} (During your turn, you may pay {2} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)",
+      "flavor_text": "Thus the longhall became a flathall.",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "U"
+        "G"
       ],
       "card": true,
-      "img": "3de83de3c2b69178.webp",
-      "s": "Mgnf0chzgJ4NllmBJ4EUynD8mYoeZeETgse+hmmGk6cnEY3nynfNy0HCRJJi4FWPZurPhARnojKC3KSKI93F4BNEwcDIcYLmQpBEh2CBFMp264GKHmXhKILBp407yMqxKlnU0shzzopOjUbbIcxGjCzqmdALcPNvhNC9m2KT2rc9RvLHxmrQx0jfSoQrj0k="
+      "img": "858825958629c22f.webp",
+      "s": "yLFAZrWckIpbQ1V5N1wXENfHCAwe2/FADY7DPirA5CKfsxBipoTbww8VHSxwOVtBwYI7QVaP8SdMwNIkI4uzIJH7Rnekg4ifVEREfisWVl7IjB9BSdSwah6GiD0nxKYxi6AdbrWd398PXwprIB9ARsydCVpJpKBkGZDEM3LI+WmR7g=="
     },
     {
-      "name": "Boulder Dash",
-      "mana_cost": "{1}{R}",
-      "type_line": "Sorcery",
-      "oracle_text": "Boulder Dash deals 2 damage to any target and 1 damage to any other target.",
-      "flavor_text": "It was the first year the downhill event had been included in the Frogtosser Games. It would also be the last.",
-      "power": null,
-      "toughness": null,
+      "name": "Titanbones, Towering Heart",
+      "mana_cost": "{3}{G}",
+      "type_line": "Legendary Creature — Skeleton Druid",
+      "oracle_text": "Reach\nWhenever you gain life, put two +1/+1 counters on Titanbones.\nWhen you discard this card, you gain 3 life.",
+      "flavor_text": "Titanbones found he received the greatest gifts in the littlest things.",
+      "power": "4",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "R"
+        "G"
       ],
       "card": true,
-      "img": "ffb28bf1f8e5232a.webp",
-      "s": "biRHplOuHEdU9fCo5C16kHgyT3+Bd8LlQlM4Agv8Ew15b0WwV6YcUVSj46/1aCnGKW0bf/g/lcpGAQMODr01HTcqFeFHsFJfTqGgtfV1KsExeBQu2CWZz0xNI1UGsztBdmdHpx2nXRFbsLDqrmM1x2czXi+WM4HaRR46DwiDJQFgdFamD6NOFFb8"
+      "img": "26ed1dcfef65ceda.webp",
+      "s": "wz8uD+2QaZcFg0XoD2tjDB3AVzrcOI4NJS3q9CzDOzzKfD8e+Y4ujwnXFfwYMypdGocZOMRSySwwKfS9HdBoE9Z6fkas3j7fSdUNvUgvN1oe1hk3yWvPLTkq5/E0lHgV1TI/C/6YZMtXlhivXHFsWgfRQnaEd8I6M2Hy8i/faRPWenEC6Z052RqCQ/A1NCxbHMZGJYdoxX09"
     },
     {
-      "name": "Fleetfoot Dancer",
-      "mana_cost": "{1}{R}{G}{W}",
-      "type_line": "Creature — Elf Druid",
-      "oracle_text": "Trample, lifelink, haste",
-      "flavor_text": "The Vanto Beatdown began as an improvised dance-battle at the Rose Room lounge. When word spread of how many were slain at the first event, it became a citywide obsession.",
+      "name": "Synthesizer Labship",
+      "mana_cost": "{U}",
+      "type_line": "Artifact — Spacecraft",
+      "oracle_text": "Station (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 9+.)\n2+ | At the beginning of combat on your turn, up to one other target artifact you control becomes an artifact creature with base power and toughness 2/2 and gains flying until end of turn.\n9+ | Flying, vigilance",
+      "flavor_text": null,
       "power": "4",
       "toughness": "4",
       "loyalty": null,
       "rarity": "rare",
       "colors": [
-        "G",
-        "R",
-        "W"
-      ],
-      "card": true,
-      "img": "f389f6fd00323be7.webp",
-      "s": "GEZeVzU0F341i3aYA18MFZYozPhpSq1IYA1lX9fsVs4FRGJXI3h2JWWaaoMHUQAXxyzKrjoZ+zkuXyJwzOwe1AJEflMkMFQhed0ozUQGXlvHd5j4Ox77a2dFLxXQ/ATYBQVAXno7Wik6nGWfAlxfWYZiieJrRel3cRp0XMzwAowHBUJRMSoKMWGSW54JBl5UgHDZqjpI8g=="
-    },
-    {
-      "name": "Ivor, Street Whisperer",
-      "mana_cost": "{2}{B}{U}",
-      "type_line": "Legendary Creature — Human Rogue",
-      "oracle_text": "Connive 1",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [
-        "B",
-        "U",
-        "W"
-      ],
-      "card": true,
-      "img": "8a2005c34e930877.webp",
-      "s": "xgw0UEvk94p8AwAceC6inQDEEZF6uV2iNjDAU2mQn+PSSGZ7T//18z0VBB5lKqzA"
-    },
-    {
-      "name": "Cavern's Insight",
-      "mana_cost": "{2}{U}{U}",
-      "type_line": "Instant",
-      "oracle_text": "Choose one —\n• Draw three cards.\n• Target creature you control explores.",
-      "flavor_text": "\"The echoes of ancient wisdom can guide our path through the dark.\"\n—Keira, Merfolk scholar",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
         "U"
       ],
       "card": true,
-      "img": "6923f8e94bc89ebc.webp",
-      "s": "3tAf1OnOgrE54B/EMYx1h70msPxA0BMdFu8La4AwYtuFsQzH7dDO+DnpGIgLkTjL/jv39Q=="
+      "img": "c37059a7f732d4f8.webp",
+      "s": "ux0rAMqaZ0dVh1WtoEVKqXZEACx7zxilk5SFUQxWWRy0WisLwoIsGAbRC/jnCBj/bFIALHvPGKGTgYmywl5ZC69bK6YGkTAYD9N3G2wbD/EnDVQsNJ1Wws3TwhkXRAkq+hB2FsiEPBsUn0v2pgYHpGZABmpuilWF2MvRXhBJFy2oWioM0ZM3UBmSRautABq0cFUZUTKAT5KUlt0QE1lbJA=="
+    },
+    {
+      "name": "Dokuchi Silencer",
+      "mana_cost": "{1}{B}",
+      "type_line": "Creature — Human Ninja",
+      "oracle_text": "Ninjutsu {1}{B} ({1}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever Dokuchi Silencer deals combat damage to a player, you may discard a creature card. When you do, destroy target creature or planeswalker that player controls.",
+      "flavor_text": null,
+      "power": "2",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "344ad95dd86fadcd.webp",
+      "s": "ZnNRO3TQTZxK6/RrOAIKmE2dxWKJeDg9BBE2V2gF6go9H0Yxe5wr3wT+9WokDAaaHJnDNNorblRfXH10aATiVD0DQi56xg6ERr+kay9CCIAe2tk0xyhpTEpTLFN7C+1RcT0NPXrRQMUL7eIxM0tFlQfNniTcM28VDRVyQ2Ae7l5+NFFhYMgC+Rnw82w+SxfbTpGTPQ=="
     }
   ]
 }
