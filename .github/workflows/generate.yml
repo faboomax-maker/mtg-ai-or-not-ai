@@ -14,8 +14,8 @@ on:
         description: "Fournisseur texte (openai | anthropic)"
         default: "openai"
       images:
-        description: "Fournisseur images (replicate | openai | pollinations | placeholder)"
-        default: "replicate"
+        description: "Fournisseur images (fal | replicate | openai | pollinations | placeholder)"
+        default: "fal"
 
 permissions:
   contents: write
@@ -60,6 +60,12 @@ jobs:
           # reference images: mix (2 set illustrations + 1 public-domain painting), set, classic
           STYLE_REFS: ${{ vars.STYLE_REFS }}
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          # fal.ai (images = fal): FLUX.2 klein base + LoRA with the steps it needs
+          FAL_MODEL: ${{ vars.FAL_MODEL }}
+          FAL_STEPS: ${{ vars.FAL_STEPS }}
+          FAL_GUIDANCE: ${{ vars.FAL_GUIDANCE }}
+          FAL_IMAGE_SIZE: ${{ vars.FAL_IMAGE_SIZE }}
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
         run: python pipeline/generate_fake.py --count ${{ inputs.count }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}
       - name: Sauvegarder les images IA (originaux)

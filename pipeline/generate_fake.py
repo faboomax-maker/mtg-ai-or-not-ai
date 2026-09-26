@@ -19,6 +19,8 @@ Image providers (--images):
     openai        OPENAI_API_KEY (or LLM_API_KEY), IMAGE_MODEL (default gpt-image-2.5-sunburst; or
                   gpt-image-2.5-flare), IMAGE_QUALITY (medium), IMAGE_SIZE (1536x1152 = 4:3);
                   reference images go through /v1/images/edits
+    fal           FAL_KEY, FAL_MODEL (default fal-ai/flux-2/klein/4b/base/lora + LORA_URL/LORA_SCALE),
+                  FAL_STEPS (50), FAL_GUIDANCE (3.5), FAL_IMAGE_SIZE (1280x960), negative prompt
     pollinations  POLLINATIONS_KEY (optional depending on their current policy)
     placeholder   coloured gradients, for testing the site without spending anything
     none          skip images (drop your own files in pipeline/work/img/fake_<id>.jpg)
@@ -144,7 +146,22 @@ LORA_DEFAULT = ("https://huggingface.co/giannisan/light-fantasy-flux2-klein-base
 
 
 def uses_lora(model: str) -> bool:
-    return model.endswith("-lora")
+    return model.endswith("-lora") or model.endswith("/lora")
+
+
+# fal.ai runs FLUX.2 klein base with LoRAs and lets us set the steps/guidance the base
+# (undistilled) model needs - Replicate's version runs too few steps and comes out blurry.
+FAL_DEFAULT = "fal-ai/flux-2/klein/4b/base/lora"
+NEGATIVE = ("blurry, out of focus, foggy, muddy, low detail, low contrast, text, letters, signature, "
+            "watermark, logo, frame, border, 3d render, cgi, anime, cartoon, plastic skin, airbrushed, "
+            "deformed hands, extra fingers, extra limbs")
+
+
+def lora_active() -> bool:
+    """Is a LoRA (and its trigger word) used for the images of this run?"""
+    provider = env("IMAGE_PROVIDER", "")
+    return (provider == "fal" and uses_lora(env("FAL_MODEL", FAL_DEFAULT))) or \
+        (provider == "replicate" and uses_lora(env("REPLICATE_MODEL", "")))
 
 
 def refs_enabled() -> bool:
@@ -187,9 +204,7 @@ def art_prompt(c: dict) -> str:
             f"References: {ref_labels(len(refs))}" if refs else "",
             f"Constraints: {ART_CONSTRAINTS}"]))
     note = ref_note() + " " if refs else ""
-    model = env("REPLICATE_MODEL", "")
-    trigger = f"{env('LORA_TRIGGER', 'light_fantasy')}, a detailed fantasy painting. " \
-        if env("IMAGE_PROVIDER") == "replicate" and uses_lora(model) and env("LORA_TRIGGER", "light_fantasy") else ""
+    trigger = f"{env('LORA_TRIGGER', 'light_fantasy')}, a detailed fantasy painting. " if lora_active() else ""
     return (f"{trigger}{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
             f"Illustration as painted around {year}. {note}{ART_STYLE}")
 
@@ -468,6 +483,21 @@ def _gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = N
             raise RuntimeError(f"replicate: {pred.get('error')}")
         out = pred["output"]
         return fetch_bytes(s, out[0] if isinstance(out, list) else out)
+    if provider == "fal":
+        key = env("FAL_KEY") or sys.exit("FAL_KEY missing")
+        model = env("FAL_MODEL", FAL_DEFAULT)
+        w, h = (int(x) for x in env("FAL_IMAGE_SIZE", "1280x960").split("x"))
+        body = {"prompt": prompt, "negative_prompt": NEGATIVE, "image_size": {"width": w, "height": h},
+                "num_inference_steps": int(env("FAL_STEPS", "50")),        # LoRA author: 50 steps,
+                "guidance_scale": float(env("FAL_GUIDANCE", "3.5")),       # guidance 3.5
+                "acceleration": env("FAL_ACCELERATION", "none"),
+                "seed": seed, "num_images": 1, "output_format": "jpeg"}
+        if uses_lora(model):
+            body["loras"] = [{"path": env("LORA_URL", LORA_DEFAULT), "scale": float(env("LORA_SCALE", "0.8"))}]
+        r = s.post(f"https://fal.run/{model}", timeout=600, json=body,
+                   headers={"authorization": f"Key {key}", "content-type": "application/json"})
+        check(r, fatal=(401, 403, 404, 422))    # 422 = invalid input: fix the settings
+        return fetch_bytes(s, r.json()["images"][0]["url"])
     if provider == "openai":
         key = env("OPENAI_API_KEY") or env("LLM_API_KEY") or sys.exit("OPENAI_API_KEY missing")
         params = {"model": env("IMAGE_MODEL", "gpt-image-2.5-sunburst"), "prompt": prompt,
@@ -728,7 +758,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=60)
     ap.add_argument("--llm", choices=["anthropic", "openai"], default="anthropic")
-    ap.add_argument("--images", choices=["replicate", "openai", "pollinations", "placeholder", "none"],
+    ap.add_argument("--images", choices=["replicate", "fal", "openai", "pollinations", "placeholder", "none"],
                     default="replicate")
     ap.add_argument("--no-name-check", action="store_true")
     ap.add_argument("--rarity-weights", default=None,
@@ -867,10 +897,11 @@ def main() -> None:
     # --- images
     if args.images != "none":
         model = {"replicate": env("REPLICATE_MODEL", "black-forest-labs/flux-schnell"),
+                 "fal": f"{env('FAL_MODEL', FAL_DEFAULT)} ({env('FAL_STEPS', '50')} steps, guidance {env('FAL_GUIDANCE', '3.5')})",
                  "openai": f"{env('IMAGE_MODEL', 'gpt-image-2.5-sunburst')} "
                            f"({env('IMAGE_QUALITY', 'medium')}, {env('IMAGE_SIZE', '1536x1152')})"}.get(args.images, args.images)
         lora = (f"; LoRA {env('LORA_URL', LORA_DEFAULT).split('/')[4]} x{env('LORA_SCALE', '0.8')}"
-                if args.images == "replicate" and uses_lora(env("REPLICATE_MODEL", "")) else "")
+                if lora_active() else "")
         annotate("notice", f"image model: {model}{lora}; reference images ({env('STYLE_REFS', 'mix')}): "
                            f"{'yes' if refs_enabled() else 'no'}")
         for i, c in enumerate(fakes):
