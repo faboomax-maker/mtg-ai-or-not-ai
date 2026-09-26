@@ -254,7 +254,8 @@ def main() -> None:
         try:
             batch = parse_array(call_llm(args.llm, SYSTEM, user))
         except Exception as e:
-            fails += 1; print("LLM error:", e, file=sys.stderr); time.sleep(3); continue
+            fails += 1; print("LLM error:", e, file=sys.stderr); annotate("warning", f"LLM error: {e}")
+            time.sleep(3); continue
         for c, spec in zip(batch, specs):
             err = validate(c, spec)
             if not err and c["name"].lower() in banned:
@@ -262,7 +263,8 @@ def main() -> None:
             if not err and not args.no_name_check and not name_is_new(s, c["name"]):
                 err = "existing card name"
             if err:
-                print(f"  rejected {c.get('name')!r}: {err}"); continue
+                print(f"  rejected {c.get('name')!r}: {err}")
+                annotate("notice", f"rejected {c.get('name')!r}: {err}"); continue
             banned.add(c["name"].lower())
             fakes.append({"id": uuid.uuid4().hex, "real": False,
                           **{k: (c.get(k) or None) for k in
@@ -283,7 +285,8 @@ def main() -> None:
             try:
                 raw = gen_image(args.images, prompt, seed=random.randint(1, 2**31 - 1))
             except Exception as e:
-                print(f"  image failed for {c['name']}: {e}", file=sys.stderr); continue
+                print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
+                annotate("warning", f"image failed: {e}"); continue
             normalize_image(raw, img)
             c["image"] = img.name
             save_json(out_path, fakes)
@@ -301,5 +304,19 @@ def main() -> None:
         sys.exit("No AI card got an illustration: see the image errors above.")
 
 
+def annotate(level: str, msg) -> None:
+    """On GitHub Actions, also show the message on the run summary page."""
+    if env("GITHUB_ACTIONS"):
+        print(f"::{level}::{str(msg).replace(chr(10), ' ')[:900]}")
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        if isinstance(e.code, str):
+            annotate("error", e.code)
+        raise
+    except Exception as e:
+        annotate("error", f"{type(e).__name__}: {e}")
+        raise
