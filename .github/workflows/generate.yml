@@ -54,6 +54,7 @@ jobs:
           LORA_URL: ${{ vars.LORA_URL }}
           LORA_SCALE: ${{ vars.LORA_SCALE }}
           LORA_TRIGGER: ${{ vars.LORA_TRIGGER }}
+          IMAGE_MEGAPIXELS: ${{ vars.IMAGE_MEGAPIXELS }}
           # images tried per AI card (each checked by the vision model), 1 = no check
           ART_TRIES: ${{ vars.ART_TRIES }}
           # reference images: mix (2 set illustrations + 1 public-domain painting), set, classic

@@ -57,12 +57,13 @@ from realism import (add_missing_reminders, art_focus, art_problem, artist_name,
 BATCH = 8
 # Never name the game, a set or a "card" here: image models then paint logos and titles.
 ART_PAINT = ("Traditional oil painting by a seasoned professional fantasy and science-fiction illustrator, "
-             "true to the world described above: realistic anatomy and proportions, loose confident "
-             "brushwork with visible strokes, soft and lost edges, varied broken color, the focal subject "
-             "painted in detail while the background and the edges of the canvas stay softer, looser and "
-             "partly unfinished - hand-made, not an evenly sharp, polished or airbrushed digital render. "
-             "Natural lighting, restrained palette without neon glow or haze, asymmetric readable "
-             "composition with one clear focal subject, atmospheric depth.")
+             "true to the world described above: realistic anatomy and proportions, confident painterly "
+             "brushwork with visible strokes and varied color. The focal subject is in sharp focus, "
+             "crisply drawn with fine detail and a clear, well-lit silhouette; the background is painted "
+             "a little more loosely but stays clear and readable - never blurry, foggy or muddy. "
+             "Hand-made, not an airbrushed or plastic digital render. Natural lighting with good value "
+             "contrast, restrained palette without neon glow, asymmetric readable composition with one "
+             "clear focal subject.")
 ART_CONSTRAINTS = ("Pure illustration with no text, no letters, no signs or lettering anywhere in the scene, "
                    "no logo, no title, no signature, no watermark, no border, no frame.")
 ART_STYLE = f"{ART_PAINT} {ART_CONSTRAINTS}"
@@ -74,11 +75,11 @@ _NEW_SCENE = "Paint an entirely new scene: do not copy the subjects, characters 
 REF_NOTES = {   # instruction matching the STYLE_REFS mode
     "mix": ("Reference images: the first ones are official illustrations of this same world - take its "
             "costumes, architecture, creatures and palette from them; the last one is a classic oil "
-            "painting - imitate its loose brushwork, soft edges and color handling. " + _NEW_SCENE),
+            "painting - imitate its brushwork and color handling. " + _NEW_SCENE),
     "set": ("The reference images are official illustrations of this same world by different artists: "
             "match their painting technique, palette, lighting and level of detail. " + _NEW_SCENE),
-    "classic": ("The reference image is a classic oil painting: imitate its loose brushwork, soft edges "
-                "and color handling. " + _NEW_SCENE),
+    "classic": ("The reference image is a classic oil painting: imitate its brushwork and color "
+                "handling. " + _NEW_SCENE),
 }
 
 
@@ -159,7 +160,7 @@ def ref_labels(n: int) -> str:
     """OpenAI's guide: name each input image by its index and give it one role."""
     mode = env("STYLE_REFS", "mix")
     world = "official illustrations of this same world - use them only for costumes, architecture, creatures and palette"
-    classic = "a classic oil painting - use it only for its loose brushwork, soft edges and color handling"
+    classic = "a classic oil painting - use it only for its brushwork and color handling"
     if mode == "classic":
         labels = [f"Image 1: {classic}."]
     elif mode == "set":
@@ -444,7 +445,9 @@ def _gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = N
             inp.update(output_format="jpg")
         if uses_lora(model):                     # e.g. flux-2-klein-4b-base-lora + "Light Fantasy"
             inp.update(lora_weights=[env("LORA_URL", LORA_DEFAULT)],
-                       lora_scales=[float(env("LORA_SCALE", "1.0"))])
+                       lora_scales=[float(env("LORA_SCALE", "0.8"))])
+        if "/flux-2-klein" in model:             # render larger, then downscale: crisper detail
+            inp.update(output_megapixels=env("IMAGE_MEGAPIXELS", "2"))
         if ref_field(model) and refs:            # real illustrations of the set as style references
             inp[ref_field(model)] = refs
         for attempt in range(8):                # low-credit accounts are heavily rate limited
@@ -694,8 +697,10 @@ forest for a space-opera world, a generic forest with no Greek-myth element for 
 world); text, letters, signs,
 logos, watermark or signature in the image; a hooded or cloaked figure with a hidden face;
 a main figure seen from behind; neon colors or glowing haze dominating the image; anime,
-cartoon, 3D-render or photo look instead of a painting; an over-polished "AI" finish (everything
-evenly sharp, airbrushed, plastic skin, no visible brushwork); malformed anatomy (hands, limbs,
+cartoon, 3D-render or photo look instead of a painting; an over-polished "AI" finish (airbrushed, plastic
+skin, no visible brushwork); a blurry, out-of-focus, foggy or
+muddy image, or one so dark or low-contrast that the subject is hard to read (these are serious
+problems: a printed illustration must be crisp); malformed anatomy (hands, limbs,
 faces); modern objects (cars, skyscrapers, screens) that don't belong to the described world;
 a border or frame; a main subject that is not what the description says (e.g. a Human
 with an animal head or a bird face, a Dwarf drawn as a giant, the wrong creature). Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
@@ -864,7 +869,7 @@ def main() -> None:
         model = {"replicate": env("REPLICATE_MODEL", "black-forest-labs/flux-schnell"),
                  "openai": f"{env('IMAGE_MODEL', 'gpt-image-2.5-sunburst')} "
                            f"({env('IMAGE_QUALITY', 'medium')}, {env('IMAGE_SIZE', '1536x1152')})"}.get(args.images, args.images)
-        lora = (f"; LoRA {env('LORA_URL', LORA_DEFAULT).split('/')[4]} x{env('LORA_SCALE', '1.0')}"
+        lora = (f"; LoRA {env('LORA_URL', LORA_DEFAULT).split('/')[4]} x{env('LORA_SCALE', '0.8')}"
                 if args.images == "replicate" and uses_lora(env("REPLICATE_MODEL", "")) else "")
         annotate("notice", f"image model: {model}{lora}; reference images ({env('STYLE_REFS', 'mix')}): "
                            f"{'yes' if refs_enabled() else 'no'}")
