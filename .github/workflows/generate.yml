@@ -10,11 +10,11 @@ on:
         description: "Nombre de cartes de chaque type (vraies / IA)"
         default: "60"
       llm:
-        description: "Fournisseur texte (anthropic | openai)"
-        default: "anthropic"
+        description: "Fournisseur texte (openai | anthropic)"
+        default: "openai"
       images:
-        description: "Fournisseur images (replicate | pollinations | placeholder)"
-        default: "replicate"
+        description: "Fournisseur images (openai | replicate | pollinations | placeholder)"
+        default: "openai"
 
 permissions:
   contents: write
@@ -35,8 +35,11 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}
+          IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}
+          IMAGE_QUALITY: ${{ vars.IMAGE_QUALITY }}
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
         run: python pipeline/generate_fake.py --count ${{ inputs.count }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}

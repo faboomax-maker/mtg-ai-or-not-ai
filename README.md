@@ -27,9 +27,10 @@ LLM (texte) + FLUX (image) ──► cartes IA                     ─┘
 ### Option A — directement sur GitHub (rien à installer)
 
 1. **Settings → Secrets and variables → Actions → New repository secret** :
-   - `ANTHROPIC_API_KEY` (texte), et/ou `LLM_API_KEY` pour une API compatible OpenAI (OpenRouter…)
-   - `REPLICATE_API_TOKEN` (illustrations FLUX schnell)
-2. Onglet **Actions → « Générer les cartes » → Run workflow**, puis choisis le nombre de cartes.
+   - `OPENAI_API_KEY` : suffit pour le texte **et** les illustrations (réglages par défaut du workflow)
+   - ou `ANTHROPIC_API_KEY` (texte, `llm = anthropic`), `LLM_API_KEY` pour une autre API compatible OpenAI (OpenRouter…),
+     `REPLICATE_API_TOKEN` (illustrations FLUX schnell, `images = replicate`)
+2. Onglet **Actions → « Générer les cartes » → Run workflow**, puis choisis le nombre de cartes et les fournisseurs.
 3. Le workflow génère tout, commite `docs/` et Pages se met à jour tout seul.
 
 ### Option B — en local

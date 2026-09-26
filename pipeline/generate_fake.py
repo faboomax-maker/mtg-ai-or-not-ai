@@ -10,10 +10,12 @@ Usage:
 
 LLM providers (--llm):
     anthropic  ANTHROPIC_API_KEY            (model: LLM_MODEL, default claude-haiku-4-5)
-    openai     any OpenAI-compatible API: OpenRouter, Ollama (local, free), OpenAI...
-               LLM_BASE_URL (default https://openrouter.ai/api/v1), LLM_API_KEY, LLM_MODEL
+    openai     any OpenAI-compatible API: OpenAI, OpenRouter, Ollama (local, free)...
+               LLM_API_KEY or OPENAI_API_KEY, LLM_MODEL, LLM_BASE_URL (default: OpenAI for
+               an OpenAI key, otherwise https://openrouter.ai/api/v1)
 Image providers (--images):
     replicate     REPLICATE_API_TOKEN, FLUX schnell (~0.003 $ / image)
+    openai        OPENAI_API_KEY, gpt-image-1 low quality (IMAGE_MODEL / IMAGE_QUALITY to change)
     pollinations  POLLINATIONS_KEY (optional depending on their current policy)
     placeholder   coloured gradients, for testing the site without spending anything
     none          skip images (drop your own files in pipeline/work/img/fake_<id>.jpg)
@@ -23,6 +25,7 @@ Output: pipeline/work/fake.json + pipeline/work/img/fake_<id>.jpg (resumable)
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import random
 import re
@@ -76,13 +79,13 @@ def example_text(c: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- LLM
-def check(r) -> None:
+def check(r, fatal=(400, 401, 403, 404)) -> None:
     """Raise with the provider's own error message; stop at once on config errors."""
     if r.ok:
         return
     msg = f"HTTP {r.status_code} from {r.url}: {r.text[:500]}"
-    if r.status_code in (400, 401, 403, 404):   # bad key / model / URL: retrying won't help
-        sys.exit(f"LLM config error -> {msg}")
+    if r.status_code in fatal:                  # bad key / model / URL: retrying won't help
+        sys.exit(f"API config error -> {msg}")
     raise RuntimeError(msg)
 
 
@@ -97,12 +100,16 @@ def call_llm(provider: str, system: str, user: str) -> str:
                   "messages": [{"role": "user", "content": user}]})
         check(r)
         return "".join(b.get("text", "") for b in r.json()["content"])
-    base = env("LLM_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")
+    key = env("LLM_API_KEY") or env("OPENAI_API_KEY")
+    # An OpenAI key (sk-..., not OpenRouter's sk-or-...) goes to OpenAI itself by default.
+    is_openai = key and key.startswith("sk-") and not key.startswith("sk-or-")
+    base = env("LLM_BASE_URL", "https://api.openai.com/v1" if is_openai else "https://openrouter.ai/api/v1").rstrip("/")
+    model = env("LLM_MODEL", "gpt-4.1-mini" if "api.openai.com" in base else "anthropic/claude-haiku-4.5")
     headers = {"content-type": "application/json"}
-    if env("LLM_API_KEY"):
-        headers["authorization"] = f"Bearer {env('LLM_API_KEY')}"
+    if key:
+        headers["authorization"] = f"Bearer {key}"
     r = s.post(f"{base}/chat/completions", timeout=600, headers=headers, json={
-        "model": env("LLM_MODEL", "anthropic/claude-haiku-4.5"), "temperature": 1.0,
+        "model": model, "temperature": 1.0,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]})
     check(r)
     return r.json()["choices"][0]["message"]["content"]
@@ -158,8 +165,16 @@ def gen_image(provider: str, prompt: str, seed: int) -> bytes | None:
             raise RuntimeError(f"replicate: {pred.get('error')}")
         out = pred["output"]
         return fetch_bytes(s, out[0] if isinstance(out, list) else out)
+    if provider == "openai":
+        key = env("OPENAI_API_KEY") or env("LLM_API_KEY") or sys.exit("OPENAI_API_KEY missing")
+        r = s.post("https://api.openai.com/v1/images/generations", timeout=300,
+                   headers={"authorization": f"Bearer {key}", "content-type": "application/json"},
+                   json={"model": env("IMAGE_MODEL", "gpt-image-1"), "prompt": prompt,
+                         "size": "1536x1024", "quality": env("IMAGE_QUALITY", "low"), "n": 1})
+        check(r, fatal=(401, 403, 404))         # 400 = this prompt refused: skip the card
+        return base64.b64decode(r.json()["data"][0]["b64_json"])
     if provider == "pollinations":
-        url = (f"https://gen.pollinations.ai/image/{quote(prompt)}"
+        url =(f"https://gen.pollinations.ai/image/{quote(prompt)}"
                f"?model=flux&width=832&height=608&seed={seed}&nologo=true")
         headers = {"authorization": f"Bearer {env('POLLINATIONS_KEY')}"} if env("POLLINATIONS_KEY") else {}
         return fetch_bytes(s, url, headers=headers)
@@ -189,7 +204,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=60)
     ap.add_argument("--llm", choices=["anthropic", "openai"], default="anthropic")
-    ap.add_argument("--images", choices=["replicate", "pollinations", "placeholder", "none"], default="replicate")
+    ap.add_argument("--images", choices=["replicate", "openai", "pollinations", "placeholder", "none"],
+                    default="replicate")
     ap.add_argument("--no-name-check", action="store_true")
     args = ap.parse_args()
 
