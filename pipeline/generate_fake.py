@@ -16,7 +16,9 @@ LLM providers (--llm):
 Image providers (--images):
     replicate     REPLICATE_API_TOKEN, model REPLICATE_MODEL (default black-forest-labs/flux-schnell,
                   ~0.003 $ / image; e.g. black-forest-labs/flux-1.1-pro ~0.04 $, flux-2-pro)
-    openai        OPENAI_API_KEY, gpt-image-1 low quality (IMAGE_MODEL / IMAGE_QUALITY to change)
+    openai        OPENAI_API_KEY (or LLM_API_KEY), IMAGE_MODEL (default gpt-image-2.5-sunburst; or
+                  gpt-image-2.5-flare), IMAGE_QUALITY (medium), IMAGE_SIZE (1536x1152 = 4:3);
+                  reference images go through /v1/images/edits
     pollinations  POLLINATIONS_KEY (optional depending on their current policy)
     placeholder   coloured gradients, for testing the site without spending anything
     none          skip images (drop your own files in pipeline/work/img/fake_<id>.jpg)
@@ -30,6 +32,7 @@ import argparse
 import base64
 import io
 import json
+import os
 import random
 import re
 import sys
@@ -53,15 +56,16 @@ from realism import (add_missing_reminders, art_focus, art_problem, artist_name,
 
 BATCH = 8
 # Never name the game, a set or a "card" here: image models then paint logos and titles.
-ART_STYLE = ("Traditional oil painting by a seasoned professional fantasy and science-fiction illustrator, "
+ART_PAINT = ("Traditional oil painting by a seasoned professional fantasy and science-fiction illustrator, "
              "true to the world described above: realistic anatomy and proportions, loose confident "
              "brushwork with visible strokes, soft and lost edges, varied broken color, the focal subject "
              "painted in detail while the background and the edges of the canvas stay softer, looser and "
              "partly unfinished - hand-made, not an evenly sharp, polished or airbrushed digital render. "
              "Natural lighting, restrained palette without neon glow or haze, asymmetric readable "
-             "composition with one clear focal subject, atmospheric depth. "
-             "Pure illustration with no text, no letters, no signs or lettering anywhere in the scene, "
-             "no logo, no title, no signature, no watermark, no border, no frame.")
+             "composition with one clear focal subject, atmospheric depth.")
+ART_CONSTRAINTS = ("Pure illustration with no text, no letters, no signs or lettering anywhere in the scene, "
+                   "no logo, no title, no signature, no watermark, no border, no frame.")
+ART_STYLE = f"{ART_PAINT} {ART_CONSTRAINTS}"
 BRANDS = re.compile(r"\b(?:(?-i:Magic)(?::? the Gathering)?|MTG|Wizards of the Coast|"
                     r"trading card(?: game)?s?|cards?)\b(?:[’']s)?", re.I)   # "magic" stays
 
@@ -132,14 +136,45 @@ def subject(type_line: str) -> str:
     return f"Main subject: a {kinds}{note}. "
 
 
+def refs_enabled() -> bool:
+    """Does the image provider in use take reference images?"""
+    provider = env("IMAGE_PROVIDER", "")
+    return provider == "openai" or (provider == "replicate" and bool(ref_field(env("REPLICATE_MODEL", ""))))
+
+
+def ref_labels(n: int) -> str:
+    """OpenAI's guide: name each input image by its index and give it one role."""
+    mode = env("STYLE_REFS", "mix")
+    world = "official illustrations of this same world - use them only for costumes, architecture, creatures and palette"
+    classic = "a classic oil painting - use it only for its loose brushwork, soft edges and color handling"
+    if mode == "classic":
+        labels = [f"Image 1: {classic}."]
+    elif mode == "set":
+        labels = [f"Images 1-{n}: {world}."]
+    else:
+        labels = [f"Images 1-{n - 1}: {world}." if n > 2 else f"Image 1: {world}.", f"Image {n}: {classic}."]
+    return " ".join(labels) + (" Do not edit, reproduce or continue any input image: create a completely "
+                               "new painting with its own subject and composition.")
+
+
 def art_prompt(c: dict) -> str:
     """Image prompt: the subject, the scene, the set's world and art direction, the era - no brand names."""
     year = (c.get("released_at") or "")[:4]
     world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
     world = re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", BRANDS.sub("", world))).strip()
-    refs = ref_note() + " " if c.get("style_refs") and ref_field(env("REPLICATE_MODEL", "")) else ""
+    refs = c.get("style_refs") if refs_enabled() else None
+    if env("IMAGE_PROVIDER") == "openai":
+        # OpenAI's prompting guide: short labeled segments, scene -> subject -> details -> constraints
+        return "\n".join(filter(None, [
+            "Intended use: a finished fantasy illustration, landscape 4:3, as painted by a professional illustrator.",
+            f"Scene: {world} Painted around {year}.",
+            f"Subject: {subject(c.get('type_line', ''))}{c['art_description']}",
+            f"Details: {ART_PAINT}",
+            f"References: {ref_labels(len(refs))}" if refs else "",
+            f"Constraints: {ART_CONSTRAINTS}"]))
+    note = ref_note() + " " if refs else ""
     return (f"{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
-            f"Illustration as painted around {year}. {refs}{ART_STYLE}")
+            f"Illustration as painted around {year}. {note}{ART_STYLE}")
 
 
 def ref_field(model: str) -> str | None:
@@ -345,28 +380,34 @@ def name_is_new(s, name: str) -> bool:
 _REF_CACHE: dict[str, str] = {}
 
 
-def ref_data_uri(url: str) -> str:
-    """Download a reference illustration ourselves (Scryfall refuses Replicate's fetcher)
-    and embed it as a small JPEG data URI."""
+def ref_bytes(url: str) -> bytes:
+    """Download a reference illustration ourselves (Scryfall refuses Replicate's fetcher),
+    shrunk to a 768 px JPEG."""
     if url not in _REF_CACHE:
         img = Image.open(io.BytesIO(fetch_bytes(session(), url))).convert("RGB")
         img.thumbnail((768, 768))
         buf = io.BytesIO()
         img.save(buf, "JPEG", quality=85)
-        _REF_CACHE[url] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+        _REF_CACHE[url] = buf.getvalue()
     return _REF_CACHE[url]
 
 
+def ref_data_uri(url: str) -> str:
+    return "data:image/jpeg;base64," + base64.b64encode(ref_bytes(url)).decode()
+
+
 def gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = None) -> bytes | None:
-    """One illustration. With a reference-capable Replicate model, `refs` are sent as style
+    """One illustration. With a provider that takes reference images, `refs` are sent as style
     references; if that fails, the image is made once more without them."""
-    if refs and provider == "replicate" and ref_field(env("REPLICATE_MODEL", "")):
+    if refs and refs_enabled():
         try:
+            if provider == "openai":
+                return _gen_image(provider, prompt, seed, [ref_bytes(u) for u in refs])
             return _gen_image(provider, prompt, seed, [ref_data_uri(u) for u in refs])
         except (Exception, SystemExit) as e:
             print(f"  references refused ({e}); retrying without them", file=sys.stderr)
             annotate("warning", f"style references refused, image made without them: {e}")
-            prompt = prompt.replace(ref_note() + " ", "")
+            prompt = re.sub(r"\nReferences: [^\n]*", "", prompt.replace(ref_note() + " ", ""))
     return _gen_image(provider, prompt, seed, None)
 
 
@@ -405,10 +446,18 @@ def _gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = N
         return fetch_bytes(s, out[0] if isinstance(out, list) else out)
     if provider == "openai":
         key = env("OPENAI_API_KEY") or env("LLM_API_KEY") or sys.exit("OPENAI_API_KEY missing")
-        r = s.post("https://api.openai.com/v1/images/generations", timeout=300,
-                   headers={"authorization": f"Bearer {key}", "content-type": "application/json"},
-                   json={"model": env("IMAGE_MODEL", "gpt-image-1"), "prompt": prompt,
-                         "size": "1536x1024", "quality": env("IMAGE_QUALITY", "low"), "n": 1})
+        params = {"model": env("IMAGE_MODEL", "gpt-image-2.5-sunburst"), "prompt": prompt,
+                  "size": env("IMAGE_SIZE", "1536x1152"),            # 4:3 like the art box
+                  "quality": env("IMAGE_QUALITY", "medium"),        # OpenAI's balanced default
+                  "output_format": "jpeg", "moderation": "low", "n": 1}
+        auth = {"authorization": f"Bearer {key}"}
+        if refs:   # reference images go through the edits endpoint, as a multipart list image[]
+            files = [("image[]", (f"ref{i + 1}.jpg", b, "image/jpeg")) for i, b in enumerate(refs)]
+            r = s.post("https://api.openai.com/v1/images/edits", timeout=600, headers=auth,
+                       data={k: str(v) for k, v in params.items()}, files=files)
+        else:
+            r = s.post("https://api.openai.com/v1/images/generations", timeout=600,
+                       headers={**auth, "content-type": "application/json"}, json=params)
         check(r, fatal=(401, 403, 404))         # 400 = this prompt refused: skip the card
         return base64.b64decode(r.json()["data"][0]["b64_json"])
     if provider == "pollinations":
@@ -660,6 +709,7 @@ def main() -> None:
                     help="e.g. 'common=55,uncommon=40,rare=4,mythic=1' (same as fetch_real.py)")
     args = ap.parse_args()
     weights = parse_weights(args.rarity_weights or env("RARITY_WEIGHTS"))
+    os.environ["IMAGE_PROVIDER"] = args.images          # read by art_prompt / gen_image
 
     ensure_dirs()
     WORK_RAW.mkdir(parents=True, exist_ok=True)
@@ -790,10 +840,11 @@ def main() -> None:
 
     # --- images
     if args.images != "none":
-        model = env("REPLICATE_MODEL", "black-forest-labs/flux-schnell") if args.images == "replicate" else args.images
-        uses_refs = args.images == "replicate" and bool(ref_field(model))
-        annotate("notice", f"image model: {model}; style references from real illustrations: "
-                           f"{'yes (3 per card)' if uses_refs else 'no (model without reference images)'}")
+        model = {"replicate": env("REPLICATE_MODEL", "black-forest-labs/flux-schnell"),
+                 "openai": f"{env('IMAGE_MODEL', 'gpt-image-2.5-sunburst')} "
+                           f"({env('IMAGE_QUALITY', 'medium')}, {env('IMAGE_SIZE', '1536x1152')})"}.get(args.images, args.images)
+        annotate("notice", f"image model: {model}; reference images ({env('STYLE_REFS', 'mix')}): "
+                           f"{'yes' if refs_enabled() else 'no (model without reference images)'}")
         for i, c in enumerate(fakes):
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():

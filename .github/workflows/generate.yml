@@ -47,6 +47,7 @@ jobs:
           LLM_MODEL: ${{ vars.LLM_MODEL || secrets.LLM_MODEL }}
           IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}
           IMAGE_QUALITY: ${{ vars.IMAGE_QUALITY }}
+          IMAGE_SIZE: ${{ vars.IMAGE_SIZE }}
           # Replicate model, e.g. black-forest-labs/flux-1.1-pro (default: flux-schnell)
           REPLICATE_MODEL: ${{ vars.REPLICATE_MODEL || secrets.REPLICATE_MODEL }}
           # images tried per AI card (each checked by the vision model), 1 = no check
