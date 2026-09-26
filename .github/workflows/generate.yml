@@ -9,13 +9,13 @@ on:
     inputs:
       count:
         description: "Nombre de cartes de chaque type (vraies / IA)"
-        default: "60"
+        default: "3"
       llm:
         description: "Fournisseur texte (openai | anthropic)"
         default: "openai"
       images:
-        description: "Fournisseur images (replicate | openai | pollinations | placeholder)"
-        default: "replicate"
+        description: "Fournisseur images (openai | replicate | pollinations | placeholder)"
+        default: "openai"
 
 permissions:
   contents: write
