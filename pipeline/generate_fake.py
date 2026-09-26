@@ -54,19 +54,72 @@ from realism import (add_missing_reminders, art_focus, art_problem, artist_name,
 BATCH = 8
 # Never name the game, a set or a "card" here: image models then paint logos and titles.
 ART_STYLE = ("Traditional oil painting by a seasoned professional fantasy and science-fiction illustrator, "
-             "true to the world described above: realistic anatomy "
-             "and proportions, confident painterly brushwork, natural lighting, restrained naturalistic "
-             "palette without neon glow or haze, rich specific detail, asymmetric readable composition "
-             "with one clear focal subject, atmospheric depth. "
+             "true to the world described above: realistic anatomy and proportions, loose confident "
+             "brushwork with visible strokes, soft and lost edges, varied broken color, the focal subject "
+             "painted in detail while the background and the edges of the canvas stay softer, looser and "
+             "partly unfinished - hand-made, not an evenly sharp, polished or airbrushed digital render. "
+             "Natural lighting, restrained palette without neon glow or haze, asymmetric readable "
+             "composition with one clear focal subject, atmospheric depth. "
              "Pure illustration with no text, no letters, no signs or lettering anywhere in the scene, "
              "no logo, no title, no signature, no watermark, no border, no frame.")
 BRANDS = re.compile(r"\b(?:(?-i:Magic)(?::? the Gathering)?|MTG|Wizards of the Coast|"
                     r"trading card(?: game)?s?|cards?)\b(?:[’']s)?", re.I)   # "magic" stays
 
 
-REF_NOTE = ("The attached images are official illustrations from this same world by different "
-            "artists: match their painting technique, brushwork, palette, lighting and level of detail, "
-            "but paint an entirely new scene - do not copy their subjects, characters or compositions.")
+_NEW_SCENE = "Paint an entirely new scene: do not copy the subjects, characters or compositions of any reference."
+REF_NOTES = {   # instruction matching the STYLE_REFS mode
+    "mix": ("Reference images: the first ones are official illustrations of this same world - take its "
+            "costumes, architecture, creatures and palette from them; the last one is a classic oil "
+            "painting - imitate its loose brushwork, soft edges and color handling. " + _NEW_SCENE),
+    "set": ("The reference images are official illustrations of this same world by different artists: "
+            "match their painting technique, palette, lighting and level of detail. " + _NEW_SCENE),
+    "classic": ("The reference image is a classic oil painting: imitate its loose brushwork, soft edges "
+                "and color handling. " + _NEW_SCENE),
+}
+
+
+def ref_note() -> str:
+    return REF_NOTES.get(env("STYLE_REFS", "mix"), REF_NOTES["mix"])
+
+# Public-domain paintings (Wikimedia Commons, all "Public domain"), by kind of subject. One is
+# added to the set's own illustrations to pull the model away from its polished default look.
+CLASSICS = {
+    "figure": ["John William Waterhouse - The Lady of Shalott - Google Art Project edit.jpg",
+               "John William Waterhouse - The Crystal Ball.JPG",
+               "Flaming June, by Frederic Lord Leighton (1830-1896).jpg",
+               "John William Waterhouse - Hylas and the Nymphs.jpg",
+               "Pyle Barbe Noire.jpg"],
+    "battle": ["Eugène Delacroix - La liberté guidant le peuple.jpg",
+               "Jean-Leon Gerome Pollice Verso.jpg",
+               "Jean-Léon Gérôme - The Christian Martyrs' Last Prayer - Walters 37113.jpg"],
+    "landscape": ["Albert Bierstadt - Among the Sierra Nevada, California - Google Art Project.jpg",
+                  "Caspar David Friedrich - Wanderer above the sea of fog.jpg",
+                  "Church Heart of the Andes.jpg",
+                  "Arnold Böcklin - Die Toteninsel III (Alte Nationalgalerie, Berlin).jpg"],
+    "creature": ["Saint George and the Dragon by Paolo Uccello (London) 01.jpg",
+                 "John Bauer - The Princess and the Trolls - Google Art Project.jpg"],
+    "cataclysm": ["John Martin - The Great Day of His Wrath - Google Art Project.jpg",
+                  "Cole Thomas The Course of Empire Destruction 1836.jpg",
+                  "Joseph Mallord William Turner - Snow Storm - Steam-Boat off a Harbour's Mouth - WGA23178.jpg"],
+}
+HUMANOIDS = {"Human", "Elf", "Dwarf", "Vampire", "Merfolk", "Kor", "Orc", "Goblin", "Kithkin", "Aetherborn",
+             "Vedalken", "Viashino", "Leonin", "Minotaur", "Giant", "Zombie", "Siren", "Faerie", "Naga"}
+
+
+def classic_ref(type_line: str) -> str:
+    """URL of a public-domain painting suited to the card (Wikimedia thumbnail, 1024 px)."""
+    t = type_line.lower()
+    if "land" in t and "creature" not in t:
+        kind = "landscape"
+    elif "instant" in t or "sorcery" in t:
+        kind = random.choice(["cataclysm", "battle"])
+    elif "creature" in t:
+        first = type_line.split("—")[1].split()[0] if "—" in type_line else ""
+        kind = "figure" if first in HUMANOIDS else random.choice(["creature", "creature", "battle"])
+    else:
+        kind = random.choice(["figure", "landscape"])
+    title = random.choice(CLASSICS[kind])
+    return f"https://commons.wikimedia.org/wiki/Special:FilePath/{quote(title)}?width=1024"
 
 
 def subject(type_line: str) -> str:
@@ -84,7 +137,7 @@ def art_prompt(c: dict) -> str:
     year = (c.get("released_at") or "")[:4]
     world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
     world = re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", BRANDS.sub("", world))).strip()
-    refs = REF_NOTE + " " if c.get("style_refs") and ref_field(env("REPLICATE_MODEL", "")) else ""
+    refs = ref_note() + " " if c.get("style_refs") and ref_field(env("REPLICATE_MODEL", "")) else ""
     return (f"{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
             f"Illustration as painted around {year}. {refs}{ART_STYLE}")
 
@@ -99,6 +152,16 @@ def ref_field(model: str) -> str | None:
 
 
 def style_refs(card: dict, pool: list[dict], k: int = 3) -> list[str]:
+    """Reference images for the illustration. STYLE_REFS=mix (default): 2 real illustrations of
+    the set + 1 public-domain painting; 'set': 3 real illustrations; 'classic': the painting only."""
+    mode = env("STYLE_REFS", "mix")
+    if mode == "classic":
+        return [classic_ref(card["type_line"])]
+    refs = set_refs(card, pool, k - 1 if mode == "mix" else k)
+    return refs + [classic_ref(card["type_line"])] if mode == "mix" else refs
+
+
+def set_refs(card: dict, pool: list[dict], k: int) -> list[str]:
     """Real illustrations of the set closest to this card (colors, type), by different artists."""
     t, cols = type_bucket(card["type_line"]), set(card.get("colors") or [])
     ranked = sorted((c for c in pool if c.get("art_crop")), key=lambda c: (
@@ -303,7 +366,7 @@ def gen_image(provider: str, prompt: str, seed: int, refs: list[str] | None = No
         except (Exception, SystemExit) as e:
             print(f"  references refused ({e}); retrying without them", file=sys.stderr)
             annotate("warning", f"style references refused, image made without them: {e}")
-            prompt = prompt.replace(REF_NOTE + " ", "")
+            prompt = prompt.replace(ref_note() + " ", "")
     return _gen_image(provider, prompt, seed, None)
 
 
@@ -561,7 +624,8 @@ forest for a space-opera world, a generic forest with no Greek-myth element for 
 world); text, letters, signs,
 logos, watermark or signature in the image; a hooded or cloaked figure with a hidden face;
 a main figure seen from behind; neon colors or glowing haze dominating the image; anime,
-cartoon, 3D-render or photo look instead of a painting; malformed anatomy (hands, limbs,
+cartoon, 3D-render or photo look instead of a painting; an over-polished "AI" finish (everything
+evenly sharp, airbrushed, plastic skin, no visible brushwork); malformed anatomy (hands, limbs,
 faces); modern objects (cars, skyscrapers, screens) that don't belong to the described world;
 a border or frame; a main subject that is not what the description says (e.g. a Human
 with an animal head or a bird face, a Dwarf drawn as a giant, the wrong creature). Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
