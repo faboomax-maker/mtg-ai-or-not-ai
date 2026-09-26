@@ -1,175 +1,110 @@
 {
   "generated": "2026-09-26",
-  "count": 10,
+  "count": 6,
   "cards": [
     {
-      "name": "Jungle's Embrace",
-      "mana_cost": "{2}{G}",
-      "type_line": "Enchantment — Aura",
-      "oracle_text": "Enchant land\nEnchanted land has \"{T}: Add two {G}.\nSacrifice Jungle's Embrace: Gain 3 life.\"",
+      "name": "Granite Witness",
+      "mana_cost": "{2}{W}{U}",
+      "type_line": "Artifact Creature — Gargoyle Detective",
+      "oracle_text": "Flying, vigilance\nDisguise {(}w/u){(}w/u)} (You may cast this card face down for {3} as a 2/2 creature with ward {2}. Turn it face up any time for its disguise cost.)\nWhen Granite Witness is turned face up, you may tap or untap target creature.",
       "flavor_text": null,
-      "power": null,
-      "toughness": null,
+      "power": "3",
+      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "f33bb3a8f65b6d89.webp",
-      "s": "5xXM/2cpcxlIzJntTkqQHmwcqHTRcLFncS3Nrt3sNck="
-    },
-    {
-      "name": "Agents of S.H.I.E.L.D.",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human Spy Hero",
-      "oracle_text": "Whenever a creature you control attacks alone, that creature gets +1/+1 until end of turn.",
-      "flavor_text": "Behind every S.H.I.E.L.D. solo mission are dozens of intelligence operatives, logistics coordinators, and backup agents.",
-      "power": "2",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
+        "U",
         "W"
       ],
       "card": true,
-      "img": "7b3c3ea2814e8a78.webp",
-      "s": "i43qksC1Hw1PEFg8NMdvCc7ivTt0FJcR3OoQz8h9eGyAyurX6bxPWAoXCGVxyS5Zye66bWwOlX7/9xTAxX17cJ7L+ZPO+xEXTRFYJXPRbwnV871pPQ6ac877FNPCPEd13sz3mo66XEULS0c6OcR6BNzgrHc6R5gz27UVws04R33P2uya/qpSQh0HT3QwmyYJwA=="
+      "img": "ed7cb8ca18c99a19.webp",
+      "s": "3t7FYflMRUXwgvX3PUjI2Ekrl2goLMhScylwOzMSxpbR3Pxl6kwICfC75uw3FsrWGmyCOGZlmWskYTR8FRSHmYW4wmv2R0c8uIOlrnhGnYhWbNlqMGSea3YoLnFuEoWF3JrWaPQOBBC92eTjKgDHl1EjzHgiOsV4dDp6NzUEy4DMiNlh61NYCqSb2PE3EZqZX3OCOnsulw=="
     },
     {
-      "name": "Cobalt Surge",
-      "mana_cost": "{1}{U}",
+      "name": "Fervent Conflagration",
+      "mana_cost": "{2}{R}",
       "type_line": "Instant",
-      "oracle_text": "Tap up to two target creatures. Those creatures don’t untap during their controller’s next untap step.",
-      "flavor_text": "\"The storm stills as the tide retreats, a fleeting moment for the brave.\"\n—Talia of the Howling Waves",
+      "oracle_text": "Fervent Conflagration deals 4 damage to target creature or planeswalker. If that creature or planeswalker would die this turn, exile it instead.",
+      "flavor_text": "\"Every ember carries the promise of a future flame.\"\n—Kaldera, igniter of hopes",
       "power": null,
       "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "2ffceb4ecaa4840b.webp",
-      "s": "6ey7v2ee/a8PF8KjXZ2AtrE9+TbFmYM/EqYUDZODm56y/PnoN9Ci"
-    },
-    {
-      "name": "Anointed Deacon",
-      "mana_cost": "{4}{B}",
-      "type_line": "Creature — Vampire Cleric",
-      "oracle_text": "At the beginning of combat on your turn, you may have target Vampire get +2/+0 until end of turn.",
-      "flavor_text": "Inspiration is red as rubies, flowing like honeyed wine.",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "6d7955214cb533bb.webp",
-      "s": "TUkPxcrJ2flrF3kkN+mmFHTBi84ce/bdSOwkuw+CqYgUCg/UwtaP4XFDKQY7q+lYZoSxiUoou/oSoWj4FNLpigxLX8jf0YuwcUwkIjG3/1BmyJPCRTS5u1PsOr5O2OnGGVNEj8rLlKolF241f6HjV2TLkdNTL7nLQ+I9qALFuMlGAl/d"
-    },
-    {
-      "name": "Rookie Mistake",
-      "mana_cost": "{U}",
-      "type_line": "Instant",
-      "oracle_text": "Until end of turn, target creature gets +0/+2 and another target creature gets -2/-0.\n",
-      "flavor_text": "\"Stop locking your knees as you strike! Now stand up and try again.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "ace165e6ea24e787.webp",
-      "s": "dMVUCDd1QgqG3m0t7i0x5s+BbHlDhXgFmeC3O89L9CA91xRcdDVAEsfYazH4dTP+nMZCNBXROyjW0L1p812iLC/FUx86O1oQhMJrLPtyK+uTl3spAMM7Kpq8sXTxAeNhfYMJAGQoTwaQhW035Gp4oZGJcSgNxDEjyeemdsNd73V9hENQN2kJEts="
-    },
-    {
-      "name": "Voldaren Epicure",
-      "mana_cost": "{R}",
-      "type_line": "Creature — Vampire",
-      "oracle_text": "When Voldaren Epicure enters the battlefield, it deals 1 damage to each opponent. Create a Blood token. (It's an artifact with \"{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card.\")",
-      "flavor_text": "\"If you're not refining your tastes, what's the point of living forever?\"",
-      "power": "1",
-      "toughness": "1",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "R"
       ],
       "card": true,
-      "img": "9db8cd8609989195.webp",
-      "s": "UzZb8+2xLv3wSdq5mC9SMNztAmBOaM3HfQ2aYSndze0SNGrk5bB/qL4d/qOKIV4yjekENh07m6wpQ9FfPN3Y4EZ1CdDtGYGsv0trbd8vUjDa+hpgTmjN5mcXg2FngIP6S2ZQ8O2xYOmzUsXjnmIAdoD+GTVbede8PBWcfjnO3uxGOUzm5b55tbUC3biQXAF92voVJ0kpn+cxHg=="
+      "img": "c166ae7ae1928a5a.webp",
+      "s": "4KwDhyzTWbsEGhRfVaKz6d47wgzgtn2R1LwiuLTNBEj+9x6MKZ8/5EUIHRFb"
     },
     {
-      "name": "Torment of Hailfire",
-      "mana_cost": "{X}{B}{B}",
-      "type_line": "Sorcery",
-      "oracle_text": "Repeat the following process X times. Each opponent loses 3 life unless that player sacrifices a nonland permanent or discards a card.",
-      "flavor_text": "\"Your God-Pharaoh has returned.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "e38967a86c56c313.webp",
-      "s": "36yGUudKk84/dQkXQsCMvPW2a6lkCFB34sgxXpiPq13B+JVE8kfFnXBvWU4Hzs3s8rps/3wSUh3KzzkbkIb5Y4TcgUPtScaHdGhZTgfO2ezq8SWrfEAGS/3OeVHYmuhr3eiVW+oI0ptyLhgDVYiD9ummMLxpBwZQ/9AmEIPE5H+J5pVe6kDYhno+DhZKs9/x86F87mNJAlavwA=="
-    },
-    {
-      "name": "Harbor of Firelight",
-      "mana_cost": null,
-      "type_line": "Land",
-      "oracle_text": "This land enters tapped.\nWhen this land enters, you gain 1 life.\n{T}: Add {G} or {R}.",
-      "flavor_text": "\"At dusk, the Harbor ignites with ambition, where dreams collide in the fading light of day.\"",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "5036df9bdd46649c.webp",
-      "s": "mT7txaVi4MZeN+0n16mH1+csmBj9burAaohrT7Rx1DCXbPrS5EanjhE0/2nZ"
-    },
-    {
-      "name": "Crowned Thornhorn",
-      "mana_cost": "{2}{B}{G}",
-      "type_line": "Creature — Beast",
-      "oracle_text": "Reach\nWhenever Crowned Thornhorn deals combat damage to a player, you may scry 1.",
-      "flavor_text": null,
+      "name": "Masked Confrontation",
+      "mana_cost": "{4}{B}{R}",
+      "type_line": "Creature — Human Rogue",
+      "oracle_text": "Disguise {2}{B}{R} (You may cast this card face down for {3} as a 2/2 creature with ward {2}. Turn it face up any time for its disguise cost.)\nWhen Masked Confrontation is turned face up, target opponent reveals their hand. You choose a nonland card from it. That player discards that card.",
+      "flavor_text": "\"Your secrets will see the light, whether you like it or not.\"\n—Anya, sleuth of Karlov",
       "power": "3",
       "toughness": "4",
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
       "colors": [
         "B",
-        "G"
+        "R"
       ],
       "card": true,
-      "img": "92c6980d81746547.webp",
-      "s": "e+OQN6oYhhFSEohwYZygbS9nXoYuiScp8i7FkcwD4DVEpJQzuADFXxsbhz5v"
+      "img": "c6cbbc67c3a89a77.webp",
+      "s": "L6h5bbfHlLGGAmdzIfx1Waty2x8bx22ZumOfOly/bZ01/itDt9na5NBES3489itb9A=="
     },
     {
-      "name": "Voidthorn Behemoth",
-      "mana_cost": "{3}{R}{R}",
-      "type_line": "Creature — Beast",
-      "oracle_text": "Reach\nWhen this creature enters, you may exile target creature until this creature leaves the battlefield.",
-      "flavor_text": "\"Its thorns pierce the veil of reality, sending even the swiftest into the abyss.\"\n—Eurn, Voidwalker",
-      "power": "5",
-      "toughness": "5",
+      "name": "Mogis's Favor",
+      "mana_cost": "{B}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant creature\nEnchanted creature gets +2/-1.\nEscape—{2}{B}, Exile two other cards from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
+      "flavor_text": "Rage-crowned Mogis swiftly rewards the virtue of brutality.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "84b7ab67823d4447.webp",
+      "s": "k25VGiGNwsIyJnE22fejkt5T67TrlRUQ0jb0OBNA+YaRI0kbYKWFmWY6IW+c+eLC2V/s4vOPF2bvIe82CEDtjJwkBVNgw5WKfnA5Y56z98TdRaW5/sZUNsM15zsMTtiMhWNEHjKFz4x6MCxyjOys3cJR9uWimFElzDz0aBUU1rybI1INI4TdmWI7IT4="
+    },
+    {
+      "name": "Daring Escape",
+      "mana_cost": "{R}",
+      "type_line": "Instant",
+      "oracle_text": "Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)\nWhen Emry enters, mill four cards.\n{T}: Choose target artifact card in your graveyard. You may cast that card this turn.",
+      "flavor_text": "As the Adversary's forces descended upon the gala, Elspeth whispered to Giada, \"I can get you out of here, but we have to go now.\"",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "R"
       ],
       "card": true,
-      "img": "e8ced70914d87292.webp",
-      "s": "zDEJuhgn0L8HaRXTAis2DQnABKlXNx04hXmW5LPHXAzyZx6tFyKG7EJ8VsI="
+      "img": "18b108c658249457.webp",
+      "s": "24gjECK8A3Lgujq3NXPZz+MML0lxqVzejmBEuFVfO7rGih8QNPBiKbCrJqwxfdXNsggpHyL6Cq/AMgOYSk1vsNLDPxRjklQ6ra8j4Hx/25jiBXlRa6sW+Y5iUucOA2i20tM3FC+8Dyuvo2ehMS2dwuMHOER6uUqinnNTtE9LNrDTyTAFJu9UPK2RO60lLZqIrQgrAmn0"
+    },
+    {
+      "name": "Raucous Reveler",
+      "mana_cost": "{3}{G}",
+      "type_line": "Creature — Elf Druid",
+      "oracle_text": "When Raucous Reveler enters the battlefield, create a tapped Treasure token. (It's an artifact with \"{T}, Sacrifice this artifact: Add one mana of any color.\")\nWhenever you create one or more Treasure tokens, Raucous Reveler gains +2/+2 until end of turn.",
+      "flavor_text": "In New Capenna, every toast is a chance to strike it rich.\n—A well-known party planner",
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "5cf263e243fa2a2c.webp",
+      "s": "6tdzToyQopyuXKc4Vbv4drqztWU1STvZrdBQS4dKmw7+kyFliIug5e9KozpIv/Yr"
     }
   ]
 }
