@@ -46,12 +46,15 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
 
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, with_printed_text
+from realism import (art_focus, artist_name, color_group, fix_reminders, fix_wording, number_in_group,
+                     reminder_texts, uses_old_wording)
 
 BATCH = 8
 # Never name the game, a set or a "card" here: image models then paint logos and titles.
 ART_STYLE = ("Traditional fantasy oil painting by a seasoned professional illustrator: realistic anatomy "
-             "and proportions, confident painterly brushwork, dramatic yet natural lighting, rich detail, "
-             "strong readable composition with one clear focal subject, atmospheric depth. "
+             "and proportions, confident painterly brushwork, natural lighting, restrained naturalistic "
+             "palette without neon glow or haze, rich specific detail, asymmetric readable composition "
+             "with one clear focal subject, atmospheric depth. "
              "Pure illustration with no text, no letters, no logo, no title, no signature, "
              "no watermark, no border, no frame.")
 BRANDS = re.compile(r"\b(?:(?-i:Magic)(?::? the Gathering)?|MTG|Wizards of the Coast|"
@@ -62,7 +65,7 @@ def art_prompt(c: dict) -> str:
     """Image prompt: the scene, the set's world and art direction, the era - no brand names."""
     year = (c.get("released_at") or "")[:4]
     world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
-    world = re.sub(r"\s{2,}", " ", BRANDS.sub("", world)).strip()
+    world = re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", BRANDS.sub("", world))).strip()
     return (f"{c['art_description']} {world} Fantasy art as painted around {year}. {ART_STYLE}")
 
 SYSTEM = """You are a senior Magic: The Gathering designer at Wizards of the Coast.
@@ -77,12 +80,24 @@ Standard-legal expansions. Rules you always follow:
   target artifact.\\n• Create a Treasure token." (never "Choose one — X; or Y").
 - Ability words and named modes are followed by " — " ("Landfall — Whenever...",
   "• Smash the Chest — Destroy target artifact.").
-- Power level of a normal set: mostly commons/uncommons are modest; no broken cards,
-  no joke cards, no references to real-world brands or franchises.
-- Use only existing keywords and mechanics; do not invent new keywords.
-- Names must be original (never an existing card name) and sound like real Magic names.
-- Flavor text: short, evocative, sometimes a quote attributed to a character
-  (e.g. "—Kasra, lighthouse keeper"). Newlines inside flavor text are rare.
+- Power level and complexity follow rarity, like a real set: commons are simple (one or
+  two short abilities, often a vanilla or French-vanilla creature), uncommons a bit richer,
+  rares and mythics have distinctive, build-around designs. No broken or joke cards, no
+  references to real-world brands or franchises.
+- Use the keywords/ability words listed in each profile (they are the ones of a real card
+  of this set); use only existing mechanics, never invent keywords. Creature types must be
+  ones this set actually uses.
+- Names: original (never an existing card name), in the naming style of this set's cards —
+  proper nouns, places, factions and turns of phrase of this world. Avoid generic AI
+  patterns like colour+noun ("Azurewing Tempest") or adjective+class ("Cunning Illusionist").
+- Flavor text: short and specific to this world; quotes are attributed to characters,
+  factions or places of this setting ("—Tasha, the witch queen"), not generic titles
+  ("—master of the arcane"). Newlines inside flavor text are rare.
+- art_description is an art brief like the ones Wizards gives its illustrators: a specific
+  subject of this world, what it is doing, the setting details, the light and mood, following
+  the profile's art_focus. Avoid AI clichés: figures seen from behind, glowing tunnels or
+  portals, silhouettes against light, perfectly centered symmetric scenes, lightning
+  everywhere, generic "oriental" or "medieval" décor instead of this world's own look.
 - Mana costs use braces: {2}{G}{G}. Oracle text uses \\n between abilities.
 You answer with a JSON array only, no commentary."""
 
@@ -93,9 +108,11 @@ def type_bucket(type_line: str) -> str:
 
 
 def spec_from(card: dict) -> dict:
+    """Profile copied from a real card of the set, keywords included (same mechanics mix)."""
     colors = "".join(card.get("colors") or []) or "colorless"
     return {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
-            "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text"))}
+            "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text")),
+            "keywords": card.get("keywords") or [], "art_focus": art_focus(card["type_line"])}
 
 
 def example_text(c: dict) -> dict:
@@ -164,6 +181,9 @@ def validate(c: dict, spec: dict) -> str | None:
         return "placeholder name in text"
     if re.search(r"[Cc]hoose (?:one|two|one or both|one or more) —(?!\n•)", c["oracle_text"]):
         return "modes not bulleted"
+    missing = [k for k in spec.get("keywords", []) if k.lower() not in c["oracle_text"].lower()]
+    if missing:
+        return f"missing keyword(s) {missing}"
     return None
 
 
@@ -239,14 +259,19 @@ def set_pool(code: str, quiz_ids: set[str]) -> list[dict]:
     path = WORK_SETS / f"{code}.json"
     cards = load_json(path, None)
     if cards is None:
-        r = session().get(f"{API}/cards/search", timeout=60,
-                          params={"q": f"e:{code} {DEFAULT_QUERY}", "order": "name"})
-        time.sleep(0.12)
-        cards = []
-        if r.status_code == 200:
-            s = session()
-            cards = [with_printed_text(s, {"id": c["id"], **{k: c.get(k) for k in FIELDS}})
-                     for c in r.json()["data"] if keep(c)]
+        s, cards = session(), []
+        url, params = f"{API}/cards/search", {"q": f"e:{code} {DEFAULT_QUERY}", "order": "set"}
+        for _ in range(6):                       # the whole set (175 cards per page)
+            r = s.get(url, params=params, timeout=60)
+            time.sleep(0.12)
+            if r.status_code != 200:
+                break
+            page = r.json()
+            cards += [with_printed_text(s, {"id": c["id"], **{k: c.get(k) for k in FIELDS}})
+                      for c in page["data"] if keep(c)]
+            if not page.get("has_more"):
+                break
+            url, params = page["next_page"], None
         save_json(path, cards)
     return [c for c in cards if c["id"] not in quiz_ids]
 
@@ -272,8 +297,9 @@ def set_brief(llm: str, code: str, meta: dict, pool: list[dict]) -> dict:
         "- description: 2-3 sentences on the plane/world, story and themes of this set;\n"
         "- mechanics: the set's signature mechanics and how they are worded on cards;\n"
         "- art_style: 2-3 sentences for an illustrator: setting, architecture, costumes, "
-        "creatures, palette, lighting and painting style of the set's illustrations. Describe the "
-        "world only: never name the game, the set, the publisher or any product."
+        "creatures, palette, lighting and painting style of the set's illustrations. Be specific "
+        "to this plane's own visual culture rather than generic fantasy or cultural clichés. "
+        "Describe the world only: never name the game, the set, the publisher or any product."
     )
     try:
         text = call_llm(llm, BRIEF_SYSTEM, user)
@@ -305,16 +331,10 @@ def set_meta(code: str, name: str, pool: list[dict]) -> dict:
             **meta, "released_at": meta.get("released_at") or (dates[0] if dates else "2020-01-01")}
 
 
-# Used only if the LLM gives no name or a real artist's name (checked against Scryfall).
-FALLBACK_ARTISTS = ["Mireille Castan", "Tobiah Wrenfield", "Anouk Velder", "Dario Mestrovic",
-                    "Selene Adebayo", "Jorund Haakes", "Ines Carvalho-Roth", "Kenji Arakawa-Bell"]
-
-
-def collector_number(meta: dict, taken: set[str]) -> str:
-    """A free number within the set's main range, like a real card of that set."""
-    size = meta.get("printed_size") or meta.get("card_count") or 250
-    free = [str(n) for n in range(1, size + 1) if str(n) not in taken]
-    return random.choice(free or [str(size + 1)])
+def subtypes(pool: list[dict]) -> list[str]:
+    """Creature/other subtypes this set actually prints, most common first."""
+    return [t for t, _ in Counter(w for c in pool if "—" in c["type_line"]
+                                  for w in c["type_line"].split("—")[1].split()).most_common(40)]
 
 
 def main() -> None:
@@ -342,7 +362,7 @@ def main() -> None:
     real_sets = Counter(c["set"] for c in real)
     set_names = {c["set"]: c["set_name"] for c in real}
     artists = real_artists(s)
-    FALLBACK_ARTISTS[:] = [a for a in FALLBACK_ARTISTS if a.lower() not in artists] or ["Mireille Castan"]
+    used_artists = {c["artist"] for c in fakes if c.get("artist")}
     numbers: dict[str, set[str]] = defaultdict(set)   # collector numbers already on a quiz card
     for c in real + fakes:
         numbers[c["set"]].add(str(c.get("collector_number")))
@@ -361,23 +381,29 @@ def main() -> None:
         banned |= {c["name"].lower() for c in pool}
         meta = set_meta(code, set_names[code], pool)
         brief = set_brief(args.llm, code, meta, pool)
+        by_clause, by_keyword = reminder_texts(pool)       # the set's real reminder texts
+        old_wording = uses_old_wording(pool)               # "enters the battlefield" or "enters"
         n = min(BATCH, args.count - len(fakes), max(deficits.get(code, 1), 1))
         specs = [spec_from(c) for c in random.choices(pool, k=n)]
-        shots = [example_text(c) for c in random.sample(pool, min(10, len(pool)))]
+        shots = [example_text(c) for c in random.sample(pool, min(12, len(pool)))]
         about = "".join(f"{k.replace('_', ' ').capitalize()}: {v}\n" for k, v in brief.items() if v)
+        wording = {True: 'This set says "enters the battlefield" and cards refer to themselves by name.',
+                   False: 'This set says "enters" (not "enters the battlefield") and "this creature".',
+                   None: ""}[old_wording]
         user = (
             f"All cards below come from the real set «{set_names[code]}» ({meta['released_at'][:4]}). "
             "Your new cards will be printed in that same set: reuse its mechanics, keywords, "
-            "creature types, factions and world.\n" + about +
-            "Examples from the set (match their templating, tone and power level):\n"
+            "creature types, factions and world.\n" + about + wording + "\n"
+            f"Subtypes printed in this set: {', '.join(subtypes(pool))}.\n"
+            "Examples from the set (match their names, templating, tone and power level):\n"
             + json.dumps(shots, ensure_ascii=False, indent=1)
-            + f"\n\nDesign {n} NEW cards, one per profile below, in this order:\n"
+            + f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
+              "the keywords listed in its profile, and its art must follow the profile's art_focus:\n"
             + json.dumps(specs, indent=1)
             + "\n\nReturn a JSON array of objects with keys: name, mana_cost, type_line, oracle_text, "
               "flavor_text (null if the profile says false), power, toughness, loyalty (strings or null), "
-              "rarity, art_description (one or two sentences describing the illustration: subject, "
-              "setting, mood; no artist names, no text in the image), artist (an invented, "
-              "believable illustrator full name; never the name of a real Magic artist)."
+              "rarity, art_description (2-3 sentences: an art brief naming the subject, its action, "
+              "the setting details of this world, light and mood; no text in the image)."
         )
         try:
             batch = parse_array(call_llm(args.llm, SYSTEM, user))
@@ -394,10 +420,15 @@ def main() -> None:
                 print(f"  rejected {c.get('name')!r}: {err}")
                 annotate("notice", f"rejected {c.get('name')!r}: {err}"); continue
             banned.add(c["name"].lower())
-            artist = str(c.get("artist") or "").strip()
-            if not artist or artist.lower() in artists:  # never credit a real artist for AI art
-                artist = random.choice(FALLBACK_ARTISTS)
-            number = collector_number(meta, numbers[code])
+            # Text: the set's real reminder texts and era wording, whatever the LLM wrote.
+            c["oracle_text"] = fix_wording(fix_reminders(c["oracle_text"], by_clause, by_keyword),
+                                           c["name"], c["type_line"], old_wording)
+            # Credits: an ordinary invented name (never a real Magic artist, no repeats), and a
+            # collector number in the range where this set prints this colour.
+            artist = artist_name(artists, used_artists)
+            colors = list(spec["colors"]) if spec["colors"] != "colorless" else []
+            number = number_in_group(pool, color_group(colors, c["type_line"]), numbers[code],
+                                     meta.get("printed_size"))
             numbers[code].add(number)
             fakes.append({"id": uuid.uuid4().hex, "real": False,
                           **{k: (c.get(k) or None) for k in
