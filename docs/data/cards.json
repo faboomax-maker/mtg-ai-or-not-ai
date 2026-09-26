@@ -1,208 +1,110 @@
 {
   "generated": "2026-09-26",
-  "count": 12,
+  "count": 6,
   "cards": [
     {
-      "name": "Thrór's Map",
-      "mana_cost": "{2}",
-      "type_line": "Legendary Artifact",
-      "oracle_text": "When Thrór's Map enters, search your library for a basic land card, reveal it, put it into your hand, then shuffle.\n{2}, {T}: Draw a card, then discard a card.",
-      "flavor_text": "\"Stand by the grey stone when the thrush knocks,\" read Elrond, \"and the setting sun with the last light of Durin's Day will shine upon the keyhole.\"",
+      "name": "Cunning Illusionist",
+      "mana_cost": "{1}{U}",
+      "type_line": "Creature — Human Wizard",
+      "oracle_text": "When Cunning Illusionist enters, venture into the dungeon. (Enter the first room of target dungeon you own.)\n{T}: Target creature you control gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)",
+      "flavor_text": "\"Reality bends at my whim, and the unsuspecting become my puppets.\" —Ithra, master of the arcane",
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "c65fb97145c580e5.webp",
+      "s": "CN7HnhJfnisJA708GMcl6DRtanOU0YvSr2Mky23lo8UWj5WSHRPIeUxFmj8ZxWa8YnthJ+SOypyDdHDT"
+    },
+    {
+      "name": "Delver's Torch",
+      "mana_cost": "{1}{W}",
+      "type_line": "Artifact — Equipment",
+      "oracle_text": "Equipped creature gets +1/+1.\nWhenever equipped creature attacks, venture into the dungeon. (Enter the first room or advance to the next room.)\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)",
+      "flavor_text": "\"Not all of us have darkvision, okay?\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [],
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
       "card": true,
-      "img": "1b80131b60674485.webp",
-      "s": "XJo0kcbZ9Qe+XrGFaQgZKx21wUYeH3nZv0XjYv9X1fZTmmrUhdSlSfdZt9I2BBtOD7LaCEFPKK/7AOFf4lmVpQeaLoDTxaQHsQWwk35dX2gCvJsHS1J07rZSpwX4WtWwFo9/29PdpRjdGeayP1ZKJAOxxVtRSzbSpE+2WPNQiv5X0WSJ"
+      "img": "afe9559d5b871e65.webp",
+      "s": "ifxN3kw1wCR1s400MlirleXqgQkvV+amRi07NGbU9YOB/lbVDS2Ke3WBkDMwG//D8+HVeXAWqIpReXJ6MMD1kputS5kXecBcJ6aSYQQR58S0o9UJYAWoxRh7fDJm1feVyPEQyE4rm3g0q5NvNBvmmPXuh086FqKVDWpudXbE65CXrEyWWTaQfT34ijU6K/jY4/2WTigWtI4AJg=="
     },
     {
-      "name": "Gabriel, Blazing Champion",
-      "mana_cost": "{1}{R/W}",
-      "type_line": "Legendary Creature — Human Knight",
-      "oracle_text": "Double strike\nWhenever this creature attacks, you may pay {1}. If you do, create a 1/1 white Soldier creature token with haste that attacks this turn.",
+      "name": "Effortless Master",
+      "mana_cost": "{2}{U}{R}",
+      "type_line": "Creature — Orc Monk",
+      "oracle_text": "Vigilance\nMenace (This creature can't be blocked except by two or more creatures.)\nThis creature enters with two +1/+1 counters on it if you've cast two or more spells this turn.",
       "flavor_text": null,
-      "power": "3",
-      "toughness": "2",
+      "power": "4",
+      "toughness": "3",
       "loyalty": null,
-      "rarity": "rare",
+      "rarity": "uncommon",
       "colors": [
         "R",
-        "W"
-      ],
-      "card": true,
-      "img": "9e539a06082524c6.webp",
-      "s": "WSuFPbnCLpaF2btAODcfEWMxmInQUsp6QUDEK3CnayVLfdUl"
-    },
-    {
-      "name": "Mox Jasper",
-      "mana_cost": "{0}",
-      "type_line": "Legendary Artifact",
-      "oracle_text": "{T}: Add one mana of any color. Activate only if you control a Dragon.",
-      "flavor_text": "\"Rage. Greed. Arrogance. People only accuse dragons of what they fear in themselves.\"\n—Sarkhan",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "mythic",
-      "colors": [],
-      "card": true,
-      "img": "fe9a003d21c60963.webp",
-      "s": "3s4kakr18SgPeN2/RtXn/fZzQrpUBjklZhsa3QbHKSHXjTFgReqnfV1hjeYD26at8X9F7EwcO1NUHRTCEZMpJ8CAOmpP8L0wAyyNv1GV5eWlNF7sGlZoSyhGAtcGhG8EyYB4bET0/HFOfsvlV52q8LciALcDSWNcbQgCxBGPNhDRgQl8ROyhcUoxzrpK27o="
-    },
-    {
-      "name": "Displacer Beast",
-      "mana_cost": "{2}{U}",
-      "type_line": "Creature — Cat Beast",
-      "oracle_text": "When Displacer Beast enters the battlefield, venture into the dungeon. (Enter the first room or advance to the next room.)\nDisplacement — {3}{U}: Return Displacer Beast to its owner's hand.",
-      "flavor_text": "The only place you can be sure it's not is wherever it appears to be.",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
         "U"
       ],
       "card": true,
-      "img": "dd7a869a9b679dd7.webp",
-      "s": "H+IYshA8NBvZMheaPIYWbZa+MB+ofUmcS4xbKn9vIrIX4AO5USR+RNkACp0+xUI7gLVkb/c8B7Bc2BJkKXsiow2zHvVLcDRjiz8EgXn5WSOE+WgdsCgZsQ3AHmZjbiSnF/pF+AIzZFifJwmDd8lZIsq4JU/2cgq7XdULcCR+OaQUrAu0FCI7Q5wnFptm30IiuqgrSOA+DuBOildmdg=="
+      "img": "40246524cdc3c9b6.webp",
+      "s": "326hm+bCSGYK+pGU1GGKsTbrHvbBXmLLip8oxJR1QEzWLbSR6d0eM1jjwc2Rb8vhMecZoNlEYL2nhCaNtSoUYcU7spClgkp+X/yPw4ttiPsx+hqnwVFv7IifOsuHIwwmxyO+0eTPGDgF+oeMnnySomrrDLKUDDTzjp4wgIsuE3zBPuyL88M1L0X7kYLUcMvjLKwX"
     },
     {
-      "name": "Holographic Envoy",
-      "mana_cost": "{U}",
-      "type_line": "Artifact Creature — Moonfolk Construct",
-      "oracle_text": "Flying\nWhen Holographic Envoy enters, scry 1.",
-      "flavor_text": "\"Crafted from memories of the past, guided by visions of the future.\"",
-      "power": "1",
-      "toughness": "1",
+      "name": "Stormy Waters Acolyte",
+      "mana_cost": "{1}{U}{B}",
+      "type_line": "Creature — Human Mystic Ally",
+      "oracle_text": "Whenever Stormy Waters Acolyte enters, you may scry 1. (Look at the top card of your library. You may put it on the bottom.)\nWhenever you scry, you gain 1 life.",
+      "flavor_text": "The shifting tides reveal secrets untold, cradling the balance of chaos and calm.",
+      "power": "2",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "common",
       "colors": [
+        "B",
         "U"
       ],
       "card": true,
-      "img": "fa96e81ee649bffc.webp",
-      "s": "NmBgTkitWccSqCXIusNrKMB5/rVW6hepufB2QIrUj+t3YlxORq9buUugJde932V1"
+      "img": "f5e45ddc4581dee7.webp",
+      "s": "ipT6MJfopYRV1Md+kfIkKX7OU6mSdTzxe0S9TuM6gril3u11uuX0ylXzz2CA8mZtOc8UoA=="
     },
     {
-      "name": "Lo and Li, Twin Tutors",
-      "mana_cost": "{4}{B}",
-      "type_line": "Legendary Creature — Human Advisor",
-      "oracle_text": "When Lo and Li enter, search your library for a Lesson or Noble card, reveal it, put it into your hand, then shuffle.\nNoble creatures you control and Lesson spells you control have lifelink.",
-      "flavor_text": "\"Almost perfect,\" Lo began. Li finished, \"One hair out of place.\"",
-      "power": "2",
-      "toughness": "2",
+      "name": "Serpent of the Pass",
+      "mana_cost": "{5}{U}{U}",
+      "type_line": "Creature — Serpent",
+      "oracle_text": "If there are three or more Lesson cards in your graveyard, you may cast this spell as though it had flash.\nThis spell costs {1} less to cast for each noncreature, nonland card in your graveyard.",
+      "flavor_text": "Those who walk the Serpent's Pass quickly discover the origin of its name.",
+      "power": "6",
+      "toughness": "5",
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "B"
+        "U"
       ],
       "card": true,
-      "img": "37906c6a1848c7d4.webp",
-      "s": "yp0EyAR7vPe4tVMai+60iGC4KuKrzC0i3TW0FOfkwSvZ2lbhBGTq7dmoUw2LrPDPYf9y4LONfRfCJ7RXr/7DPvr+MeRHO77v7bNNTdTitsJnqS6zq8MgEMgmuRP0so1R0tAbggZ27Km3tU0OwfOkkjyxMe3wgmtOxz3tAeK3j1LFygLCF2ShuOysfhyBt+bJduA/sPjOcg=="
+      "img": "c5853af7d150b5c7.webp",
+      "s": "rtg+gvWKCEzgg81NoLSi7OtovB5MewtEmDN7PyMYE3i9n2yr9ZVeVoGezVqg9uar6i/kHFQ6W3GHIXt8awIRabyQJcffh0QTpJadFOW697z0L/IcVDNdcZ4hNXF+UVBerJwti/jISRmt2NxZt/ytuvRs5wtGdFpgnCJqMCUPXEr4jiSCuZZLBbPIykyox/Gh7X+rWUs6WWzMLw=="
     },
     {
-      "name": "Tameshi, Reality Architect",
-      "mana_cost": "{2}{U}",
-      "type_line": "Legendary Creature — Moonfolk Wizard",
-      "oracle_text": "Whenever one or more noncreature permanents are returned to hand, draw a card. This ability triggers only once each turn.\n{X}{W}, Return a land you control to its owner's hand: Return target artifact or enchantment card with mana value X or less from your graveyard to the battlefield. Activate only as a sorcery.",
+      "name": "Azurewing Tempest",
+      "mana_cost": "{4}{U}",
+      "type_line": "Creature — Dragon Spirit",
+      "oracle_text": "Flying\nWhenever Azurewing Tempest attacks, you may return target nonland permanent to its owner's hand.",
       "flavor_text": null,
-      "power": "2",
-      "toughness": "3",
+      "power": "4",
+      "toughness": "4",
       "loyalty": null,
       "rarity": "rare",
       "colors": [
         "U"
       ],
       "card": true,
-      "img": "6a0b131469ed0e89.webp",
-      "s": "7tFm3WNu7wGUZzTK221GfsRoZR5WUdzOUmHLhFP5fEq1vXHXbCKJQtpyNcvHY0p8lWxjSAUCiqcJLICwUeFpBLW+OphEa75Y3HY0nZJhRCnFYTMGTFOW8Ud80dkdoW4T54py2W5u41jbfmnc3zMCc9lofhNUQ9HxUmHHkFrnMALwknjRdnvgWsZwLtbKJAUoiHhlUTMCkfBBb8feU/50Uug="
-    },
-    {
-      "name": "Expedition's Endure",
-      "mana_cost": "{2}{W}",
-      "type_line": "Instant",
-      "oracle_text": "Choose one — You gain 5 life; or return target creature you control to its owner's hand.",
-      "flavor_text": "In the face of relentless pursuit, the promise of survival ignites the will to endure.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "19d63d41dfb88495.webp",
-      "s": "QmyyYlwwrR0alVxWszzLZTRyqb2MvUW/wTdI55qvfr8="
-    },
-    {
-      "name": "Radiant Shieldbearer",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human Knight",
-      "oracle_text": "Vigilance\nWhen Radiant Shieldbearer enters, venture into the dungeon.",
-      "flavor_text": "\"May the light guide our path through these darkened halls.\" — Sir Aelric, guardian of the realm",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "3c964c5d35192b05.webp",
-      "s": "q3KKimXXg4Bkumli2IAfutGSVxFz3sncsofZn8D2Fpa1I9iGapvV0iH8TmHZglzuh4RcRQOBiJKekI2H"
-    },
-    {
-      "name": "Gravekeeper's Rook",
-      "mana_cost": "{1}{B}",
-      "type_line": "Creature — Zombie Warrior",
-      "oracle_text": "When Gravekeeper's Rook dies, you may return target creature card from your graveyard to your hand.",
-      "flavor_text": "\"The past never stays buried in Tarkir. It rises, again and again.\"",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "6cb69b9f71357017.webp",
-      "s": "daRoGExKuMvMdk22751Wv3YlKGJWLHFyWsdy4hV8capK9HsaQkjphYNiQfjh"
-    },
-    {
-      "name": "Shapers of Nature",
-      "mana_cost": "{1}{G}{U}",
-      "type_line": "Creature — Merfolk Shaman",
-      "oracle_text": "{3}{G}: Put a +1/+1 counter on target creature.\n{2}{U}, Remove a +1/+1 counter from a creature you control: Draw a card.",
-      "flavor_text": "Shapers adapt nature to fit their needs and then return it to the way it was, leaving no trace of their passing.",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "G",
-        "U"
-      ],
-      "card": true,
-      "img": "5fae3d296d2aae7d.webp",
-      "s": "tIdhdB1IKdzxrJQJjVCjYuH0aKWFOygSGw7C3GunRHrtxGFlFVd/xOv4xD+ADuozssJ55tJ6ZHlPT4zId+lKYO+He2UIVHjc/veVH5oF5SH+/TLk0HYlOAIdypJ96QZ1/ZcrPg9Mapa0qpVRhxquLvPlafXaJH8vDjDd0nD3Cz/yxGN4Xlk="
-    },
-    {
-      "name": "Earthbend Barrier",
-      "mana_cost": "{2}{G}",
-      "type_line": "Instant",
-      "oracle_text": "Create a 0/6 colorless Wall artifact creature token with defender. (This creature can't attack.)\nEarthbend {1} — Create another 0/6 Wall token. Exile that token at the beginning of your next end step.",
-      "flavor_text": "When the earth rises in defense, even the fiercest foes must pause to reconsider their approach.",
-      "power": "null",
-      "toughness": "6",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "de597c32b29ae1d9.webp",
-      "s": "wyy/xYkFZu+r+YkAh7ohGtkugQyAf8zynmj6n94Hl0jsZqiApAg3oavegR6WumNeni/GBQ=="
+      "img": "b35fd118c871b81a.webp",
+      "s": "6y65UkiJ77KPLZL6vZbfEFvOHVL4iKX8Lbe03E0Lo7vUfqpQRou+/MA5nrSz"
     }
   ]
 }
