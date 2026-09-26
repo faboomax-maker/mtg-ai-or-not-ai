@@ -47,13 +47,14 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_printed_text
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
-                     fix_reminders, fix_templating, fix_wording, misused_keywords, name_problem,
-                     name_words, number_in_group, reminder_texts, tone_down, too_simple,
-                     uses_old_wording)
+                     fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
+                     name_problem, name_words, number_in_group, reminder_texts, rules_problem,
+                     tone_down, too_simple, uses_old_wording)
 
 BATCH = 8
 # Never name the game, a set or a "card" here: image models then paint logos and titles.
-ART_STYLE = ("Traditional fantasy oil painting by a seasoned professional illustrator: realistic anatomy "
+ART_STYLE = ("Traditional oil painting by a seasoned professional fantasy and science-fiction illustrator, "
+             "true to the world described above: realistic anatomy "
              "and proportions, confident painterly brushwork, natural lighting, restrained naturalistic "
              "palette without neon glow or haze, rich specific detail, asymmetric readable composition "
              "with one clear focal subject, atmospheric depth. "
@@ -84,8 +85,8 @@ def art_prompt(c: dict) -> str:
     world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
     world = re.sub(r"\s+([.,;:])", r"\1", re.sub(r"\s{2,}", " ", BRANDS.sub("", world))).strip()
     refs = REF_NOTE + " " if c.get("style_refs") and ref_field(env("REPLICATE_MODEL", "")) else ""
-    return (f"{subject(c.get('type_line', ''))}{c['art_description']} {world} "
-            f"Fantasy art as painted around {year}. {refs}{ART_STYLE}")
+    return (f"{subject(c.get('type_line', ''))}{c['art_description']} World and setting: {world} "
+            f"Illustration as painted around {year}. {refs}{ART_STYLE}")
 
 
 def ref_field(model: str) -> str | None:
@@ -147,8 +148,12 @@ Standard-legal expansions. Rules you always follow:
   victory, knowledge or wisdom. Newlines inside flavor text are rare.
 - art_description is an art brief like the ones Wizards gives its illustrators: a specific
   subject of this world, what it is doing, the setting details, the light and mood, following
-  the profile's art_focus. The main subject is visibly the card's creature types (a Human
-  is an ordinary human, a Human Soldier is not a bird-man). Show faces and creatures clearly. Avoid AI clichés: hooded or
+  the profile's art_focus. The scene is unmistakably set in THIS set's world, with its own
+  technology, architecture, costumes and landscapes (starships and alien planets for a
+  space-opera set, Greek-myth temples and heroes for a Greek-myth set, ...): never a generic
+  medieval forest unless the set really looks like that. The main subject is visibly the
+  card's creature types (a Human is an ordinary human, a Human Soldier is not a bird-man).
+  Show faces and creatures clearly. Avoid AI clichés: hooded or
   cloaked figures with hidden faces, figures seen from behind, silhouettes against light,
   glowing tunnels, portals, orbs and magic wisps, "glowing" everything, perfectly centered
   symmetric scenes, lightning everywhere, modern cities or neon, generic "oriental" or
@@ -469,6 +474,10 @@ set, rarity, card type and mana value. Fix only what is wrong:
   "Draw three cards" vs "Target creature you control explores" at 4 mana), raise the weak
   mode (explores twice, then draw a card), lower the strong one (draw two cards), or change
   the mana cost, so that each mode is fair for the cost and useful in some situations.
+- Rules validity: every ability must work under the Comprehensive Rules. Only creatures
+  fight, attack, block or deal combat damage; an "Enchant X" card is an Aura (its type line
+  says "Enchantment — Aura"); Equipment says "Equip"; targets must be legal; no ability may
+  do nothing. Rewrite any ability that doesn't work.
 - Rares and mythics must be distinctive build-around designs; commons stay simple.
 - Keyword actions (explore, connive, venture, scry, surveil, mill, investigate...) are verbs
   in sentences ("Whenever this creature attacks, it connives"), never standalone lines.
@@ -544,7 +553,11 @@ def creative_review(llm: str, batch: list[dict], flavors: list[str], brief: dict
 
 
 ART_CHECK_SYSTEM = """You are the art director of Magic: The Gathering, checking a freelance
-illustration before print. List only real, visible problems among: text, letters, signs,
+illustration before print. Gender, age, skin tone and body type of characters are free
+choices: never report them. List only real, visible problems among: a setting, costumes or
+technology that do not belong to the set's world as described (e.g. medieval knights in a
+forest for a space-opera world, a generic forest with no Greek-myth element for a Greek-myth
+world); text, letters, signs,
 logos, watermark or signature in the image; a hooded or cloaked figure with a hidden face;
 a main figure seen from behind; neon colors or glowing haze dominating the image; anime,
 cartoon, 3D-render or photo look instead of a painting; malformed anatomy (hands, limbs,
@@ -553,10 +566,11 @@ a border or frame; a main subject that is not what the description says (e.g. a 
 with an animal head or a bird face, a Dwarf drawn as a giant, the wrong creature). Answer with JSON only: {"problems": ["...", ...]} (empty list if fine)."""
 
 
-def art_check(llm: str, jpeg: bytes, brief: str) -> list[str]:
+def art_check(llm: str, jpeg: bytes, brief: str, world: str = "") -> list[str]:
     """Vision check of a generated illustration; [] when fine or when the check is unavailable."""
     try:
-        text = call_llm(llm, ART_CHECK_SYSTEM, f"The illustration should show: {brief}", image=jpeg)
+        text = call_llm(llm, ART_CHECK_SYSTEM, f"The set's world: {world}\n"
+                                               f"The illustration should show: {brief}", image=jpeg)
         data = json.loads(re.search(r"\{.*\}", text, re.S).group(0))
         return [str(p) for p in data.get("problems", []) if p][:4]
     except (Exception, SystemExit) as e:
@@ -667,10 +681,12 @@ def main() -> None:
             err = validate(c, spec)
             if not err:
                 c["oracle_text"] = fix_templating(c["oracle_text"], meta["released_at"])
+                c["type_line"] = fix_type_line(c["type_line"], c["oracle_text"])
                 bad_kw = misused_keywords(c["oracle_text"], *kw_catalogs)
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"])
-                       else name_problem(c["name"], used_name_words) or art_problem(c["art_description"]))
+                       else rules_problem(c["oracle_text"], c["type_line"])
+                       or name_problem(c["name"], used_name_words) or art_problem(c["art_description"]))
             if not err and c["name"].lower() in banned:
                 err = "name already used"
             if not err and not args.no_name_check and not name_is_new(s, c["name"]):
@@ -713,9 +729,11 @@ def main() -> None:
             img = WORK_IMG / f"fake_{c['id']}.jpg"
             if img.exists():
                 c["image"] = img.name; continue
-            prompt, raw = art_prompt(c), None
-            # Up to ART_TRIES images: each is checked by the vision model (text in the image,
-            # hooded figures, glow, anime look, bad anatomy...) and redone with the problems named.
+            prompt, best = art_prompt(c), None      # best = (problem count, raw, prompt)
+            world = " ".join(filter(None, [c.get("set_description"), c.get("art_style")]))
+            # Up to ART_TRIES images, each checked by the vision model (wrong world or creature,
+            # text in the image, hooded figures, glow, anime look, bad anatomy...) and redone with
+            # the problems named; the image with the fewest problems is kept.
             tries = max(1, int(env("ART_TRIES", "3")))
             for attempt in range(tries):
                 try:
@@ -723,18 +741,22 @@ def main() -> None:
                                     refs=c.get("style_refs"))
                 except Exception as e:
                     print(f"  image failed for {c['name']}: {e}", file=sys.stderr)
-                    annotate("warning", f"image failed: {e}"); raw = None; break
-                if attempt == tries - 1 or args.images == "placeholder":
-                    break
+                    annotate("warning", f"image failed: {e}"); break
+                if tries == 1 or args.images == "placeholder":
+                    best = (0, raw, prompt); break
                 normalize_image(raw, img)
-                problems = art_check(args.llm, img.read_bytes(), subject(c["type_line"]) + c["art_description"])
+                problems = art_check(args.llm, img.read_bytes(),
+                                     subject(c["type_line"]) + c["art_description"], world)
+                if best is None or len(problems) < best[0]:
+                    best = (len(problems), raw, prompt)
                 if not problems:
                     break
                 print(f"  art redo for {c['name']}: {problems}")
                 annotate("notice", f"art redo for {c['name']!r}: {problems}")
                 prompt = f"{art_prompt(c)} Must avoid: {'; '.join(problems)}."
-            if raw is None:
+            if best is None:
                 continue
+            _, raw, prompt = best
             save_raw(raw, c, prompt)
             normalize_image(raw, img)
             c["image"] = img.name

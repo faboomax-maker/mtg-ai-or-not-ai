@@ -134,6 +134,28 @@ def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_
     return bad
 
 
+def fix_type_line(type_line: str, text: str) -> str:
+    """An 'Enchant ...' card is an Aura: add the subtype the LLM forgot."""
+    if re.search(r"(^|\n)Enchant ", text or "") and "Enchantment" in type_line and "Aura" not in type_line:
+        return f"{type_line} Aura" if "—" in type_line else f"{type_line} — Aura"
+    return type_line
+
+
+# Things only creatures can do in the rules; a land, artifact or enchantment can't.
+NON_CREATURE_ACTOR = re.compile(
+    r"\b(?:this|that|enchanted|equipped|target) (?:land|artifact|enchantment|planeswalker|spell|permanent)"
+    r"(?! creature)\s+(?:fights|blocks|attacks|deals combat damage)\b"
+    r"|\b(?:land|artifact|enchantment) fights\b", re.I)
+
+
+def rules_problem(text: str, type_line: str) -> str | None:
+    """Rules nonsense the LLM sometimes writes (a land that fights...)."""
+    m = NON_CREATURE_ACTOR.search(text or "")
+    if m:
+        return f"only creatures can do that: {m.group(0)!r}"
+    return None
+
+
 def too_simple(text: str, rarity: str, type_line: str) -> bool:
     """Rares and mythics are distinctive designs, not one short line."""
     core = PAREN.sub("", text or "").strip()
