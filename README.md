@@ -60,11 +60,11 @@ Chaque carte IA passe par : **3 appels texte** par lot de 8 cartes (conception, 
 |---|---|---|
 | Texte (3 passes + marge des rejets) | gpt-4.1-mini (0,40 $ / 1,60 $ par million de jetons) | ~0,002 $ |
 | Vérification de l'image | même modèle, image en basse définition | ~0,0003 $ par image |
-| Illustration | FLUX 1.1 Pro sur Replicate (REPLICATE_MODEL=black-forest-labs/flux-1.1-pro) : 0,04 $ × 1,2 à 1,5 essai | ~0,05–0,06 $ |
+| Illustration | FLUX 1.1 Pro sur Replicate (`REPLICATE_MODEL=black-forest-labs/flux-1.1-pro`) : 0,04 $ × 1,2 à 1,5 essai | ~0,05–0,06 $ |
 | Illustration | FLUX schnell (défaut) : 0,003 $ × essais | ~0,004 $ |
 | Vraies cartes, symboles, rendu MSE, GitHub Actions | Scryfall, MTGJSON, Keyrune, Magic Set Editor, runner GitHub (dépôt public) | 0 $ |
 
-**≈ 0,05–0,06 $ par carte IA avec FLUX 1.1 Pro**, soit **~3–4 $ pour un quiz de 120 cartes** (60 vraies + 60 IA). L'image représente ~95 % du coût. Pire cas (3 essais d'image par carte) : ~0,12 $ par carte. ART_TRIES=1 désactive la vérification des images (1 seule image par carte). Tarifs indicatifs de septembre 2026, à vérifier chez chaque fournisseur.
+**≈ 0,05–0,06 $ par carte IA avec FLUX 1.1 Pro**, soit **~3–4 $ pour un quiz de 120 cartes** (60 vraies + 60 IA). L'image représente ~95 % du coût. Pire cas (3 essais d'image par carte) : ~0,12 $ par carte. `ART_TRIES=1` désactive la vérification des images (1 seule image par carte). Tarifs indicatifs de septembre 2026, à vérifier chez chaque fournisseur.
 
 Autres modes utiles : `--images placeholder` (dégradés, pour tester gratuitement) et `--images none` (tu déposes tes propres images dans `pipeline/work/img/fake_<id>.jpg`, par exemple générées en local avec ComfyUI ou Forge).
 
