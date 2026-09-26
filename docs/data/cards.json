@@ -3,179 +3,127 @@
   "count": 12,
   "cards": [
     {
-      "name": "Changeling Wayfinder",
-      "mana_cost": "{3}",
-      "type_line": "Creature — Shapeshifter",
-      "oracle_text": "Changeling (This card is every creature type.)\nWhen this creature enters, you may search your library for a basic land card, reveal it, put it into your hand, then shuffle.",
-      "flavor_text": "No map. No complaints.",
-      "power": "1",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "0a2cd1f6375c54ee.webp",
-      "s": "a62QmI8SYIOTIbgK62ASvoZhFWbM3g5c8n02m9k3D5V85pKOixpglZN3qw36JUHo1z5BZqeLRX7pZi/C8Hsvn32tzt3MCzDVkW/qXeY4RuyGPk5rhZ1eaftuLY6ZdCWbP+yDj4pRJ9rfevtQ7SRT8pJhDS2YmQFn/HYni9lzL4Qv+paQsQ0tzME2r0LvPFu+iA=="
-    },
-    {
-      "name": "Benevolent Watcher",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Human Soldier",
-      "oracle_text": "When this creature enters, target creature you control gains lifelink until end of turn.",
-      "flavor_text": "“In this time of darkness, let my light guide you.”",
-      "power": "1",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "5946f5863220337f.webp",
-      "s": "3Y7va3fC6gKinqpLbQVcRa4z4jEa7yhUTdvQWFQ0GWuG4fJheIy1"
-    },
-    {
-      "name": "Plundering Barbarian",
-      "mana_cost": "{2}{R}",
-      "type_line": "Creature — Dwarf Barbarian",
-      "oracle_text": "When this creature enters, choose one —\n• Smash the Chest — Destroy target artifact.\n• Pry It Open — Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "1b4aa40901437ac1.webp",
-      "s": "ELx0VpdTmkuAeLDMZDMpT2aJ6rr4MqnQGXD4kvs5RVEYvm9d1kvQFIBKrctmcH0ZcIK+yqdz5/wOJLHcrS1FQALtchHMH5owzmiw3HY/RAxnzrK44Gf5/V88vd7nOENEGKQpHIVcygjGba7VL3xmADqP/+qmPer3DymsybdjR1ge8GJWhFbWFo1uo8tjfnsEdIKh7bZ/1OISc++f6nFWRAK8ew=="
-    },
-    {
-      "name": "Whispering Shadows",
-      "mana_cost": "{B}",
-      "type_line": "Sorcery",
-      "oracle_text": "Target player discards a card. You gain 1 life.",
-      "flavor_text": "In the darkness, secrets are but whispers waiting to be heard.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "d8debb7db765ad09.webp",
-      "s": "7Cfw8iA3266XelJZDk2M7z6uCzdI880AaWsHbznPYgfyfO35JXu98dZoWxcA"
-    },
-    {
-      "name": "Meticulous Excavation",
-      "mana_cost": "{W}",
-      "type_line": "Enchantment",
-      "oracle_text": "{2}{W}: Return target permanent you control to its owner's hand. If it has unearth, instead exile it, then return that card to its owner's hand. Activate only during your turn.",
-      "flavor_text": "\"Remember, students, if it's glowing, humming, or whirring, don't touch it!\"",
+      "name": "Thrór's Map",
+      "mana_cost": "{2}",
+      "type_line": "Legendary Artifact",
+      "oracle_text": "When Thrór's Map enters, search your library for a basic land card, reveal it, put it into your hand, then shuffle.\n{2}, {T}: Draw a card, then discard a card.",
+      "flavor_text": "\"Stand by the grey stone when the thrush knocks,\" read Elrond, \"and the setting sun with the last light of Durin's Day will shine upon the keyhole.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
       "rarity": "uncommon",
+      "colors": [],
+      "card": true,
+      "img": "1b80131b60674485.webp",
+      "s": "XJo0kcbZ9Qe+XrGFaQgZKx21wUYeH3nZv0XjYv9X1fZTmmrUhdSlSfdZt9I2BBtOD7LaCEFPKK/7AOFf4lmVpQeaLoDTxaQHsQWwk35dX2gCvJsHS1J07rZSpwX4WtWwFo9/29PdpRjdGeayP1ZKJAOxxVtRSzbSpE+2WPNQiv5X0WSJ"
+    },
+    {
+      "name": "Gabriel, Blazing Champion",
+      "mana_cost": "{1}{R/W}",
+      "type_line": "Legendary Creature — Human Knight",
+      "oracle_text": "Double strike\nWhenever this creature attacks, you may pay {1}. If you do, create a 1/1 white Soldier creature token with haste that attacks this turn.",
+      "flavor_text": null,
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "rare",
       "colors": [
+        "R",
         "W"
       ],
       "card": true,
-      "img": "aad20600fef642f1.webp",
-      "s": "agMTXaq3X8M7oTm41AcHkaVNrK4rjdWMANaRhPgD3OJ0UxIf64wcizn5a+/QWVPapVz6tjGPu60L0sLmzR7J6XhAD1fp913bbqcn74sLBduiXKj/K4LYqwvByKDrAMSkck4MF6i6D500tzminhoRnLtNrOVy2Ju3HcCco/IPyfxwVQhXpeQIjXaKOKLEWUTW60mo5TPQ"
+      "img": "9e539a06082524c6.webp",
+      "s": "WSuFPbnCLpaF2btAODcfEWMxmInQUsp6QUDEK3CnayVLfdUl"
     },
     {
-      "name": "Flickering Flamekin",
-      "mana_cost": "{1}{R}",
-      "type_line": "Creature — Elemental",
-      "oracle_text": "Haste\nWhen this creature enters, it deals 1 damage to any target.",
-      "flavor_text": "A wildfire dances in the night sky, leaving behind whispers of warmth.",
-      "power": "2",
+      "name": "Mox Jasper",
+      "mana_cost": "{0}",
+      "type_line": "Legendary Artifact",
+      "oracle_text": "{T}: Add one mana of any color. Activate only if you control a Dragon.",
+      "flavor_text": "\"Rage. Greed. Arrogance. People only accuse dragons of what they fear in themselves.\"\n—Sarkhan",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "mythic",
+      "colors": [],
+      "card": true,
+      "img": "fe9a003d21c60963.webp",
+      "s": "3s4kakr18SgPeN2/RtXn/fZzQrpUBjklZhsa3QbHKSHXjTFgReqnfV1hjeYD26at8X9F7EwcO1NUHRTCEZMpJ8CAOmpP8L0wAyyNv1GV5eWlNF7sGlZoSyhGAtcGhG8EyYB4bET0/HFOfsvlV52q8LciALcDSWNcbQgCxBGPNhDRgQl8ROyhcUoxzrpK27o="
+    },
+    {
+      "name": "Displacer Beast",
+      "mana_cost": "{2}{U}",
+      "type_line": "Creature — Cat Beast",
+      "oracle_text": "When Displacer Beast enters the battlefield, venture into the dungeon. (Enter the first room or advance to the next room.)\nDisplacement — {3}{U}: Return Displacer Beast to its owner's hand.",
+      "flavor_text": "The only place you can be sure it's not is wherever it appears to be.",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "dd7a869a9b679dd7.webp",
+      "s": "H+IYshA8NBvZMheaPIYWbZa+MB+ofUmcS4xbKn9vIrIX4AO5USR+RNkACp0+xUI7gLVkb/c8B7Bc2BJkKXsiow2zHvVLcDRjiz8EgXn5WSOE+WgdsCgZsQ3AHmZjbiSnF/pF+AIzZFifJwmDd8lZIsq4JU/2cgq7XdULcCR+OaQUrAu0FCI7Q5wnFptm30IiuqgrSOA+DuBOildmdg=="
+    },
+    {
+      "name": "Holographic Envoy",
+      "mana_cost": "{U}",
+      "type_line": "Artifact Creature — Moonfolk Construct",
+      "oracle_text": "Flying\nWhen Holographic Envoy enters, scry 1.",
+      "flavor_text": "\"Crafted from memories of the past, guided by visions of the future.\"",
+      "power": "1",
       "toughness": "1",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "R"
+        "U"
       ],
       "card": true,
-      "img": "0f05881e9c433e4f.webp",
-      "s": "CObUzq/yO4+Ygz+I4ByNRGcQGQ7NkaR5c/JlKkcK7C4QqM/bvft9l8U="
+      "img": "fa96e81ee649bffc.webp",
+      "s": "NmBgTkitWccSqCXIusNrKMB5/rVW6hepufB2QIrUj+t3YlxORq9buUugJde932V1"
     },
     {
-      "name": "Harmonious Grovestrider",
-      "mana_cost": "{3}{G}{G}",
-      "type_line": "Creature — Beast",
-      "oracle_text": "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)\nHarmonious Grovestrider's power and toughness are each equal to the number of lands you control.",
-      "flavor_text": "Beyond the borders of Pinnacle space, alien worlds of untold wonder await.",
-      "power": "*",
-      "toughness": "*",
+      "name": "Lo and Li, Twin Tutors",
+      "mana_cost": "{4}{B}",
+      "type_line": "Legendary Creature — Human Advisor",
+      "oracle_text": "When Lo and Li enter, search your library for a Lesson or Noble card, reveal it, put it into your hand, then shuffle.\nNoble creatures you control and Lesson spells you control have lifelink.",
+      "flavor_text": "\"Almost perfect,\" Lo began. Li finished, \"One hair out of place.\"",
+      "power": "2",
+      "toughness": "2",
       "loyalty": null,
       "rarity": "uncommon",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "421d475f61491abf.webp",
-      "s": "crEse0bjIvpaPpep5+3hXzkivoC1RTixvVkErIioX4599ixwTvtppQloyfygoLMJIzS+gLVFOKa2UEHfl6sRqGzhfDIHrXWyFmjf/KCptQk6NPCNoBZ5hqBYAOCL4BykZLw9f1XrL6UVL8rtuvjuFSs1p83hDHWBqhMG/oi4Grh94Td6Qv0/tQ4nuq/ttLMeL3qr0uZHZw=="
-    },
-    {
-      "name": "Verdant Titan",
-      "mana_cost": "{5}{G}{G}",
-      "type_line": "Creature — Elemental Giant",
-      "oracle_text": "When this creature enters, you may search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.\nLandfall — Whenever a land enters the battlefield under your control, you may have target creature you control get +3/+3 until end of turn.",
-      "flavor_text": null,
-      "power": "6",
-      "toughness": "6",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "60e71100b9fb34d8.webp",
-      "s": "kGMKCtgP0C7mkSf7sgWSwdON90S2grlpVPZ56dKJUPCuNR0d1wqGfaOEZOo="
-    },
-    {
-      "name": "Springsage Ritual",
-      "mana_cost": "{3}{G}",
-      "type_line": "Instant",
-      "oracle_text": "Destroy target artifact or enchantment. You gain 4 life.",
-      "flavor_text": "\"Every evil destroyed is a strike against the enemy.\"\n—Erold, Gatstaf springsage",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "5127ebc7639c1409.webp",
-      "s": "a/38WIHXknNo62dHfwK6QeTXLYhJE9wynlPD50mpgf5dsOFTwpeQayntYVtpWrhZt5Abzx0TsxabUsOsEerLq2KzrAfAmdg9PO9mCDUB6QDlyz/LH1/QFJ1anu1cuI3xdbLgEtGMgmY772dbdEnpAvDXdNgaR4sWngjE+lCVmrFlre1Y3drAIGri"
-    },
-    {
-      "name": "Nightmare Shepherd",
-      "mana_cost": "{2}{B}{B}",
-      "type_line": "Enchantment Creature — Demon",
-      "oracle_text": "Flying\nWhenever another nontoken creature you control dies, you may exile it. If you do, create a token that's a copy of that creature, except it's 1/1 and it's a Nightmare in addition to its other types.",
-      "flavor_text": null,
-      "power": "4",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "rare",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "1999d7e592c14fd1.webp",
-      "s": "vf5e6j1tj3XYxTqBmudbzjX+cS5+rRir3o7bNA3vV7q/s0LrfEXILozZatjf6RqeMvJ2eGa3Gt3iksU+DO9fvqWzTvwzb49j2JM9hpPpQcxk83F4NP4A0JmYyikHqXSzqvJP4DEuzi6K1WeAl6lU3XajKmIt6lKL24rbPlO8fbq2tEn9OD7YO5XuO5uKuRiJe/p1ZWbw"
+      "img": "37906c6a1848c7d4.webp",
+      "s": "yp0EyAR7vPe4tVMai+60iGC4KuKrzC0i3TW0FOfkwSvZ2lbhBGTq7dmoUw2LrPDPYf9y4LONfRfCJ7RXr/7DPvr+MeRHO77v7bNNTdTitsJnqS6zq8MgEMgmuRP0so1R0tAbggZ27Km3tU0OwfOkkjyxMe3wgmtOxz3tAeK3j1LFygLCF2ShuOysfhyBt+bJduA/sPjOcg=="
     },
     {
-      "name": "Sunlit Grimoire",
-      "mana_cost": "{2}{W}",
-      "type_line": "Artifact",
-      "oracle_text": "Whenever you cast a spell, you may venture into the dungeon. (Enter the first room or advance to the next room.)\n{2}, Sacrifice Sunlit Grimoire: Draw a card.",
+      "name": "Tameshi, Reality Architect",
+      "mana_cost": "{2}{U}",
+      "type_line": "Legendary Creature — Moonfolk Wizard",
+      "oracle_text": "Whenever one or more noncreature permanents are returned to hand, draw a card. This ability triggers only once each turn.\n{X}{W}, Return a land you control to its owner's hand: Return target artifact or enchantment card with mana value X or less from your graveyard to the battlefield. Activate only as a sorcery.",
       "flavor_text": null,
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "6a0b131469ed0e89.webp",
+      "s": "7tFm3WNu7wGUZzTK221GfsRoZR5WUdzOUmHLhFP5fEq1vXHXbCKJQtpyNcvHY0p8lWxjSAUCiqcJLICwUeFpBLW+OphEa75Y3HY0nZJhRCnFYTMGTFOW8Ud80dkdoW4T54py2W5u41jbfmnc3zMCc9lofhNUQ9HxUmHHkFrnMALwknjRdnvgWsZwLtbKJAUoiHhlUTMCkfBBb8feU/50Uug="
+    },
+    {
+      "name": "Expedition's Endure",
+      "mana_cost": "{2}{W}",
+      "type_line": "Instant",
+      "oracle_text": "Choose one — You gain 5 life; or return target creature you control to its owner's hand.",
+      "flavor_text": "In the face of relentless pursuit, the promise of survival ignites the will to endure.",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -184,25 +132,77 @@
         "W"
       ],
       "card": true,
-      "img": "e6508aa9b5538453.webp",
-      "s": "zMDhhqEhBh6SmqTR491n+mJuSGjAXWbgr4i+JadlHO3SkbOKrm1QTNfcg9Li3ySuNHhDPLACJ66Dn+o9"
+      "img": "19d63d41dfb88495.webp",
+      "s": "QmyyYlwwrR0alVxWszzLZTRyqb2MvUW/wTdI55qvfr8="
     },
     {
-      "name": "Cylthar Protector",
-      "mana_cost": "{3}{G}",
-      "type_line": "Creature — Giant Warrior",
-      "oracle_text": "Vigilance\nWhenever this creature attacks, you may return target permanent you control to your hand. If you do, put a +1/+1 counter on this creature.",
-      "flavor_text": "In the shadow of the ruins, it stood guard, a living bulwark against the tide of destruction.",
-      "power": "4",
-      "toughness": "4",
+      "name": "Radiant Shieldbearer",
+      "mana_cost": "{2}{W}",
+      "type_line": "Creature — Human Knight",
+      "oracle_text": "Vigilance\nWhen Radiant Shieldbearer enters, venture into the dungeon.",
+      "flavor_text": "\"May the light guide our path through these darkened halls.\" — Sir Aelric, guardian of the realm",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "3c964c5d35192b05.webp",
+      "s": "q3KKimXXg4Bkumli2IAfutGSVxFz3sncsofZn8D2Fpa1I9iGapvV0iH8TmHZglzuh4RcRQOBiJKekI2H"
+    },
+    {
+      "name": "Gravekeeper's Rook",
+      "mana_cost": "{1}{B}",
+      "type_line": "Creature — Zombie Warrior",
+      "oracle_text": "When Gravekeeper's Rook dies, you may return target creature card from your graveyard to your hand.",
+      "flavor_text": "\"The past never stays buried in Tarkir. It rises, again and again.\"",
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "6cb69b9f71357017.webp",
+      "s": "daRoGExKuMvMdk22751Wv3YlKGJWLHFyWsdy4hV8capK9HsaQkjphYNiQfjh"
+    },
+    {
+      "name": "Shapers of Nature",
+      "mana_cost": "{1}{G}{U}",
+      "type_line": "Creature — Merfolk Shaman",
+      "oracle_text": "{3}{G}: Put a +1/+1 counter on target creature.\n{2}{U}, Remove a +1/+1 counter from a creature you control: Draw a card.",
+      "flavor_text": "Shapers adapt nature to fit their needs and then return it to the way it was, leaving no trace of their passing.",
+      "power": "3",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "G",
+        "U"
+      ],
+      "card": true,
+      "img": "5fae3d296d2aae7d.webp",
+      "s": "tIdhdB1IKdzxrJQJjVCjYuH0aKWFOygSGw7C3GunRHrtxGFlFVd/xOv4xD+ADuozssJ55tJ6ZHlPT4zId+lKYO+He2UIVHjc/veVH5oF5SH+/TLk0HYlOAIdypJ96QZ1/ZcrPg9Mapa0qpVRhxquLvPlafXaJH8vDjDd0nD3Cz/yxGN4Xlk="
+    },
+    {
+      "name": "Earthbend Barrier",
+      "mana_cost": "{2}{G}",
+      "type_line": "Instant",
+      "oracle_text": "Create a 0/6 colorless Wall artifact creature token with defender. (This creature can't attack.)\nEarthbend {1} — Create another 0/6 Wall token. Exile that token at the beginning of your next end step.",
+      "flavor_text": "When the earth rises in defense, even the fiercest foes must pause to reconsider their approach.",
+      "power": "null",
+      "toughness": "6",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "G"
       ],
       "card": true,
-      "img": "cd4e4b055ed85346.webp",
-      "s": "ADSmWQl+vMUb9dwELxTimAEegNAJbSryVavSgTOZul0Tc6ZPTzLJnkmxwA=="
+      "img": "de597c32b29ae1d9.webp",
+      "s": "wyy/xYkFZu+r+YkAh7ohGtkugQyAf8zynmj6n94Hl0jsZqiApAg3oavegR6WumNeni/GBQ=="
     }
   ]
 }
