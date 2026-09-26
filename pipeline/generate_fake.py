@@ -96,6 +96,8 @@ Standard-legal expansions. Rules you always follow:
   sentences ("Whenever this creature attacks, it connives"), never a standalone line like
   keyword abilities (Flying, Ward {2}). Write "Draw a card", never "You draw a card".
 - Modal cards: every mode must be a real choice of similar value for the card's cost.
+- Lands produce the mana listed in their profile (produces_mana) and use its land_types:
+  like the set's real lands (tapped duals, utility lands), never a plain "{T}: Add {C}." land.
 - If the set has color-based factions (guilds, colleges, clans, families...), a multicolor
   card belongs to the faction of its colors: its name, flavor and art show that faction.
 - Flavor text: like the real flavor texts of the set — concrete and specific to this world
@@ -122,9 +124,14 @@ def type_bucket(type_line: str) -> str:
 def spec_from(card: dict) -> dict:
     """Profile copied from a real card of the set, keywords included (same mechanics mix)."""
     colors = "".join(card.get("colors") or []) or "colorless"
-    return {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
+    spec = {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
             "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text")),
             "keywords": card.get("keywords") or [], "art_focus": art_focus(card["type_line"])}
+    if "Land" in card["type_line"] and "Creature" not in card["type_line"]:
+        # lands are colorless: what matters is the mana they make (dual land, utility land...)
+        spec["produces_mana"] = card.get("produced_mana") or []
+        spec["land_types"] = card["type_line"].split("—")[1].strip() if "—" in card["type_line"] else ""
+    return spec
 
 
 def example_text(c: dict) -> dict:
@@ -196,6 +203,15 @@ def validate(c: dict, spec: dict) -> str | None:
     missing = [k for k in spec.get("keywords", []) if k.lower() not in c["oracle_text"].lower()]
     if missing:
         return f"missing keyword(s) {missing}"
+    if "produces_mana" in spec:
+        text, types = c["oracle_text"], c["type_line"]
+        basic = {"W": "Plains", "U": "Island", "B": "Swamp", "R": "Mountain", "G": "Forest"}
+        lacking = [m for m in spec["produces_mana"] if m in basic
+                   and f"{{{m}}}" not in text and basic[m] not in types and "any color" not in text]
+        if lacking:
+            return f"land does not produce {lacking} like its profile"
+        if re.fullmatch(r"(?:[^\n]*enters[^\n]*tapped\.\n)?\{T\}: Add \{C\}\.", text.strip()):
+            return "vanilla colorless land (never printed)"
     return None
 
 
@@ -505,7 +521,7 @@ def main() -> None:
         for c, spec in zip(batch, specs):
             err = validate(c, spec)
             if not err:
-                c["oracle_text"] = fix_templating(c["oracle_text"])
+                c["oracle_text"] = fix_templating(c["oracle_text"], meta["released_at"])
                 bad_kw = misused_keywords(c["oracle_text"], *kw_catalogs)
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"])

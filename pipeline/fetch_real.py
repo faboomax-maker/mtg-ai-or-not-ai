@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import lzma
+import re
 import sys
 import time
 
@@ -25,7 +26,7 @@ DEFAULT_QUERY = (
 )
 
 FIELDS = ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
-          "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords",
+          "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords", "produced_mana",
           "set", "set_name", "artist", "collector_number", "released_at", "scryfall_uri")
 
 
@@ -79,6 +80,9 @@ def keep(card: dict) -> bool:
     if "image_uris" not in card or "art_crop" not in card["image_uris"]:
         return False
     if card.get("security_stamp") == "triangle":      # Universes Beyond (licensed IP = too easy)
+        return False
+    # special frames MSE's M15 template can't draw (text vanishes): Spacecraft, Planets (station)
+    if re.search(r"\b(Spacecraft|Planet)\b", card.get("type_line", "")) or "Station" in (card.get("keywords") or []):
         return False
     if len(card.get("oracle_text", "")) > 420:          # would not fit the frame
         return False

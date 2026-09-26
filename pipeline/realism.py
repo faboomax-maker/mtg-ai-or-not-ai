@@ -98,12 +98,26 @@ def add_missing_reminders(text: str, rarity: str, by_keyword: dict, rates: dict,
 
 
 # --------------------------------------------------------------- templating
-def fix_templating(text: str) -> str:
-    """Printed-card templating the LLM often gets wrong: 'Draw a card', not 'You draw a card'."""
-    return re.sub(r"(^|\n|[.:] |, | and | then |— |• )[Yy]ou (draw|create|scry|surveil|investigate)\b",
+# Rules wording that changed over time: (date the new wording was first printed, old, new)
+ERA_TERMS = [
+    ("2017-04-28", r"\btarget creature or player\b", "any target"),                # Amonkhet
+    ("2021-04-23", r"\bconverted mana cost\b", "mana value"),                        # Strixhaven
+]
+
+
+def fix_templating(text: str, released_at: str = "") -> str:
+    """Printed-card templating the LLM often gets wrong: 'Draw a card', not 'You draw a card';
+    and the wording of the set's era ('any target' since 2017, 'mana value' since 2021)."""
+    text = re.sub(r"(^|\n|[.:] |, | and | then |— |• )[Yy]ou (draw|create|scry|surveil|investigate)\b",
                   lambda m: m.group(1) + (m.group(2) if m.group(1) in (", ", " and ", " then ")
                                           else m.group(2).capitalize()),
                   text)
+    for since, old, new in ERA_TERMS:
+        if released_at and released_at >= since:
+            text = re.sub(old, new, text)
+        elif released_at and new == "mana value":
+            text = re.sub(r"\bmana value\b", "converted mana cost", text)
+    return text
 
 
 def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_words: set[str]) -> list[str]:

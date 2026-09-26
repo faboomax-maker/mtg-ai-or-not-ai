@@ -138,6 +138,7 @@ def card_block(c: dict, image_name: str, meta: dict) -> str:
 
 
 NEW_NUMBERING = "2023-04-01"                 # from March of the Machine: "C 0100" instead of "100/281 C"
+NYX_SETS = {"ths", "bng", "jou", "thb"}      # the starry enchantment frame is a Theros thing only
 
 
 def card_number(c: dict, meta: dict) -> str:
@@ -163,6 +164,7 @@ set info:
 \tautomatic card numbers: no
 \tcard number style: {"0001" if meta["released_at"] >= NEW_NUMBERING else "001/099"}
 \trarity codes: yes
+\tauto nyx: {"yes" if code in NYX_SETS else "no"}
 \tmainframe rarity name: {SYMBOL_DIR}/{code}.png
 \tautomatic reminder text:
 \tmark errors: no
