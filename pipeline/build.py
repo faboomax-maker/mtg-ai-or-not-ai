@@ -14,6 +14,7 @@ import base64
 import datetime as dt
 import hashlib
 import json
+import re
 import random
 import secrets
 import shutil
@@ -89,6 +90,12 @@ def main() -> None:
     save_json(DOCS / "data" / "cards.json",
               {"generated": dt.date.today().isoformat(), "count": len(out), "cards": out})
     print(f"Site data: {len(out)} cards ({len(real)} real / {len(fake)} AI) -> docs/")
+    # new version stamp on the site's CSS/JS links: browsers fetch fresh files, not cached ones
+    index = DOCS / "index.html"
+    if index.exists():
+        stamp = dt.datetime.now().strftime("%Y%m%d%H%M")
+        index.write_text(re.sub(r"\?v=[\w-]+", f"?v={stamp}", index.read_text(encoding="utf-8")),
+                         encoding="utf-8")
 
 
 if __name__ == "__main__":
