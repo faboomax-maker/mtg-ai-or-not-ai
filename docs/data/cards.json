@@ -3,204 +3,209 @@
   "count": 12,
   "cards": [
     {
-      "name": "Dread Shade",
-      "mana_cost": "{B}{B}{B}",
-      "type_line": "Creature — Shade",
-      "oracle_text": "{B}: Dread Shade gets +1/+1 until end of turn.",
-      "flavor_text": "\"The forest surrounding the Vess estate became the Caligo Morass, a vast bog stalked by horrors too terrible to name.\"\n—\"The Fall of the House of Vess\"",
-      "power": "3",
+      "name": "Bestow Greatness",
+      "mana_cost": "{2}{G}",
+      "type_line": "Instant",
+      "oracle_text": "Target creature gets +4/+4 and gains trample until end of turn.",
+      "flavor_text": "Exercise kindness, for nothing remains small forever.\n—Alacrian proverb",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "61d5b94e30b0400d.webp",
+      "s": "B6ExwpM6mTnLep10TGNFKqOVtF30cYcZ5kJezyXoR9ga92GL0nTacZ9nnHULdUUqmpWmGe4SxCrzU1jeMv4XnVyhNtWedIEjyWabdVk8Xyf/g6MNtzfENO8YVcU6o1bQDudsw5QilDLeO8BjTDwRZ6fdpw2rMNE25kVFlSL4WO4P7DbVkTOGYptnzXw="
+    },
+    {
+      "name": "Curious Disruption",
+      "mana_cost": "{R}",
+      "type_line": "Sorcery",
+      "oracle_text": "Choose one —\n• Exile target artifact.\n• Curiosity deals 2 damage to target player.\nIf a permanent you controlled left the battlefield this turn, you may choose both instead.",
+      "flavor_text": "\"Every experiment carries risk, but some are worth the gamble.\"\n—Rishkar, Renegade Innovator",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "37328d11a6957238.webp",
+      "s": "JLoqdvtt993Yw8BpK4uYYGphdkzqGnarMWVuyXH6Uj867jd/7iP5x9rE03ExncBicjIxcbJaL6tcIDjAZvwtCy33NTGgIfe1ncnEZCuLlDQgdzN/ukU75RluaYNp"
+    },
+    {
+      "name": "Migrating Ketradon",
+      "mana_cost": "{4}{G}{G}",
+      "type_line": "Creature — Dinosaur",
+      "oracle_text": "Reach\nWhen this creature enters, you gain 4 life.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+      "flavor_text": null,
+      "power": "6",
+      "toughness": "6",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "a1ac9ad37c9d7c80.webp",
+      "s": "E0aDDA64D2BZACH8/szvdEq6fK/U4nWagRzgSrOraBAOENNFT/ZMKA0dIP252u90cKVy9Mzud/mRGuQN++84ERwQgRpV+wIpGgYq7/qMo3hasGWijaMlv8sM7lvu/i1JRwmYDh21WTMXE37i/pS9N12wZrKbtjqElwf9XaKqJxgYDdMU"
+    },
+    {
+      "name": "Thrillseeker Pilot",
+      "mana_cost": "{3}{W}",
+      "type_line": "Creature — Human Pilot",
+      "oracle_text": "Vigilance\nWhenever this creature attacks, it gets +1/+0 until end of turn.",
+      "flavor_text": "\"Faster, higher—let's make history at every turn!\"\n—Jerem, Racing Innovator",
+      "power": "2",
       "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "63ec274c127bc1e1.webp",
+      "s": "S9HYSg738AHlCEbpIgsFYQk6osmTFPJPmjIOcQZhoZ9Zld4NQ7vwWrcaTvYlTBNhCQyr1MtPsAivP1pJBnq3LoPRhg9N+qBPmghV6jxME2EJDabP2EC1TZYyGXECfayOEo4="
+    },
+    {
+      "name": "Goblin Joyride",
+      "mana_cost": "{2}",
+      "type_line": "Artifact — Vehicle",
+      "oracle_text": "Flash\nCrew 1 (Tap any number of creatures you control with total power 1 or more: This Vehicle becomes an artifact creature until end of turn.)",
+      "flavor_text": null,
+      "power": "3",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "a05825e925b96c34.webp",
+      "s": "jvb8YaAdpwK1JK8cjooENuSvwGxBFHCyxAO6KVvc7J+csvom7VGnWec2pwOJzRI25JbKa6CHcMDkFKElV4ykzde1/HCeF/dX+GD0UN+tXWSoudc4MUEz++AS7Dw="
+    },
+    {
+      "name": "Deft Dismissal",
+      "mana_cost": "{3}{W}",
+      "type_line": "Instant",
+      "oracle_text": "Deft Dismissal deals 3 damage divided as you choose among one, two, or three target attacking or blocking creatures.",
+      "flavor_text": "\"With spy thopters all around, how can the consuls be so blind to Tezzeret's manipulations?\"\n—Gideon Jura",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "a3bb9540e76875b0.webp",
+      "s": "wMxgWNYrpqFqYihnmKB9fHGn+SFSkENutIg9qfEgs0PNgX5JlWukuStkLnuO+H9kIuDEeRLJQwPx3iC+7yLbBpmGZknHNL60ZWU5YITqPDJu7O5sBZ8CTqOYeq3mcs4XjMF2WNEzqf8jZTd7jv88Mj23+W43ww5ao58w8eJwiATG"
+    },
+    {
+      "name": "Kragus, Captain of the Storm",
+      "mana_cost": "{3}{B}{R}",
+      "type_line": "Legendary Planeswalker — Kragus",
+      "oracle_text": "+2: Kragus, Captain of the Storm deals 2 damage to any target.\n−3: Create two 1/1 red Pirate creature tokens with haste.\n−11: You get an emblem with \"At the beginning of your end step, create a Treasure token for each creature you control. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\"",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": "5",
+      "rarity": "mythic",
+      "colors": [
+        "B",
+        "R"
+      ],
+      "card": true,
+      "img": "b29f06287fd3d035.webp",
+      "s": "FchGJPLLiSjO66BRr1PCHaXZqE+jT4astHGLYp4OGZwIyn058svKfMyh4R+9RJpU9N7vAaFX9O+fdZJtll1qhA+EWCD9w4k+zq+gT6hpiE/ox+8BoVfn4IFqnHeaURmHBo8UB//GxnfDzqlctViLWaXX"
+    },
+    {
+      "name": "Flame of Awakening",
+      "mana_cost": "{2}{R}",
+      "type_line": "Instant",
+      "oracle_text": "Flame of Awakening deals 3 damage to any target. If you cast it as a Bargain (You may sacrifice an artifact, enchantment, or token as you cast this spell.), it deals 5 damage instead.",
+      "flavor_text": "\"The stories told of ashes, but I dreamt of rising from them.\"\n—Alden of the Ember Grove",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "99020b869b9e9296.webp",
+      "s": "zu8A5vyPZJddXr/DIJOVZVkeHndlKshbOYv/59KUar6ViB7n74Ivwxga8o9xl8sxEh4PIX0wyjYCi+XqxMYlmtC/HOLvh2SBXRq/3Sep3zcUAFk5ZzKuCw+M5+rClEOxx6gQ7PGXZNA="
+    },
+    {
+      "name": "Jade Bearer",
+      "mana_cost": "{G}",
+      "type_line": "Creature — Merfolk Shaman",
+      "oracle_text": "When Jade Bearer enters the battlefield, put a +1/+1 counter on another target Merfolk you control.",
+      "flavor_text": "\"Sisora wore this, who defeated the tyrant of Azcanta, and before her Natena of Vuhana's band. May it bring you their strength.\"",
+      "power": "1",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "b35597555600a189.webp",
+      "s": "9hHxu+WmI6TVhhjc334Ba6q54YzlamsWBqFdVKbDX6Ktevu/6KtvvNnSSMjIJkg6rf6vjv0LJSEX93dXu5BEpekRr/6mv3Py18hKi9ImVTmq5rqBrCk7PQm2UFT7gF+polDirODlc/eN3Vuajn1LKL25uMy6KzshHehJTLi8Q6v4QeC7uatx99eP"
+    },
+    {
+      "name": "Ego Drain",
+      "mana_cost": "{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Target opponent reveals their hand. You choose a nonland card from it. That player discards that card. If you don't control a Faerie, exile a card from your hand.",
+      "flavor_text": "\"You've wasted your life. Let's see if I can do any better with it.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "b464092480a03c5a.webp",
+      "s": "MCNlGR3KBrcdsrq7Wu86Ena/yJXuxTYZzrnuPSKCG+0ObXMOHc9K6B/q6OxesW5Zdq6ejfTHQi/LsPgvIqEIuS10exAVyEWvEebqu02vOAol+NTDoJVndIj6+S1wlBusJ205HxPLC+5ctKzhSKx/Hz3sk9Kzijkq1bTjID2YCaAUcngJDsVBsFy2oexC"
+    },
+    {
+      "name": "Zarakan, Apex Predator",
+      "mana_cost": "{4}{B}{B}",
+      "type_line": "Legendary Creature — Dinosaur",
+      "oracle_text": "Deathtouch\nWhenever Zarakan, Apex Predator deals damage to a creature, that creature is destroyed.",
+      "flavor_text": "\"Its roar echoes like thunder across the Isle of Dread, a herald of primal dominance.\"",
+      "power": "6",
+      "toughness": "6",
       "loyalty": null,
       "rarity": "rare",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "27e7c329b480e0d3.webp",
-      "s": "laF/IU80xmf4aDFhrcEAp21zPzTRqcj1bFeyzJ6bJmrMry1mTyqQNKtoYS7oz2eodnk4YsvFj9QhFvuAipsjKdSjLyxaLJQu4jNsZ6ufWeN/eic4iOaHnmBbqcbQjSBmwbs1a0oqgTy8MTB8qYlFumtiJkmY5p/DYF/mw4+AbXY="
+      "img": "25e8182ce5722a53.webp",
+      "s": "Fo+9heNL1bCSNxUgfQ8utt9M2mcCwZVZTHfB/x3FORYLjYaY40uW5JB9VG5vGHb/jkudKQDZ7xp9dZfNBdN1FQyP48CgRoX+7TcGI2NIOLbfa9pnWpLYFH0yl84D33QYAY2LheNTn6jP"
     },
     {
-      "name": "Stuffed Bear",
-      "mana_cost": "{2}",
-      "type_line": "Artifact",
-      "oracle_text": "{2}: Stuffed Bear becomes a 4/4 green Bear artifact creature until end of turn.",
-      "flavor_text": "It takes a taxidermist of unusual skill to cleanly stuff and mount a beast without severing its primal, predatory drive.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "a158ffd6e473055e.webp",
-      "s": "eDzA29C1vf06am9o3JgzzCeJ8Ehim6F5MgqzcscUqm85Pv/X1bf2oHJqPVXM2mfMeMymCyrP6kMoRuAhkSykbiNN3svSsfq1ODI9P8zGf8xuzKYCLM/zQ2ZL9XLQFLJtYnLekNK28uh5f295ltl6invesVN3yPdFOgK/ZZ4ErmpxIcfK3IbsqG9sfniE1WOHdpE="
-    },
-    {
-      "name": "Vigilant Watcher",
-      "mana_cost": "{3}{W}",
-      "type_line": "Creature — Human Soldier",
-      "oracle_text": "Ward {1}\nVigilant Watcher enters the battlefield with a vigilant presence, ready to warn against encroaching threats.",
-      "flavor_text": null,
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "100823583c0b3501.webp",
-      "s": "dDWS2mV9UfNe9gCfBkFGLTiqZaSAeFFesKF9cEL9yT9rLcDybXUdoBn4FdM9UQR5OPUg8sMwBRWKuzEjEav2N2x2iJ9BYQC9G/kP0VkESGxorV+20C0cXsPvMV5Q/9Qwdjek3nN/FLwf4gXRCA=="
-    },
-    {
-      "name": "Defiant Impaler",
-      "mana_cost": "{3}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Haste\nWhenever this creature attacks, it deals 1 damage to each opponent.",
-      "flavor_text": "\"Fear is a shadow; I will carve my own light!\"\n—Lucien, blade of courage",
-      "power": "4",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "300aed56bdcaf734.webp",
-      "s": "38L4HHXhczvr0bSI5JKK7S0J5tfSi7XBh0htLe9EJg7K2qoxe/giZOvYs8TfmNS/YAihj9CT9JG3VG0yoBFzXvSB/gt95nFJrtu5xrvXhKx9DtzFgt74wfkdPAvtWCdc8oHmDHXvPWTr5LmF7pLU73I="
-    },
-    {
-      "name": "Fury of the Warlord",
-      "mana_cost": "{3}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature gets +3/+0 until end of turn. If that creature is a Warrior, it also gains first strike until end of turn.",
-      "flavor_text": "\"In the heat of battle, a warrior's might can shift the very fabric of reality.\" \n—Kost, champion of the flame",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "9d11644a1ac71190.webp",
-      "s": "teCFdT6oZ3Y8Glj8zLyscek65PivndgLxd31so02Ro+IsJZzK7E3KT5QGbLeq/Q4uD2jtq2FtUj5zfGyxAFe3LqjNKGcdytuMFwb8c2t3ze5Juyut4fafuXZ4LbELVmPuqqSMB2oKiN4EVj+2vv9"
-    },
-    {
-      "name": "Compel Brutality",
-      "mana_cost": "{1}{G}",
-      "type_line": "Instant",
-      "oracle_text": "Choose one —\n• Target creature you control deals damage equal to its power to target creature or planeswalker an opponent controls.\n• Target planeswalker you control deals damage equal to its loyalty to target creature or planeswalker an opponent controls.",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "e681a6f45002deb9.webp",
-      "s": "BQb2RnIcWC3Is776vXvD03ATysiSnHMhB/7/lXBojbUMRedXZgIfNcTn7u6qI4qCd1SEyor4MB0M5rOvZ3nakgxQ/gE/UFhimqvutfh1i4V3Bs3Qh5MiEBDm9Z1ofYOQEUmrQHICHjiOta2g6WfS3mAZ05rN0HwREOrnnWh42YpBUfBOTAMVYpqkqbK5J4rTfg=="
-    },
-    {
-      "name": "Raucous Carnival",
-      "mana_cost": "",
-      "type_line": "Land",
-      "oracle_text": "Raucous Carnival enters tapped unless a player has 13 or less life.\n{T}: Add {R} or {W}.",
-      "flavor_text": "They say that those who enter the amusement park never come back, and their disembodied laughter joins the others on the wind.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "409ca3cc0734a98c.webp",
-      "s": "vgfppdDpFI5HiMzwY67erpDN85lXuce4Csgi1OiWnBT/BdOvxPZTlAians1p8IzjkYqrm0/4l4gWyD2bvcPMMKpW7uDi6lrVCZOcqSagi/6Pir2bT/GRiA/Ic5aokI0IvEP6rN2rVdsK093kdObR6JDDqIlbr8qOHs4q1vKQwxmkV/Wpx+RaixKI09p17Yv+gM262h3wx4E="
-    },
-    {
-      "name": "Raiders' Wake",
-      "mana_cost": "{3}{B}",
-      "type_line": "Enchantment",
-      "oracle_text": "Whenever an opponent discards a card, that player loses 2 life.\nRaid — At the beginning of your end step, if you attacked with a creature this turn, target opponent discards a card.",
-      "flavor_text": "One was spared to tell the gruesome tale.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "4d113c09d1cabd32.webp",
-      "s": "qc/QH+hyS/cPkgcsZuvjcOWNbHWdSfPpxybapdy4/EzwjNAO4G0d7xXGVwNipKhyxZx9O8sI84yfZcO23rjqTPCF1g75bVPiAJUWK3qhoj76xns4ykaywc0jmbze9P9d49uNCOh3DahdlVguYqymbeOcdQjUBqTS3CKLpcLz8hE="
-    },
-    {
-      "name": "Emberwing Phoenix",
-      "mana_cost": "{3}{R}",
-      "type_line": "Creature — Phoenix",
-      "oracle_text": "Flying\nHaste (This creature can attack and {T} as soon as it comes under your control.)",
-      "flavor_text": "\"In the wake of its passage, the sky tarnishes with a trail of embers.\"\n—Arel, aspiring knight",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "d96a10ba0c226db5.webp",
-      "s": "6kypkA4OActdbACw04hlc6OI+1bfTAuBjRnjEOHsK/vwTPfVTQNRhRR5Ff6azWsX4JrsSZgYCY/pVO8L+9I/4P4D+c9PQHSQD2kTpYC9ITzklfda3ws="
-    },
-    {
-      "name": "Mirror Image",
+      "name": "River Darter",
       "mana_cost": "{2}{U}",
-      "type_line": "Creature — Shapeshifter",
-      "oracle_text": "You may have Mirror Image enter the battlefield as a copy of any creature you control.",
-      "flavor_text": "The life of a shapeshifter is one of constant change.",
-      "power": "0",
-      "toughness": "0",
+      "type_line": "Creature — Merfolk Warrior",
+      "oracle_text": "River Darter can't be blocked by Dinosaurs.",
+      "flavor_text": "\"Don't make splashes. Make progress.\"\n—Tishana",
+      "power": "2",
+      "toughness": "3",
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
       "colors": [
         "U"
       ],
       "card": true,
-      "img": "80b1407d36e85cd8.webp",
-      "s": "9C/D7t7TfnY/+xdjbMZ+GCnd3l7C1RIB1ld+JAhPZBq9PYCynZN8bn79EX96nnwAepr4HZaRSWLvRGljOlkyFq8vxPnTnWZsPecRYnmZZBV1y8kOgZNRLtULeGs2BXNb/Wme5o6Gc3ouoAh/e5gxSHfRxx2fkA83zUhEdzRfYlnqMND71p0h"
-    },
-    {
-      "name": "Raptor Showdown",
-      "mana_cost": "{3}{G}",
-      "type_line": "Sorcery",
-      "oracle_text": "Target creature you control fights target creature you don't control. (Each deals damage equal to its power to the other.)",
-      "flavor_text": "\"The wilds of Ixalan are where honor and survival clash—only the strongest will prevail.\" \n—Kari, Sun Empire Warrior",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "cd40400a0030845b.webp",
-      "s": "w+CiPbyiBoLjVej6ZC+K4GNV+I7Wf2TlaqYX8rYQ5cmY4LEqqadXzOEJqbRAK9+uJAbPn40rK6tHrVSy91yml8ydtiqyowaC4xHa92ErwaVhdemVmTVmug=="
-    },
-    {
-      "name": "Gilded Artisan",
-      "mana_cost": "{3}{W}",
-      "type_line": "Creature — Gnome Artificer",
-      "oracle_text": "When Gilded Artisan enters the battlefield, create a Treasure token.",
-      "flavor_text": "\"Each piece is a thread in the tapestry of prosperity.\"\n—Verenna, master crafter",
-      "power": "2",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "3897ea759fd7404e.webp",
-      "s": "aGtLz+WucWrX2h8CQBxe4oVGNzl9gRp8MbLMPT99spIzewmbveB/cNXdDBpaCgbgnRVwBCXBQ3xe/Zw5bVqIgGEmVIi+4nERksgWC0EKGqvCWTZtHslONxS03T1tDKo="
+      "img": "0257db333392b4d1.webp",
+      "s": "dRoGVBjBFqunji9zTSaAaI8xy7HrKYsCdEkjXq/fA7YucQxQFcxas6vaf2dafsk5iHaFs/NewD5yUSMSkpoAo2FWVh1Zj0Hj69hnJgpi1D6MJ4W8/nrKImRZI16w0Q+/YxcXUAvJG+PugnIyHyXSI4oxzb61aNskeE19R6iSM6NhTQZSHJBV4e7YIA=="
     }
   ]
 }
