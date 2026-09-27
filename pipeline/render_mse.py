@@ -130,6 +130,8 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
         "notes": c["id"],                    # used as the export file name
         "name": esc(c["name"]),
         "illustrator": esc(c.get("artist") or ""),
+        # the thin line between rules and flavor text is printed since Dominaria (April 2018)
+        "separator": "flavor bar" if meta["released_at"] >= FLAVOR_BAR_SINCE else "none",
         "custom card number": card_number(c, meta),
         "casting cost": mana_cost(c.get("mana_cost")),
         "image": image_name,
@@ -156,7 +158,8 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
 
 
 NEW_NUMBERING = "2023-04-01"                 # from March of the Machine: "C 0100" instead of "100/281 C"
-NYX_SETS = {"ths", "bng", "jou", "thb"}      # the starry enchantment frame is a Theros thing only
+FLAVOR_BAR_SINCE = "2018-04-27"              # Dominaria; none on Ixalan, Rivals, Amonkhet...
+NYX_SETS = {"ths", "bng", "jou", "thb"}     # the starry enchantment frame is a Theros thing only
 
 
 def card_number(c: dict, meta: dict) -> str:
@@ -391,6 +394,14 @@ def tune_style(base: Path) -> None:
     if n1 or n2:
         path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
         print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
+    # Bottom line (collector number, set code): Gotham on real cards; the pack's Relay-Medium
+    # is heavier and tighter. Montserrat (installed by setup_mse.ps1) is the closer free match.
+    font = env("INFO_FONT", "Montserrat SemiBold")
+    for p in (base / "data" / "magic-modules.mse-include" / "information").glob("card_fields*"):
+        t = p.read_text(encoding="utf-8-sig")
+        if "Relay-Medium" in t and font != "Relay-Medium":
+            p.write_text(t.replace("Relay-Medium", font), encoding="utf-8")
+            print(f"bottom-line font -> {font} ({p.name})")
 
 
 # -------------------------------------------------------------------- render

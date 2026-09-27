@@ -22,6 +22,18 @@ if (-not (Test-Path "$Dir/magicseteditor.com")) {
   if ($LASTEXITCODE) { throw "git checkout failed" }
 }
 
+# Montserrat (SIL OFL): free look-alike of Gotham, the font of the bottom line of real cards
+# (collector number, set code, artist); installed with the Magic fonts below.
+$extra = Join-Path $Dir "Magic - Fonts\montserrat"
+New-Item -ItemType Directory -Force $extra | Out-Null
+foreach ($w in "Regular", "Medium", "SemiBold") {
+  $dest = Join-Path $extra "Montserrat-$w.ttf"
+  if (-not (Test-Path $dest)) {
+    Invoke-WebRequest "https://github.com/JulietaUla/Montserrat/raw/master/fonts/ttf/Montserrat-$w.ttf" `
+      -OutFile $dest -UseBasicParsing
+  }
+}
+
 # Font install: system-wide when running as admin (CI runners), per-user otherwise.
 # Also registered for the current session so MSE sees them without a new logon.
 Add-Type -Namespace W -Name F -MemberDefinition `
