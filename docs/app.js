@@ -94,7 +94,9 @@ function Round(p) {
       h("span")),
     h(A.RoundProgress, { current: Math.min(res.length + (verdict ? 0 : 1), cards.length), total: cards.length,
                          results: res.map(function (r) { return r.ok; }) }),
-    h("main", { className: "play" },
+    // the next card waits under the current one (first card of the stack), seen while swiping
+    h("main", { className: "play",
+                style: { "--next-card": cards[i + 1] ? 'url("' + cards[i + 1].src + '")' : "none" } },
       h(A.SwipeDeck, { cards: cards, current: i, locked: !!verdict, onAnswer: onAnswer, cardWidth: width,
                        overlay: verdict ? h(A.Verdict, verdict) : null })));
 }

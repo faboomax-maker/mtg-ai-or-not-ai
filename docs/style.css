@@ -18,6 +18,18 @@ body {
 .bar h1 { margin: 0; text-align: center; color: var(--ink); }
 .play { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-4); padding-top: var(--space-3); }
 
+/* Stack: the next card's face on the first card under the one being played. Same size and
+   place as the current card, so it is simply revealed when that one flies away. */
+.play .ar-deck__back--1 {
+  background-color: var(--card-placeholder);
+  background-image: var(--next-card, none);
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card);
+  transform: none; filter: brightness(.8);
+}
+.play .ar-deck__stage:has(.ar-swipe.is-drag) .ar-deck__back--1,
+.play .ar-deck__stage:has(.ar-swipe.is-fly) .ar-deck__back--1 { filter: none; transition: filter var(--ar-dur-fly) ease-out; }
+
 .intro { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding-top: var(--space-7); }
 .intro h1 { margin: var(--space-1) 0 0; color: var(--ink); }
 .intro .flavor { margin: 0; color: var(--ink-muted); }
