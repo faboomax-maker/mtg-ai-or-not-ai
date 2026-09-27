@@ -132,7 +132,7 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
         "illustrator": esc(c.get("artist") or ""),
         # the thin line between rules and flavor text is printed since Dominaria (April 2018)
         "separator": "flavor bar" if meta["released_at"] >= FLAVOR_BAR_SINCE else "none",
-        "custom card number": card_number(c, meta),
+        "custom card number": TRACK.join(card_number(c, meta)),
         "casting cost": mana_cost(c.get("mana_cost")),
         "image": image_name,
         "super type": esc(sup),
@@ -180,8 +180,8 @@ game: magic
 stylesheet: {STYLE}
 set info:
 \ttitle: quiz
-\tset code: {code.upper()}
-\tset language: EN
+	set code: {TRACK.join(code.upper())}
+	set language: {TRACK.join('EN')}
 \tcopyright: ™ & © {meta['released_at'][:4]} Wizards of the Coast
 \tautomatic copyright: yes
 \tautomatic card numbers: no
@@ -378,6 +378,72 @@ def common_inverted(code: str, fill: Image.Image) -> bool:
     return inverted
 
 
+# Collector info (bottom left), measured on Scryfall scans (fractions of the card): line 1
+# "085/196 U" digits from y .9365 to .9500, line 2 "RIX • EN" letters from .9548 to .9673,
+# left edge .0644; Gotham Medium, widely letter-spaced ("085/196 U" is .137 of the width);
+# the artist's brush .017 after "EN", .025 wide, then the name in Beleren Small Caps.
+INFO_X, INFO_L1, INFO_L2, INFO_CAP = 0.0644, 0.9365, 0.9548, 0.0125
+INFO_REF = ("085/196 U", 0.1369)
+
+
+def _font_file(base: Path, name: str) -> Path | None:
+    return next((p for p in (base / "Magic - Fonts").rglob(name)), None)
+
+
+def _brush(base: Path, width: int) -> Image.Image | None:
+    """The M15 artist brush, from the pack (magic-modules information/art.png), as a mask."""
+    path = base / "data" / "magic-modules.mse-include" / "information" / "art.png"
+    try:
+        img = Image.open(path).convert("RGBA")
+        a = img.getchannel("A")
+        if a.getextrema()[0] == 255:            # opaque image: use darkness instead
+            a = ImageOps.invert(img.convert("L"))
+        a = a.crop(a.getbbox())
+        return a.resize((width, max(1, round(a.height * width / a.width))), Image.LANCZOS)
+    except Exception as e:
+        print(f"  brush icon unavailable ({e})", file=sys.stderr)
+        return None
+
+
+def draw_info(card_png: Path, base: Path, line1: str, line2: str, artist: str) -> None:
+    """Redraw the collector info like print: MSE cannot letter-space it."""
+    gotham, beleren = _font_file(base, "Gotham Medium Regular.ttf"), _font_file(base, "belerensmallcaps-bold.ttf")
+    if not gotham or not beleren:
+        return
+    card = Image.open(card_png).convert("RGBA")
+    W, H = card.size
+    d = ImageDraw.Draw(card)
+    border = card.getpixel((round(0.03 * W), round(0.95 * H)))
+    d.rectangle((round(0.045 * W), round(0.930 * H), round(0.42 * W), round(0.975 * H)), fill=border)
+    ink = (255, 255, 255, 255) if sum(border[:3]) < 384 else (0, 0, 0, 255)
+    cap = INFO_CAP * H
+    probe = ImageFont.truetype(str(gotham), 100)
+    e_box = probe.getbbox("E")
+    size = 100 * cap / (e_box[3] - e_box[1])
+    font = ImageFont.truetype(str(gotham), round(size * 4) / 4)
+    natural = sum(font.getlength(ch) for ch in INFO_REF[0])
+    track = (INFO_REF[1] * W - natural) / (len(INFO_REF[0]) - 1)
+
+    def spaced(text: str, x: float, baseline: float) -> float:
+        for ch in text:
+            d.text((x, baseline), ch, font=font, fill=ink, anchor="ls")
+            x += font.getlength(ch) + track
+        return x - track
+
+    spaced(line1, INFO_X * W, INFO_L1 * H + cap * 1.08)          # digits are a bit taller than E
+    end = spaced(line2, INFO_X * W, INFO_L2 * H + cap)
+    x = end + 0.017 * W
+    brush = _brush(base, round(0.025 * W))
+    if brush is not None and artist:
+        top = INFO_L2 * H + (cap - brush.height) / 2
+        card.paste(Image.new("RGBA", brush.size, ink), (round(x), round(top)), brush)
+        x += brush.width + 0.006 * W
+    if artist:
+        af = ImageFont.truetype(str(beleren), round(size * 1.12 * 4) / 4)
+        d.text((x, INFO_L2 * H + cap), artist, font=af, fill=ink, anchor="ls")
+    card.save(card_png)
+
+
 def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
     """Set symbol at the size and place measured on Scryfall scans of M15-frame cards."""
     card = Image.open(card_png).convert("RGBA")
@@ -398,8 +464,9 @@ def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
 # Rules text of the stock M15 style is a bit loosely spaced and grows up to size 14,
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
-BODY_SIZE = env("MSE_BODY_SIZE", "16")         # max; MSE shrinks the text until the box is full
-INFO_SIZE = env("MSE_INFO_SIZE", "6.2")         # bottom line (collector number, set code)
+BODY_SIZE = env("MSE_BODY_SIZE", "14.3")       # standard print size; MSE shrinks long texts to fit
+INFO_SIZE = env("MSE_INFO_SIZE", "5.6")         # bottom line (collector number, set code)
+TRACK = ""                                     # (hair spaces are not drawn by MSE: no tracking)
 PW_TEXT_SIZE = env("MSE_PW_TEXT_SIZE", "10")  # planeswalker abilities, measured on scans (XLN Vraska)
 LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.35,1.8,0.84").split(",")))
 
@@ -452,7 +519,7 @@ def tune_style(base: Path) -> None:
         print(f"planeswalker text size -> {PW_TEXT_SIZE}")
     # Bottom line (collector number, set code): Gotham on real cards; the pack's Relay-Medium
     # is heavier and tighter. Montserrat (installed by setup_mse.ps1) is the closer free match.
-    font = env("INFO_FONT", "Montserrat Medium")        # Gotham Medium on print (commercial)
+    font = env("INFO_FONT", "Gotham Medium")     # as printed; shipped in the Full Magic Pack fonts
     for p in (base / "data" / "magic-modules.mse-include" / "information").glob("card_fields*"):
         t = p.read_text(encoding="utf-8-sig")
         new = t.replace("Relay-Medium", font) if font != "Relay-Medium" else t
@@ -506,10 +573,16 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
             print(log[-2000:])
         missing = [c["name"] for c, _ in todo if not (out_dir / f"{c['id']}.png").exists()]
         failed += missing
-        for c, _ in todo:                        # the set symbol, at its printed size
+        meta = set_meta(code, [c for c, _ in todo])
+        for c, _ in todo:                        # set symbol and collector info, as printed
             png = out_dir / f"{c['id']}.png"
             if png.exists():
                 paste_symbol(png, symbols.get(RARITY_LETTER.get(c["rarity"], "r"), symbols["r"]))
+                if "Planeswalker" not in c["type_line"]:
+                    num, rar = card_number(c, meta), RARITY_LETTER.get(c["rarity"], "r").upper()
+                    new = meta["released_at"] >= NEW_NUMBERING
+                    draw_info(png, base, f"{rar} {num}" if new else f"{num} {rar}",
+                              f"{code.upper()} • EN", c.get("artist") or "")
         print(f"[{code}] {len(todo) - len(missing)}/{len(todo)} cards rendered")
     done = len(list(out_dir.glob("*.png")))
     print(f"Done: {done} card images in {out_dir}")
