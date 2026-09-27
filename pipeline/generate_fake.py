@@ -54,6 +54,7 @@ from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_pri
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
                      flavor_fits, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
+                     subtype_color_problem,
                      tone_down, too_simple, uses_old_wording)
 
 BATCH = 8
@@ -897,7 +898,10 @@ def main() -> None:
             + (f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
                "the keywords listed in its profile. Its illustration is already chosen and described "
                "in the profile ('illustration'): the card's name, creature types, abilities and flavor "
-               "text must fit what the illustration shows.\n" if real_art() else
+               "text must fit what the illustration shows. Creature types name what is visibly drawn "
+               "(an ordinary person is a Human; use a race like Aetherborn, Vampire or Merfolk only if "
+               "the illustration shows one), and the set must print that type in the card's colors.\n"
+               if real_art() else
                f"\n\nDesign {n} NEW cards, one per profile below, in this order. Each card must use "
                "the keywords listed in its profile, and its art must follow the profile's art_focus:\n")
             + json.dumps(specs, ensure_ascii=False, indent=1)
@@ -924,6 +928,7 @@ def main() -> None:
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
                        else rules_problem(c["oracle_text"], c["type_line"])
+                       or subtype_color_problem(c["type_line"], spec["colors"], pool)
                        or name_problem(c["name"], used_name_words)
                        or (None if real_art() else art_problem(c["art_description"])))
             if not err and c["name"].lower() in banned:

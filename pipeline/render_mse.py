@@ -283,7 +283,7 @@ def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> dict[st
     # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
     # images, and the real-size symbol is pasted onto the rendered card (paste_symbol).
     symbols = {}
-    inverted = common_inverted(code, w / h)
+    inverted = common_inverted(code, fill_mask)
     # Keyrune draws inner details as holes; printed symbols fill them with the outline colour
     # (white letters on a black common M21, black ones on a gold rare): paint the whole
     # silhouette, gaps included, in the outline colour, then the symbol on top.
@@ -311,13 +311,15 @@ def symbol_grow(symbol: Image.Image) -> int:
     return max(0, round(w - 44 + 3))
 
 
-def common_inverted(code: str, aspect: float) -> bool:
+def common_inverted(code: str, fill: Image.Image) -> bool:
     """Some sets print their common symbol inverted (white shape, black lines: Dominaria 2018...).
-    Tell from a real common of the set on Scryfall: share of dark pixels in its symbol (cached)."""
-    path = WORK_SETS / f"{code}.symbol.json"
+    Tell from a real common of the set on Scryfall: brightness of the scan inside the symbol's
+    own shape (`fill`, the glyph mask) - dark = black symbol, light = inverted (cached)."""
+    path = WORK_SETS / f"{code}.symbol2.json"
     cached = load_json(path, None)
     if cached is not None:
         return cached["inverted"]
+    aspect = fill.width / fill.height
     inverted = False
     try:
         s = session()
@@ -330,10 +332,11 @@ def common_inverted(code: str, aspect: float) -> bool:
         w = min(h * aspect, SYMBOL_MAX_W * W)
         box = img.crop((round(SYMBOL_RIGHT * W - w), round(SYMBOL_CY * H - h / 2),
                         round(SYMBOL_RIGHT * W), round(SYMBOL_CY * H + h / 2)))
-        px = list(box.getdata())
-        dark = sum(p < 90 for p in px) / max(1, len(px))
-        inverted = dark < 0.3                 # black commons are ~50%+ dark, inverted ~15%
-        print(f"  [{code}] common symbol {'inverted' if inverted else 'black'} (dark {dark:.0%})")
+        mask = fill.resize(box.size, Image.BILINEAR).point(lambda v: 255 if v > 200 else 0)
+        inside = [p for p, m in zip(box.getdata(), mask.getdata()) if m]
+        mean = sum(inside) / max(1, len(inside))
+        inverted = mean > 140                 # black symbols read ~30-60, inverted ones ~200+
+        print(f"  [{code}] common symbol {'inverted' if inverted else 'black'} (inside brightness {mean:.0f})")
     except Exception as e:
         print(f"  [{code}] common symbol check failed ({e}); using black", file=sys.stderr)
     save_json(path, {"inverted": inverted})
@@ -361,6 +364,8 @@ def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
 BODY_SIZE = env("MSE_BODY_SIZE", "14")
+INFO_SIZE = env("MSE_INFO_SIZE", "6.2")         # bottom line (collector number, set code)
+PW_TEXT_SIZE = env("MSE_PW_TEXT_SIZE", "10")  # planeswalker abilities, measured on scans (XLN Vraska)
 LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.1,1.0,0.84").split(",")))
 
 
@@ -394,14 +399,27 @@ def tune_style(base: Path) -> None:
     if n1 or n2:
         path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
         print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
+    # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
+    # planeswalkers use smaller type (measured on scans: ~10)
+    pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
+    t = pw.read_text(encoding="utf-8-sig")
+    new = re.sub(r"(size: \{if styling\.font_size != \"\" then styling\.font_size else if has_four_abilities\(\) then )13\.8( else )14\}",
+                 rf"\g<1>{float(PW_TEXT_SIZE) - 0.2:g}\g<2>{PW_TEXT_SIZE}}}", t)
+    if new != t:
+        pw.write_text(new, encoding="utf-8")
+        print(f"planeswalker text size -> {PW_TEXT_SIZE}")
     # Bottom line (collector number, set code): Gotham on real cards; the pack's Relay-Medium
     # is heavier and tighter. Montserrat (installed by setup_mse.ps1) is the closer free match.
     font = env("INFO_FONT", "Montserrat SemiBold")
     for p in (base / "data" / "magic-modules.mse-include" / "information").glob("card_fields*"):
         t = p.read_text(encoding="utf-8-sig")
-        if "Relay-Medium" in t and font != "Relay-Medium":
-            p.write_text(t.replace("Relay-Medium", font), encoding="utf-8")
-            print(f"bottom-line font -> {font} ({p.name})")
+        new = t.replace("Relay-Medium", font) if font != "Relay-Medium" else t
+        # Montserrat is wider and taller than Relay: at the stock size 7 the collector number
+        # and set code print larger than on real cards
+        new = re.sub(rf"(name:\s*{re.escape(font)}\s*\r?\n\s*size:\s*\{{\s*)7(\s*\*)", rf"\g<1>{INFO_SIZE}\g<2>", new)
+        if new != t:
+            p.write_text(new, encoding="utf-8")
+            print(f"bottom-line font -> {font} {INFO_SIZE} ({p.name})")
 
 
 # -------------------------------------------------------------------- render

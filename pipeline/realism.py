@@ -162,6 +162,27 @@ def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_
     return bad
 
 
+def subtype_color_problem(type_line: str, colors, pool: list[dict]) -> str | None:
+    """A creature type the set only prints in other colors (Aetherborn are black in Kaladesh,
+    Merfolk blue/green in Ixalan...) gives an AI card away."""
+    if "Creature" not in type_line or "—" not in type_line:
+        return None
+    mine = {c for c in colors if c in "WUBRG"}
+    if not mine:
+        return None
+    seen: dict[str, set] = {}
+    for c in pool:
+        if "Creature" in c["type_line"] and "—" in c["type_line"]:
+            for t in c["type_line"].split("—")[1].split():
+                seen.setdefault(t, set()).update(c.get("colors") or [])
+    for t in type_line.split("—")[1].split():
+        cols = seen.get(t)
+        # printed in this set, in colours only, and never sharing one with this card
+        if cols and not (cols & mine) and len(cols) <= 2:
+            return f"creature type {t} is only {''.join(sorted(cols))} in this set"
+    return None
+
+
 def fix_type_line(type_line: str, text: str) -> str:
     """An 'Enchant ...' card is an Aura: add the subtype the LLM forgot."""
     if re.search(r"(^|\n)Enchant ", text or "") and "Enchantment" in type_line and "Aura" not in type_line:
