@@ -1,0 +1,60 @@
+/* Artifice — tokens (from the design system's tokens.json). Crypte is the default theme;
+   Vélin applies with data-theme="velin" on <html>. */
+:root {
+  --surface: #15100d; --surface-raised: #241b16; --surface-sunken: #0b0807;
+  --line: #8c7862; --line-soft: #3a2e26;
+  --ink: #efe4cd; --ink-muted: #b9a88e;
+  --brass: #d6a24a; --brass-edge: #f0c979; --on-brass: #1a110a; --brass-ink: #e6b866; --brass-soft: #3a2a12;
+  --blood: #7d1712; --blood-deep: #4a0c09;
+  --answer-ai: #34418f; --answer-ai-edge: #9fb0f2; --on-answer-ai: #f4f1ff; --answer-ai-ink: #a9b8f5; --answer-ai-soft: #1d2142;
+  --answer-real: var(--brass); --answer-real-edge: var(--brass-edge); --on-answer-real: var(--on-brass);
+  --answer-real-ink: var(--brass-ink); --answer-real-soft: var(--brass-soft);
+  --success: #93d6a0; --on-success: #0f2414; --success-ink: #8fd39c; --success-soft: #14291a;
+  --danger: #9c1f17; --on-danger: #fff1ea; --danger-ink: #ff907c; --danger-soft: #3a1410;
+  --focus-ring: #f2c46b; --scrim: rgba(8, 5, 4, 0.72); --card-edge: rgba(0, 0, 0, 0.55); --card-placeholder: #2a211b;
+
+  --font-gothic: "Grenze Gotisch", "Grenze", Georgia, serif;
+  --font-display: "Grenze", "Iowan Old Style", Georgia, serif;
+  --font-text: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Alegreya Sans", "Gill Sans", system-ui, sans-serif;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --radius-sm: 2px; --radius-md: 4px; --radius-card: 13px; --radius-pill: 999px;
+  --shadow-bevel: inset 1px 1px 0 rgba(255, 244, 220, 0.22), inset -1px -1px 0 rgba(0, 0, 0, 0.45);
+  --shadow-inset: inset 1px 1px 0 rgba(0, 0, 0, 0.45), inset -1px -1px 0 rgba(255, 244, 220, 0.18);
+  --shadow-card: 0 2px 3px rgba(0, 0, 0, 0.7), 0 14px 30px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 8px 12px rgba(0, 0, 0, 0.7), 0 26px 48px rgba(0, 0, 0, 0.65);
+  --size-touch: 44px; --size-control: 48px; --size-answer: 56px;
+  --card-full: 280px; --card-verdict: 136px; --card-thumb: 60px; --screen-max: 430px;
+  --stroke-hair: 1px; --stroke-control: 2px; --stroke-stamp: 3px;
+  color-scheme: dark;
+}
+:root[data-theme="velin"] {
+  --surface: #ece2cb; --surface-raised: #f8f1e2; --surface-sunken: #ddcfb2;
+  --line: #7a6750; --line-soft: #c9b894; --ink: #1d1510; --ink-muted: #5a4a3a;
+  --brass: #c98f2e; --brass-edge: #5e3e0d; --brass-ink: #7a4f10; --brass-soft: #f2dfb3;
+  --answer-ai-edge: #1c2560; --answer-ai-ink: #2e3a86; --answer-ai-soft: #dde2f7;
+  --success-ink: #236030; --success-soft: #d6ead5; --danger-ink: #9c1f17; --danger-soft: #f4d8cf;
+  --focus-ring: #2e3a86; --scrim: rgba(29, 21, 16, 0.55); --card-placeholder: #cdbd9d;
+  --shadow-card: 0 2px 3px rgba(29, 21, 16, 0.35), 0 12px 26px rgba(29, 21, 16, 0.3);
+  --shadow-lift: 0 8px 12px rgba(29, 21, 16, 0.35), 0 24px 44px rgba(29, 21, 16, 0.35);
+  color-scheme: light;
+}
+
+/* Text styles */
+.title-lg { font-family: var(--font-gothic); font-size: 34px; line-height: 38px; font-weight: 600; }
+.title-md { font-family: var(--font-gothic); font-size: 24px; line-height: 28px; font-weight: 600; }
+.score { font-family: var(--font-gothic); font-size: 88px; line-height: 84px; font-weight: 700; }
+.title-xl { font-family: var(--font-display); font-size: 40px; line-height: 44px; font-weight: 700; }
+.title-sm { font-family: var(--font-display); font-size: 22px; line-height: 26px; font-weight: 700; }
+.verdict { font-family: var(--font-display); font-size: 34px; line-height: 38px; font-weight: 700; }
+.stamp { font-family: var(--font-display); font-size: 34px; line-height: 38px; font-weight: 700; }
+.body { font-family: var(--font-text); font-size: 18px; line-height: 25px; font-weight: 400; }
+.body-strong { font-family: var(--font-text); font-size: 18px; line-height: 25px; font-weight: 700; }
+.flavor { font-family: var(--font-text); font-size: 18px; line-height: 25px; font-weight: 400; font-style: italic; }
+.button { font-family: var(--font-ui); font-size: 18px; line-height: 20px; font-weight: 700; }
+.label { font-family: var(--font-ui); font-size: 15px; line-height: 20px; font-weight: 700; }
+.input { font-family: var(--font-ui); font-size: 17px; line-height: 24px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 14px; line-height: 19px; font-weight: 500; }
+.badge { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 800; letter-spacing: 0.04em; }
+.eyebrow { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 800; letter-spacing: 0.14em; }

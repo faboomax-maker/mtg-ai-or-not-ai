@@ -2,70 +2,20 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vraie ou IA ? – Le quiz Magic</title>
-  <meta name="description" content="Saurez-vous distinguer une vraie carte Magic d'une carte inventée par une IA ?">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>IA ou vraie carte ?</title>
+  <meta name="description" content="Dix cartes Magic : de vraies cartes, et d'autres inventées par une IA. À toi de trier.">
+  <meta name="theme-color" content="#15100d">
+  <link rel="stylesheet" href="vendor/artifice/tokens.css">
+  <link rel="stylesheet" href="vendor/artifice/bundle.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
-    <h1 class="logo">Vraie <span>ou</span> IA&nbsp;?</h1>
-    <div class="hud" id="hud" hidden>
-      <span id="progress">1 / 10</span>
-      <span class="sep">·</span>
-      <span>Score <b id="score">0</b></span>
-      <span class="sep">·</span>
-      <span>Série <b id="streak">0</b></span>
-    </div>
-  </header>
-
-  <main>
-    <!-- Start -->
-    <section id="start" class="panel">
-      <p class="lead">Chaque carte est soit une <b>vraie carte Magic</b>, soit une carte <b>inventée par une IA</b> — texte <em>et</em> illustration.</p>
-      <p class="sub">Toutes les cartes utilisent le même cadre : seul le contenu peut vous trahir. Mécaniques, équilibrage, formulation, illustration… à vous de jouer.</p>
-      <div class="lengths" role="group" aria-label="Nombre de cartes">
-        <button class="chip" data-len="10">10 cartes</button>
-        <button class="chip" data-len="20">20 cartes</button>
-        <button class="chip" data-len="0">Toutes</button>
-      </div>
-      <p class="meta" id="pool-info"></p>
-    </section>
-
-    <!-- Game -->
-    <section id="game" hidden>
-      <div class="stage">
-        <div id="card-slot"></div>
-        <div class="controls" id="choices">
-          <button class="btn real" id="btn-real"><kbd>←</kbd> Vraie carte</button>
-          <button class="btn ai" id="btn-ai">Générée par IA <kbd>→</kbd></button>
-        </div>
-        <div class="verdict" id="verdict" hidden>
-          <p class="verdict-title" id="verdict-title"></p>
-          <p class="verdict-detail" id="verdict-detail"></p>
-          <button class="btn next" id="btn-next">Carte suivante <kbd>Entrée</kbd></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- End -->
-    <section id="end" class="panel" hidden>
-      <p class="final" id="final-score"></p>
-      <p class="lead" id="final-msg"></p>
-      <ol class="recap" id="recap"></ol>
-      <button class="btn next" id="btn-again">Rejouer</button>
-    </section>
-  </main>
-
-  <footer>
-    Données et illustrations des vraies cartes via <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>.
-    Contenu de fan non officiel, autorisé par la <a href="https://company.wizards.com/fancontentpolicy" target="_blank" rel="noopener">Fan Content Policy</a>.
-    Non approuvé par Wizards. Des parties des éléments utilisés sont la propriété de Wizards of the Coast. ©Wizards of the Coast LLC.
-  </footer>
-
+  <div id="root"></div>
+  <noscript><p class="body" style="padding:16px">Le jeu a besoin de JavaScript.</p></noscript>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="vendor/artifice/bundle.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

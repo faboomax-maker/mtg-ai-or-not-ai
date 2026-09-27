@@ -1,193 +1,162 @@
 "use strict";
+/* IA ou vraie carte ? — the quiz, built with the Artifice design system (window.Artifice, React 18).
+   Left = IA, right = Vraie. The answer of each card stays sealed in cards.json until it is played. */
 
-const $ = (id) => document.getElementById(id);
-const state = { pool: [], deck: [], i: 0, score: 0, streak: 0, best: 0, history: [], answered: false };
+var A = window.Artifice, h = React.createElement;
+var useState = React.useState, useRef = React.useRef, useEffect = React.useEffect;
+var ROUND = 10, VERDICT_MS = 1200;
 
-/* ---------------------------------------------------------------- data */
-async function loadPool() {
-  const res = await fetch("data/cards.json", { cache: "no-cache" });
-  if (!res.ok) throw new Error("data/cards.json introuvable");
-  const data = await res.json();
-  state.pool = data.cards;
-  const label = data.generated === "demo" ? "jeu de démonstration" : `généré le ${data.generated}`;
-  $("pool-info").textContent = `${data.count} cartes disponibles · ${label}`;
+/* ------------------------------------------------------------------ data */
+function unseal(card) {
+  var bytes = Uint8Array.from(atob(card.s), function (c) { return c.charCodeAt(0); });
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(card.img)).then(function (buf) {
+    var key = new Uint8Array(buf);
+    var out = bytes.map(function (b, i) { return b ^ key[i % key.length]; });
+    return JSON.parse(new TextDecoder().decode(out));
+  });
 }
 
-async function unseal(card) {
-  const bytes = Uint8Array.from(atob(card.s), (c) => c.charCodeAt(0));
-  const key = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(card.img)));
-  const out = bytes.map((b, i) => b ^ key[i % key.length]);
-  return JSON.parse(new TextDecoder().decode(out));
-}
-
-/* ------------------------------------------------------------- symbols */
-const MANA_BG = { W: "#f8f3d6", U: "#a9d3ef", B: "#c9c0bd", R: "#f2a58c", G: "#9bd3ae", C: "#d8d3cf" };
-
-function symbol(raw) {
-  const s = raw.toUpperCase();
-  if (s === "T") return '<span class="ms ms-T" title="Engager">↷</span>';
-  if (s === "Q") return '<span class="ms ms-T" title="Dégager">↶</span>';
-  if ("WUBRGC".includes(s) && s.length === 1) return `<span class="ms ms-${s}">${s}</span>`;
-  if (s === "S") return '<span class="ms ms-S">❄</span>';
-  if (s.includes("/")) {
-    const [a, b] = s.split("/");
-    if (b === "P") return `<span class="ms ms-${a}">φ</span>`;
-    const ca = MANA_BG[a] || "#d3cdc8", cb = MANA_BG[b] || "#d3cdc8";
-    return `<span class="ms ms-H" style="--a:${ca};--b:${cb}">${/\d/.test(a) ? a : ""}</span>`;
-  }
-  return `<span class="ms ms-N">${s}</span>`;
-}
-
-const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const withSymbols = (t) => esc(t).replace(/\{([^}]+)\}/g, (_, s) => symbol(s));
-
-function rulesHTML(text) {
-  if (!text) return "";
-  return text.split("\n").map((line) =>
-    `<p>${withSymbols(line).replace(/\(([^)]*)\)/g, "<i>($1)</i>")}</p>`).join("");
-}
-
-/* ---------------------------------------------------------------- card */
-function frameClass(c) {
-  const col = c.colors || [];
-  if (col.length > 1) return "M";
-  if (col.length === 1) return col[0];
-  return /Land/.test(c.type_line) ? "L" : "C";
-}
-
-function setSymbol(c) {
-  if (!c.set_icon) return `<span class="gem ${c.rarity}"></span>`;
-  const url = `sets/${encodeURIComponent(c.set_icon)}.svg`;
-  return `<span class="set"><span class="set-glyph ${c.rarity}" style="--icon:url('${url}')"></span></span>`;
-}
-
-function renderCard(c) {
-  if (c.card) {  // full card rendered by Magic Set Editor (same frame for real and AI cards)
-    return `<div class="card-wrap"><img class="card-img" src="img/${c.img}" alt="${esc(c.name)}"></div>`;
-  }
-  const cost = (c.mana_cost || "").match(/\{[^}]+\}/g) || [];
-  const flavor = c.flavor_text
-    ? `<p class="flavor${c.oracle_text ? "" : " solo"}">${esc(c.flavor_text).replace(/\n/g, "<br>")}</p>` : "";
-  const corner = c.power != null && c.toughness != null
-    ? `<div class="pt">${esc(c.power)}/${esc(c.toughness)}</div>`
-    : c.loyalty ? `<div class="loyalty">${esc(c.loyalty)}</div>` : "";
-  return `
-  <div class="card-wrap">
-    <article class="card ${frameClass(c)}" aria-label="${esc(c.name)}">
-      <div class="frame">
-        <div class="bar"><span class="name">${esc(c.name)}</span>
-          <span class="cost">${cost.map((m) => symbol(m.slice(1, -1))).join("")}</span></div>
-        <div class="art" style="background-image:url('img/${c.img}')" role="img" aria-label="Illustration"></div>
-        <div class="bar"><span class="type">${esc(c.type_line)}</span>${setSymbol(c)}</div>
-        <div class="textbox">${rulesHTML(c.oracle_text)}${flavor}</div>
-        ${corner}
-      </div>
-    </article>
-  </div>`;
-}
-
-function fitText(box) {
-  let size = 1.15;           // short texts are printed larger, like on real cards
-  box.style.fontSize = size + "em";
-  while (box.scrollHeight > box.clientHeight + 1 && size > 0.55) {
-    size -= 0.04;
-    box.style.fontSize = size.toFixed(2) + "em";
-  }
-}
-
-/* ---------------------------------------------------------------- game */
 function shuffle(a) {
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
 
-function start(len) {
-  const deck = shuffle([...state.pool]);
-  Object.assign(state, { deck: len ? deck.slice(0, len) : deck, i: 0, score: 0, streak: 0, best: 0, history: [] });
-  $("start").hidden = true; $("end").hidden = true; $("game").hidden = false; $("hud").hidden = false;
-  show();
+function newDeck(pool) {
+  // opaque ids and URLs only: the file names are random, the truth stays sealed
+  return shuffle(pool.slice()).slice(0, Math.min(ROUND, pool.length))
+    .map(function (c) { return { id: c.img, src: "img/" + c.img, data: c }; });
 }
 
-function show() {
-  const c = state.deck[state.i];
-  state.answered = false;
-  $("card-slot").innerHTML = renderCard(c);
-  const box = $("card-slot").querySelector(".textbox");
-  if (box) document.fonts.ready.then(() => fitText(box));
-  $("choices").hidden = false; $("verdict").hidden = true;
-  $("progress").textContent = `${state.i + 1} / ${state.deck.length}`;
-  $("score").textContent = state.score; $("streak").textContent = state.streak;
-  const next = state.deck[state.i + 1];
-  if (next) new Image().src = `img/${next.img}`;
+/* Card as large as the screen allows: the rules text must stay readable. */
+function cardWidth() {
+  var byHeight = (window.innerHeight - 300) * 63 / 88;
+  return Math.round(Math.max(240, Math.min(460, byHeight)));
 }
 
-async function answer(saysReal) {
-  if (state.answered) return;
-  state.answered = true;
-  const c = state.deck[state.i];
-  const secret = await unseal(c);
-  const good = secret.real === saysReal;
-  if (good) { state.score++; state.streak++; state.best = Math.max(state.best, state.streak); }
-  else state.streak = 0;
-  state.history.push({ name: c.name, real: secret.real, good });
-
-  const stamp = document.createElement("div");
-  stamp.className = "stamp " + (secret.real ? "real" : "ai");
-  stamp.textContent = secret.real ? "VRAIE" : "IA";
-  $("card-slot").querySelector(".card-wrap").appendChild(stamp);
-
-  const t = $("verdict-title");
-  t.className = "verdict-title " + (good ? "ok" : "ko");
-  t.textContent = good ? "Bien vu !" : "Raté…";
-  $("verdict-detail").innerHTML = secret.real
-    ? `Vraie carte${secret.set ? " · " + esc(secret.set) : ""}${secret.artist ? " · illustration de " + esc(secret.artist) : ""}` +
-      (secret.url ? ` · <a href="${esc(secret.url)}" target="_blank" rel="noopener">voir sur Scryfall</a>` : "")
-    : (secret.art_from
-        ? `Carte inventée par une IA (nom et texte). Illustration de ${esc(secret.artist || "?")}, ` +
-          `empruntée à la vraie carte « ${esc(secret.art_from)} ».`
-        : "Carte inventée par une IA : texte, nom et illustration.") +
-      (secret.set ? ` Le symbole de set (${esc(secret.set)}) a été emprunté pour brouiller les pistes.` : "");
-  $("score").textContent = state.score; $("streak").textContent = state.streak;
-  $("choices").hidden = true; $("verdict").hidden = false;
-  $("btn-next").textContent = state.i + 1 < state.deck.length ? "Carte suivante" : "Voir le résultat";
-  $("btn-next").focus();
+/* ---------------------------------------------------------------- screens */
+function Intro(p) {
+  return h("div", { className: "intro" },
+    h("div", null,
+      h("p", { className: "ar-eyebrow eyebrow" }, "Quiz Magic"),
+      h("h1", { className: "title-xl" }, "IA ou vraie carte ?")),
+    h("p", { className: "flavor" },
+      "Dix cartes. Wizards en a imprimé certaines, une machine a inventé les autres. À toi de trier."),
+    h(A.Panel, { title: "Comment on joue", headingLevel: 2 },
+      h("ul", { className: "rules body" },
+        h("li", null, h("span", { className: "ic-ai" }, h(A.Icon, { name: "arrow-left" })),
+          h("span", null, "À gauche : ", h("strong", null, "IA"))),
+        h("li", null, h("span", { className: "ic-real" }, h(A.Icon, { name: "arrow-right" })),
+          h("span", null, "À droite : ", h("strong", null, "vraie carte"))),
+        h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "swipe" })),
+          h("span", null, "Glisse, touche les boutons ou utilise les flèches.")))),
+    h("div", { className: "push" },
+      p.error ? h("p", { className: "error caption" }, p.error) : null,
+      h(A.Button, { variant: "primary", size: "lg", block: true, onClick: p.onStart, disabled: !p.ready }, "Jouer"),
+      p.meta ? h("p", { className: "meta caption" }, p.meta) : null,
+      h("p", { className: "legal caption" },
+        "Vraies cartes via ", h("a", { href: "https://scryfall.com", target: "_blank", rel: "noopener" }, "Scryfall"),
+        ". Contenu de fan non officiel, autorisé par la ",
+        h("a", { href: "https://company.wizards.com/fancontentpolicy", target: "_blank", rel: "noopener" }, "Fan Content Policy"),
+        ". Non approuvé par Wizards. Des parties des éléments utilisés sont la propriété de Wizards of the Coast. ©Wizards of the Coast LLC.")));
 }
 
-function next() {
-  if (!state.answered) return;
-  state.i++;
-  if (state.i < state.deck.length) show(); else finish();
+function Round(p) {
+  var cards = p.cards;
+  var s1 = useState(0), i = s1[0], setI = s1[1];
+  var s2 = useState([]), res = s2[0], setRes = s2[1];
+  var s3 = useState(null), verdict = s3[0], setVerdict = s3[1];
+  var s4 = useState(cardWidth()), width = s4[0], setWidth = s4[1];
+  var t = useRef(null);
+  useEffect(function () {
+    function onResize() { setWidth(cardWidth()); }
+    window.addEventListener("resize", onResize);
+    return function () { clearTimeout(t.current); window.removeEventListener("resize", onResize); };
+  }, []);
+
+  function onAnswer(side, card, idx) {
+    unseal(card.data).then(function (secret) {
+      var truth = secret.real ? "real" : "ai", ok = side === truth;
+      var next = res.concat([{ id: card.id, src: card.src, truth: truth, answer: side, ok: ok,
+                               card: card.data, secret: secret }]);
+      setRes(next);
+      setVerdict({ correct: ok, truth: truth, src: card.src, index: idx + 1, total: cards.length });
+      t.current = setTimeout(function () {
+        setVerdict(null);
+        if (idx + 1 >= cards.length) p.onEnd(next); else setI(idx + 1);
+      }, VERDICT_MS);
+    });
+  }
+
+  return h(React.Fragment, null,
+    h("header", { className: "bar" },
+      h(A.Button, { variant: "secondary", icon: "close", "aria-label": "Quitter la partie", onClick: p.onQuit }),
+      h("h1", { className: "title-sm" }, "IA ou vraie carte ?"),
+      h("span")),
+    h(A.RoundProgress, { current: Math.min(res.length + (verdict ? 0 : 1), cards.length), total: cards.length,
+                         results: res.map(function (r) { return r.ok; }) }),
+    h("main", { className: "play" },
+      h(A.SwipeDeck, { cards: cards, current: i, locked: !!verdict, onAnswer: onAnswer, cardWidth: width,
+                       overlay: verdict ? h(A.Verdict, verdict) : null })));
 }
 
-function finish() {
-  const n = state.deck.length, pct = Math.round((100 * state.score) / n);
-  $("game").hidden = true; $("end").hidden = false; $("hud").hidden = true;
-  $("final-score").textContent = `${state.score} / ${n}`;
-  $("final-msg").textContent =
-    pct >= 90 ? `Planeswalker confirmé ! Meilleure série : ${state.best}.` :
-    pct >= 70 ? `Très bon œil. Meilleure série : ${state.best}.` :
-    pct >= 50 ? `Pas mal, mais l'IA vous a eu plusieurs fois. Meilleure série : ${state.best}.` :
-                `L'IA vous a bien piégé… Meilleure série : ${state.best}.`;
-  $("recap").innerHTML = state.history.map((h) =>
-    `<li><span class="mark ${h.good ? "ok" : "ko"}">${h.good ? "✓" : "✗"}</span>${esc(h.name)}
-     <span class="tag">${h.real ? "vraie" : "IA"}</span></li>`).join("");
+/* What each card really was: set, artist, Scryfall; for AI cards, where the art comes from. */
+function Details(p) {
+  return h(A.Panel, { title: "Les cartes", headingLevel: 2 },
+    h("ol", { className: "details" }, p.items.map(function (r) {
+      var s = r.secret, info;
+      if (r.truth === "real") {
+        info = [s.set, s.artist ? "illustration de " + s.artist : null].filter(Boolean).join(" · ");
+        info = h("p", { className: "info caption" }, info,
+          s.url ? h(React.Fragment, null, " · ", h("a", { href: s.url, target: "_blank", rel: "noopener" }, "Scryfall")) : null);
+      } else {
+        info = h("p", { className: "info caption" },
+          "Texte et nom inventés par une IA.",
+          s.art_from ? " Illustration de " + (s.artist || "?") + ", empruntée à « " + s.art_from + " »." : "",
+          s.set ? " Symbole de " + s.set + " emprunté." : "");
+      }
+      return h("li", { key: r.id },
+        h("span", { className: "name body-strong" }, r.card.name),
+        h(A.Badge, { tone: r.truth }, r.truth === "ai" ? "IA" : "Vraie"),
+        info);
+    })));
 }
 
-/* -------------------------------------------------------------- wiring */
-document.querySelectorAll("[data-len]").forEach((b) => b.addEventListener("click", () => start(+b.dataset.len)));
-$("btn-real").addEventListener("click", () => answer(true));
-$("btn-ai").addEventListener("click", () => answer(false));
-$("btn-next").addEventListener("click", next);
-$("btn-again").addEventListener("click", () => { $("end").hidden = true; $("start").hidden = false; });
-document.addEventListener("keydown", (e) => {
-  if ($("game").hidden) return;
-  if (!state.answered && (e.key === "ArrowLeft" || e.key.toLowerCase() === "v")) answer(true);
-  else if (!state.answered && (e.key === "ArrowRight" || e.key.toLowerCase() === "i")) answer(false);
-  else if (state.answered && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); }
-});
-window.addEventListener("resize", () => { const b = document.querySelector(".textbox"); if (b) fitText(b); });
+function Score(p) {
+  var s = useState(null);
+  var score = p.items.filter(function (r) { return r.ok; }).length;
+  return h("div", { className: "scroll" },
+    h(A.ScoreSummary, { score: score, total: p.items.length, items: p.items, shareStatus: s[0],
+      onReplay: p.onReplay,
+      onShare: function () { A.shareScore(score, p.items.length, location.href).then(s[1]); } }),
+    h(Details, { items: p.items }));
+}
 
-loadPool().catch((err) => {
-  $("pool-info").textContent = `Erreur : ${err.message}. Lancez le pipeline puis servez le dossier docs/ via un serveur web.`;
-  document.querySelectorAll("[data-len]").forEach((b) => (b.disabled = true));
-});
+function App() {
+  var s1 = useState("intro"), screen = s1[0], setScreen = s1[1];
+  var s2 = useState(null), pool = s2[0], setPool = s2[1];
+  var s3 = useState(null), meta = s3[0], setMeta = s3[1];
+  var s4 = useState(null), error = s4[0], setError = s4[1];
+  var s5 = useState([]), cards = s5[0], setCards = s5[1];
+  var s6 = useState([]), items = s6[0], setItems = s6[1];
+  var s7 = useState(0), game = s7[0], setGame = s7[1];
+
+  useEffect(function () {
+    fetch("data/cards.json", { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error("data/cards.json introuvable"); return r.json(); })
+      .then(function (d) {
+        setPool(d.cards);
+        setMeta(d.count + " cartes en réserve · " + (d.generated === "demo" ? "jeu de démonstration" : "tirage du " + d.generated));
+      })
+      .catch(function (e) { setError("Impossible de charger les cartes : " + e.message); });
+  }, []);
+
+  function start() { setCards(newDeck(pool)); setGame(game + 1); setScreen("round"); }
+
+  return h("div", { className: "app", "data-screen": screen },
+    screen === "intro" ? h(Intro, { onStart: start, ready: !!(pool && pool.length), meta: meta, error: error }) :
+    screen === "round" ? h(Round, { key: game, cards: cards, onQuit: function () { setScreen("intro"); },
+                                    onEnd: function (r) { setItems(r); setScreen("score"); } }) :
+    h(Score, { items: items, onReplay: start }));
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
