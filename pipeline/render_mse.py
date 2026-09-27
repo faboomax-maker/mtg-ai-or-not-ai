@@ -269,17 +269,50 @@ def gradient(size: tuple[int, int], colors: tuple[str, str, str]) -> Image.Image
     return band.resize(size, Image.BILINEAR)
 
 
-def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> dict[str, Image.Image]:
-    """Write <code>c/u/r/m.png: the set glyph filled with the rarity colours."""
+def official_symbol_mask(code: str, height: int = 900) -> Image.Image | None:
+    """The set's official symbol shape: Scryfall's SVG (saved by fetch_real.py) rasterized.
+    Keyrune redraws some symbols differently (Midnight Hunt: a disc with the wolf cut out,
+    instead of the printed wolf inside a thin circle)."""
+    svg = WORK_SETS / f"{code}.svg"
+    if not svg.exists():
+        try:                                      # sets seen only through AI cards
+            info = session().get(f"https://api.scryfall.com/sets/{code}", timeout=30).json()
+            svg.write_bytes(fetch_bytes(session(), info["icon_svg_uri"]))
+        except Exception:
+            return None
+    try:
+        import resvg_py
+        text = svg.read_text(encoding="utf-8")
+        png = resvg_py.svg_to_bytes(svg_string=text, height=height)
+        img = Image.open(io.BytesIO(bytes(png))).convert("RGBA")
+        mask = img.getchannel("A")
+        return mask.crop(mask.getbbox()) if mask.getbbox() else None
+    except Exception as e:
+        print(f"  [{code}] official symbol unavailable ({e}); using Keyrune", file=sys.stderr)
+        return None
+
+
+def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> dict[str, Image.Image]:
+    """Write <code>c/u/r/m.png: the set symbol filled with the rarity colours."""
     size, stroke = 900, SYMBOL_STROKE
-    font = ImageFont.truetype(str(font_path), size)
-    box = font.getbbox(glyph, stroke_width=stroke)
-    w, h = box[2] - box[0] + 2 * stroke, box[3] - box[1] + 2 * stroke
-    at = (stroke - box[0], stroke - box[1])
-    fill_mask, outline_mask = Image.new("L", (w, h)), Image.new("L", (w, h))
-    ImageDraw.Draw(fill_mask).text(at, glyph, font=font, fill=255)
-    ImageDraw.Draw(outline_mask).text(at, glyph, font=font, fill=255, stroke_width=stroke, stroke_fill=255)
-    ink = outline_mask.getbbox()                # the font box has empty space below the glyph:
+    official = official_symbol_mask(code)
+    if official is not None:
+        pad = stroke + 2
+        fill_mask = ImageOps.expand(official, pad, 0)
+        # outline: the shape grown by `stroke` px (max filter on a reduced copy, for speed)
+        k = 4
+        small = fill_mask.resize((fill_mask.width // k, fill_mask.height // k), Image.BILINEAR)
+        grown = small.filter(ImageFilter.MaxFilter(2 * (stroke // k) + 1))
+        outline_mask = grown.resize(fill_mask.size, Image.BILINEAR).point(lambda v: 255 if v > 100 else 0)
+    else:
+        font = ImageFont.truetype(str(font_path), size)
+        box = font.getbbox(glyph, stroke_width=stroke)
+        w, h = box[2] - box[0] + 2 * stroke, box[3] - box[1] + 2 * stroke
+        at = (stroke - box[0], stroke - box[1])
+        fill_mask, outline_mask = Image.new("L", (w, h)), Image.new("L", (w, h))
+        ImageDraw.Draw(fill_mask).text(at, glyph, font=font, fill=255)
+        ImageDraw.Draw(outline_mask).text(at, glyph, font=font, fill=255, stroke_width=stroke, stroke_fill=255)
+    ink = outline_mask.getbbox()                # empty space around the symbol:
     fill_mask, outline_mask = fill_mask.crop(ink), outline_mask.crop(ink)   # keep visible pixels only
     w, h = outline_mask.size
     # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
@@ -401,6 +434,13 @@ def tune_style(base: Path) -> None:
     if n1 or n2:
         path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
         print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
+    # Mana symbols in rules text: the pack pads each one (horizontal space 2), which prints
+    # "{2} :" instead of "{2}:" and pushes words onto the next line
+    sym = base / "data" / "magic-mana-small.mse-symbol-font" / "symbol-font"
+    t = sym.read_text(encoding="utf-8-sig")
+    if "horizontal space: 2\n" in t.replace("\r\n", "\n"):
+        sym.write_text(re.sub(r"(?m)^horizontal space: 2\s*$", "horizontal space: 0", t), encoding="utf-8")
+        print("text mana symbols: no extra spacing")
     # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
     # planeswalkers use smaller type (measured on scans: ~10)
     pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
@@ -412,7 +452,7 @@ def tune_style(base: Path) -> None:
         print(f"planeswalker text size -> {PW_TEXT_SIZE}")
     # Bottom line (collector number, set code): Gotham on real cards; the pack's Relay-Medium
     # is heavier and tighter. Montserrat (installed by setup_mse.ps1) is the closer free match.
-    font = env("INFO_FONT", "Montserrat SemiBold")
+    font = env("INFO_FONT", "Montserrat Medium")        # Gotham Medium on print (commercial)
     for p in (base / "data" / "magic-modules.mse-include" / "information").glob("card_fields*"):
         t = p.read_text(encoding="utf-8-sig")
         new = t.replace("Relay-Medium", font) if font != "Relay-Medium" else t
@@ -444,17 +484,17 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
     by_set: dict[str, list] = defaultdict(list)
     for c, art in cards:
         code = (c.get("set") or "").lower()
-        if code in glyphs:
+        if code in glyphs or official_symbol_mask(code, height=64) is not None:
             by_set[code].append((c, art))
         else:
-            print(f"  skipped {c['name']!r}: no Keyrune symbol for set {code!r}")
+            print(f"  skipped {c['name']!r}: no symbol for set {code!r}")
 
     failed = []
     for code, group in sorted(by_set.items()):
         todo = [(c, a) for c, a in group if not (out_dir / f"{c['id']}.png").exists()]
         if not todo:
             continue
-        symbols = symbol_images(code, font, glyphs[code], sym_dir)
+        symbols = symbol_images(code, font, glyphs.get(code), sym_dir)
         set_path = WORK / f"quiz-{code}.mse-set"
         write_set(code, todo, set_path)
         cmd = [str(exe), "--export-images", str(set_path), str(out_dir / "{card.notes}.png")]
