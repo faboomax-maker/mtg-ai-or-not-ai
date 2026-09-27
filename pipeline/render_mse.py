@@ -28,7 +28,7 @@ from pathlib import Path
 
 from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageFont, ImageOps
 
-from common import DOCS, ROOT, WORK, WORK_IMG, WORK_SETS, env, fetch_bytes, load_json, session
+from common import DOCS, ROOT, WORK, WORK_IMG, WORK_SETS, env, fetch_bytes, load_json, save_json, session
 
 WORK_CARDS = WORK / "cards"
 KEYRUNE = WORK / "keyrune"
@@ -280,10 +280,21 @@ def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> dict[st
     # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
     # images, and the real-size symbol is pasted onto the rendered card (paste_symbol).
     symbols = {}
+    inverted = common_inverted(code, w / h)
+    # Keyrune draws inner details as holes; printed symbols fill them with the outline colour
+    # (white letters on a black common M21, black ones on a gold rare): paint the whole
+    # silhouette, gaps included, in the outline colour, then the symbol on top.
+    solid = ImageOps.expand(outline_mask, 2, 0)
+    ImageDraw.floodfill(solid, (0, 0), 128)                  # flood the outside from a margin
+    solid = solid.point(lambda v: 0 if v == 128 else 255).crop((2, 2, w + 2, h + 2))
     for r, (colors, outline) in RARITY_LOOK.items():
         img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        img.paste(Image.new("RGB", (w, h), outline), mask=outline_mask)
-        img.paste(gradient((w, h), colors), mask=fill_mask)
+        if r == "c" and inverted:             # inverted common: white shape, black lines
+            img.paste(Image.new("RGB", (w, h), "#000000"), mask=solid)
+            img.paste(Image.new("RGB", (w, h), "#ffffff"), mask=fill_mask)
+        else:
+            img.paste(Image.new("RGB", (w, h), outline), mask=solid)
+            img.paste(gradient((w, h), colors), mask=fill_mask)
         symbols[r] = img
         # transparent stand-in with the symbol's proportions: MSE reserves that width on the type line
         Image.new("RGBA", (round(100 * w / h), 100), (255, 255, 255, 1)).save(dest / f"{code}{r}.png")
@@ -295,6 +306,35 @@ def symbol_grow(symbol: Image.Image) -> int:
     type line stops before the pasted symbol, as on printed cards."""
     w = min(SYMBOL_H * 523 * symbol.width / symbol.height, SYMBOL_MAX_W * 375)
     return max(0, round(w - 44 + 3))
+
+
+def common_inverted(code: str, aspect: float) -> bool:
+    """Some sets print their common symbol inverted (white shape, black lines: Dominaria 2018...).
+    Tell from a real common of the set on Scryfall: share of dark pixels in its symbol (cached)."""
+    path = WORK_SETS / f"{code}.symbol.json"
+    cached = load_json(path, None)
+    if cached is not None:
+        return cached["inverted"]
+    inverted = False
+    try:
+        s = session()
+        r = s.get("https://api.scryfall.com/cards/search", timeout=60,
+                  params={"q": f"e:{code} r:common frame:2015 -t:basic", "order": "set"})
+        card = next(c for c in r.json()["data"] if "image_uris" in c)
+        img = Image.open(io.BytesIO(fetch_bytes(s, card["image_uris"]["normal"]))).convert("L")
+        W, H = img.size
+        h = SYMBOL_H * H
+        w = min(h * aspect, SYMBOL_MAX_W * W)
+        box = img.crop((round(SYMBOL_RIGHT * W - w), round(SYMBOL_CY * H - h / 2),
+                        round(SYMBOL_RIGHT * W), round(SYMBOL_CY * H + h / 2)))
+        px = list(box.getdata())
+        dark = sum(p < 90 for p in px) / max(1, len(px))
+        inverted = dark < 0.3                 # black commons are ~50%+ dark, inverted ~15%
+        print(f"  [{code}] common symbol {'inverted' if inverted else 'black'} (dark {dark:.0%})")
+    except Exception as e:
+        print(f"  [{code}] common symbol check failed ({e}); using black", file=sys.stderr)
+    save_json(path, {"inverted": inverted})
+    return inverted
 
 
 def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
