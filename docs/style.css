@@ -17,6 +17,9 @@ body {
 .bar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: var(--space-2); min-height: 56px; }
 .bar h1 { margin: 0; text-align: center; color: var(--ink); }
 .play { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-4); padding-top: var(--space-3); }
+/* the card centered in the free space; the answer buttons stay at the bottom, under the thumb */
+.play .ar-deck { flex: 1; }
+.play .ar-deck__stage { margin: auto 0; }
 
 /* Stack: the next card's face on the first card under the one being played. Same size and
    place as the current card, so it is simply revealed when that one flies away. */
