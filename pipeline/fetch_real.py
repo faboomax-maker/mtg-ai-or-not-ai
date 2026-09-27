@@ -24,7 +24,7 @@ API = "https://api.scryfall.com"
 # Modern single-faced paper cards, same frame era as what the AI imitates.
 DEFAULT_QUERY = (
     "game:paper layout:normal lang:en frame:2015 year>=2016 "
-    "(st:expansion or st:core) -is:funny -is:reprint -is:promo -type:basic"
+    "(st:expansion or st:core) -is:funny -is:reprint -is:promo -is:universesbeyond -type:basic"
 )
 
 # Rares and mythics are the cards players know by heart: a famous real card is spotted at
@@ -117,8 +117,8 @@ def with_printed_text(s, card: dict) -> dict:
 def keep(card: dict) -> bool:
     if "image_uris" not in card or "art_crop" not in card["image_uris"]:
         return False
-    if card.get("security_stamp") == "triangle":      # Universes Beyond (licensed IP = too easy)
-        return False
+    if card.get("security_stamp") == "triangle" or "universesbeyond" in (card.get("promo_types") or []):
+        return False                                  # Universes Beyond (licensed IP = too easy)
     # special frames MSE's M15 template can't draw (text vanishes): Spacecraft, Planets (station)
     if re.search(r"\b(Spacecraft|Planet)\b", card.get("type_line", "")) or "Station" in (card.get("keywords") or []):
         return False

@@ -57,6 +57,9 @@ def reminder_texts(pool: list[dict]) -> tuple[dict[str, str], dict[str, str], di
             # parametrised reminders (Ward {2}, Kicker {1}{R}) are only reused by clause
             if re.search(r"[{\d]|\b(?:two|three|four|five|six|seven|x)\b", clause):
                 continue                         # "scry 2" / "mill three": number-specific
+            if re.search(r"\b(?:two|three|four|five|six|seven|X)\b|(?<![+\-−/\d])\d+(?![/\d])", rem):
+                continue                         # "(To scry 3, look at the top three...)" too
+                                                 # (but "+1/+1 counter" is fine)
             line = text[text.rfind("\n", 0, m.start()) + 1:m.start()].lower()
             kws = [k.lower() for k in c.get("keywords") or []]
             # "(To behold a Dragon, ...)" names its keyword; otherwise the keyword must close
@@ -87,6 +90,9 @@ def add_missing_reminders(text: str, rarity: str, by_keyword: dict, rates: dict,
         m = re.search(rf"\b{re.escape(kw)}\w*", PAREN.sub(lambda p: " " * len(p.group(0)), text), re.I)
         if not m:
             continue
+        sentence = re.split(r"[.\n]", text[:m.start()])[-1]
+        if re.search(r"\b(?:whenever|when|if|each time|as long as)\b", sentence, re.I):
+            continue                             # "Whenever you scry": a condition, not explained
         end = min([i for i in (text.find(".", m.end()), text.find("\n", m.end())) if i != -1]
                   or [len(text)])
         end += 1 if end < len(text) and text[end] == "." else 0
@@ -141,6 +147,11 @@ def misused_keywords(text: str, abilities: set[str], actions: set[str], ability_
         if m and m.group(1).lower() in abilities and m.group(1).lower() not in ability_words:
             bad.append(f"{m.group(1)} — (a keyword, not an ability word)")
             continue
+        m = re.match(r"^([A-Z][A-Za-z' -]+?) — ", line)          # not after a mode bullet
+        if m and not m.group(1).startswith(("Choose", "Boast", "Companion", "Exhaust", "Forecast")) \
+                and m.group(1).lower() not in ability_words and m.group(1).lower() not in abilities:
+            bad.append(f"{m.group(1)} — (not an existing ability word; mode names only follow a '•')")
+            continue
         line = line.strip().rstrip(".")
         if not line or re.search(r"[.:—]", line):
             continue                               # a sentence or an activated ability
@@ -171,6 +182,13 @@ def rules_problem(text: str, type_line: str) -> str | None:
     if m:
         return f"only creatures can do that: {m.group(0)!r}"
     return None
+
+
+def flavor_fits(rules: str | None, flavor: str | None) -> bool:
+    """Printed cards only carry flavor text when the rules text leaves room for it: a long
+    rules box (several keywords with reminder text, a modal card...) has none."""
+    r, f = len(rules or ""), len(flavor or "")
+    return r <= 200 and r + f <= 280
 
 
 def too_simple(text: str, rarity: str, type_line: str, colors: str = "") -> bool:

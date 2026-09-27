@@ -53,7 +53,7 @@ WORK_RAW = WORK / "raw"                      # original full-resolution AI image
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_printed_text
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
-                     name_problem, name_words, number_in_group, reminder_texts, rules_problem,
+                     flavor_fits, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
                      tone_down, too_simple, uses_old_wording)
 
 BATCH = 8
@@ -304,9 +304,13 @@ def type_bucket(type_line: str) -> str:
 def spec_from(card: dict) -> dict:
     """Profile copied from a real card of the set, keywords included (same mechanics mix)."""
     colors = "".join(card.get("colors") or []) or "colorless"
+    text = card.get("oracle_text") or ""
+    # Scryfall also lists the names of modes as "keywords" ("• Repair — ..."): not mechanics
+    keywords = [k for k in card.get("keywords") or []
+                if not (re.search(rf"•\s*{re.escape(k)}\b", text) and not re.search(rf"(^|\n){re.escape(k)}\b", text))]
     spec = {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
             "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text")),
-            "keywords": card.get("keywords") or [], "art_focus": art_focus(card["type_line"])}
+            "keywords": keywords, "art_focus": art_focus(card["type_line"])}
     if "Land" in card["type_line"] and "Creature" not in card["type_line"]:
         # lands are colorless: what matters is the mana they make (dual land, utility land...)
         spec["produces_mana"] = card.get("produced_mana") or []
@@ -936,6 +940,8 @@ def main() -> None:
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)
             text = add_missing_reminders(text, spec["rarity"], by_keyword, remind_rates, by_clause)
             c["oracle_text"] = fix_wording(text, c["name"], c["type_line"], old_wording)
+            if not flavor_fits(c["oracle_text"], c.get("flavor_text")):
+                c["flavor_text"] = None          # like printed cards: no room left for flavor
             # Credits: with real art, its real artist (and the card it comes from, told on reveal);
             # otherwise an ordinary invented name (never a real Magic artist, no repeats).
             # Collector number in the range where this set prints this colour.

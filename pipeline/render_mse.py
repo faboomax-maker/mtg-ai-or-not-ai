@@ -39,13 +39,22 @@ PW_ART = (324, 428)                          # planeswalker art box (px at 150 d
 RARITY = {"mythic": "mythic rare"}
 SYMBOL_DIR = "quiz"                          # folder inside magic-mainframe-extras.mse-include
 
-# Rarity colours of printed set symbols: gradient (dark, light, dark) + outline.
+# Rarity colours of printed set symbols, as Keyrune defines them (keyrune.andrewgioia.com,
+# .ss-{rarity}.ss-grad): gradient (dark, light, dark) + outline (white for commons).
 RARITY_LOOK = {
-    "c": (("#1b1a1a", "#1b1a1a", "#1b1a1a"), "#d9d9d9"),
-    "u": (("#5f6a74", "#d8e0e6", "#5f6a74"), "#000000"),
-    "r": (("#8a6d2b", "#ecd594", "#8a6d2b"), "#000000"),
-    "m": (("#b3260f", "#f7941d", "#b3260f"), "#000000"),
+    "c": (("#1a1718", "#1a1718", "#1a1718"), "#ffffff"),
+    "u": (("#5a6572", "#9e9e9e", "#5a6572"), "#000000"),
+    "r": (("#876a3b", "#dfbd6b", "#876a3b"), "#000000"),
+    "m": (("#b21f0f", "#f38300", "#b21f0f"), "#000000"),
 }
+RARITY_LETTER = {"common": "c", "uncommon": "u", "rare": "r", "mythic": "m"}
+SYMBOL_STROKE = 22                           # outline width at glyph size 900 (~2.5%, thin like print)
+# Size and place of the set symbol, measured on Scryfall scans (fractions of the card):
+# ~19.5 px high on a 375x523 card, at most ~48 px wide, right edge at 92.2%, centered at 59.25%.
+SYMBOL_H = 19.5 / 523
+SYMBOL_MAX_W = 48 / 375
+SYMBOL_RIGHT = 0.922
+SYMBOL_CY = 0.5925
 
 
 # ------------------------------------------------------------ text conversion
@@ -114,7 +123,7 @@ def value(key: str, v: str, indent: int = 1) -> str:
     return f"{tab}{key}:\n" + "".join(f"{tab}\t{line}\n" for line in v.split("\n"))
 
 
-def card_block(c: dict, image_name: str, meta: dict) -> str:
+def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> str:
     sup, sub = split_type(c["type_line"])
     pw = "Planeswalker" in sup
     fields = {
@@ -140,7 +149,8 @@ def card_block(c: dict, image_name: str, meta: dict) -> str:
         out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
-               f"\t\tfont cap: {text_size(c.get('oracle_text'), c.get('flavor_text'))}\n")
+               f"\t\tfont cap: {text_size(c.get('oracle_text'), c.get('flavor_text'))}\n"
+               f"\t\trarity offsets: 0,0,{rarity_grow}\n")   # type line stops before the symbol
     out += f"\ttime created: {now}\n\ttime modified: {now}\n"
     return out + "".join(value(k, v) for k, v in fields.items())
 
@@ -172,6 +182,7 @@ set info:
 \tautomatic card numbers: no
 \tcard number style: {"0001" if meta["released_at"] >= NEW_NUMBERING else "001/099"}
 \trarity codes: yes
+\tshorten types for rarity: yes
 \tauto nyx: {"yes" if code in NYX_SETS else "no"}
 \tmainframe rarity name: {SYMBOL_DIR}/{code}.png
 \tautomatic reminder text:
@@ -217,13 +228,13 @@ def art_bytes(path: Path, planeswalker: bool) -> bytes:
     return buf.getvalue()
 
 
-def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path) -> None:
+def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow: int = 0) -> None:
     meta = set_meta(code, [c for c, _ in cards])
     text = set_header(code, meta)
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for i, (c, art) in enumerate(cards, 1):
             z.writestr(f"image{i}", art_bytes(art, "Planeswalker" in c["type_line"]))
-            text += card_block(c, f"image{i}", meta)
+            text += card_block(c, f"image{i}", meta, rarity_grow)
         z.writestr("set", text)
 
 
@@ -253,9 +264,9 @@ def gradient(size: tuple[int, int], colors: tuple[str, str, str]) -> Image.Image
     return band.resize(size, Image.BILINEAR)
 
 
-def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> None:
+def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> dict[str, Image.Image]:
     """Write <code>c/u/r/m.png: the set glyph filled with the rarity colours."""
-    size, stroke = 900, 40
+    size, stroke = 900, SYMBOL_STROKE
     font = ImageFont.truetype(str(font_path), size)
     box = font.getbbox(glyph, stroke_width=stroke)
     w, h = box[2] - box[0] + 2 * stroke, box[3] - box[1] + 2 * stroke
@@ -263,11 +274,43 @@ def symbol_images(code: str, font_path: Path, glyph: str, dest: Path) -> None:
     fill_mask, outline_mask = Image.new("L", (w, h)), Image.new("L", (w, h))
     ImageDraw.Draw(fill_mask).text(at, glyph, font=font, fill=255)
     ImageDraw.Draw(outline_mask).text(at, glyph, font=font, fill=255, stroke_width=stroke, stroke_fill=255)
+    ink = outline_mask.getbbox()                # the font box has empty space below the glyph:
+    fill_mask, outline_mask = fill_mask.crop(ink), outline_mask.crop(ink)   # keep visible pixels only
+    w, h = outline_mask.size
+    # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
+    # images, and the real-size symbol is pasted onto the rendered card (paste_symbol).
+    symbols = {}
     for r, (colors, outline) in RARITY_LOOK.items():
         img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         img.paste(Image.new("RGB", (w, h), outline), mask=outline_mask)
         img.paste(gradient((w, h), colors), mask=fill_mask)
-        img.save(dest / f"{code}{r}.png")
+        symbols[r] = img
+        # transparent stand-in with the symbol's proportions: MSE reserves that width on the type line
+        Image.new("RGBA", (round(100 * w / h), 100), (255, 255, 255, 1)).save(dest / f"{code}{r}.png")
+    return symbols
+
+
+def symbol_grow(symbol: Image.Image) -> int:
+    """How much to widen MSE's (transparent) rarity box, 44 px wide on a 375 px card, so the
+    type line stops before the pasted symbol, as on printed cards."""
+    w = min(SYMBOL_H * 523 * symbol.width / symbol.height, SYMBOL_MAX_W * 375)
+    return max(0, round(w - 44 + 3))
+
+
+def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
+    """Set symbol at the size and place measured on Scryfall scans of M15-frame cards."""
+    card = Image.open(card_png).convert("RGBA")
+    cw, ch = card.size
+    h = SYMBOL_H * ch
+    w = symbol.width * h / symbol.height
+    if w > SYMBOL_MAX_W * cw:                  # very wide symbols (M21...) are width-limited
+        w, h = SYMBOL_MAX_W * cw, symbol.height * SYMBOL_MAX_W * cw / symbol.width
+    s = symbol.resize((max(1, round(w)), max(1, round(h))), Image.LANCZOS)
+    at = (round(SYMBOL_RIGHT * cw - s.width), round(SYMBOL_CY * ch - s.height / 2))
+    card.alpha_composite(s, at)
+    card.save(card_png)
+    if env("DEBUG_SYMBOLS"):
+        print(f"  symbol {symbol.size} -> {s.size} at {at} on {card.size} ({card_png.name})")
 
 
 # ------------------------------------------------------------- style tweaks
@@ -340,7 +383,7 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
         todo = [(c, a) for c, a in group if not (out_dir / f"{c['id']}.png").exists()]
         if not todo:
             continue
-        symbol_images(code, font, glyphs[code], sym_dir)
+        symbols = symbol_images(code, font, glyphs[code], sym_dir)
         set_path = WORK / f"quiz-{code}.mse-set"
         write_set(code, todo, set_path)
         cmd = [str(exe), "--export-images", str(set_path), str(out_dir / "{card.notes}.png")]
@@ -352,6 +395,10 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
             print(log[-2000:])
         missing = [c["name"] for c, _ in todo if not (out_dir / f"{c['id']}.png").exists()]
         failed += missing
+        for c, _ in todo:                        # the set symbol, at its printed size
+            png = out_dir / f"{c['id']}.png"
+            if png.exists():
+                paste_symbol(png, symbols.get(RARITY_LETTER.get(c["rarity"], "r"), symbols["r"]))
         print(f"[{code}] {len(todo) - len(missing)}/{len(todo)} cards rendered")
     done = len(list(out_dir.glob("*.png")))
     print(f"Done: {done} card images in {out_dir}")
