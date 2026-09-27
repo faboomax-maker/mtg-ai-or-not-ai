@@ -43,16 +43,16 @@ SYMBOL_DIR = "quiz"                          # folder inside magic-mainframe-ext
 # .ss-{rarity}.ss-grad): gradient (dark, light, dark) + outline (white for commons).
 RARITY_LOOK = {
     "c": (("#1a1718", "#1a1718", "#1a1718"), "#ffffff"),
-    "u": (("#5a6572", "#9e9e9e", "#5a6572"), "#000000"),
+    "u": (("#7b8894", "#e4eaef", "#7b8894"), "#000000"),   # lighter than Keyrune's: as printed
     "r": (("#876a3b", "#dfbd6b", "#876a3b"), "#000000"),
     "m": (("#b21f0f", "#f38300", "#b21f0f"), "#000000"),
 }
 RARITY_LETTER = {"common": "c", "uncommon": "u", "rare": "r", "mythic": "m"}
 SYMBOL_STROKE = 22                           # outline width at glyph size 900 (~2.5%, thin like print)
 # Size and place of the set symbol, measured on Scryfall scans (fractions of the card):
-# ~19.5 px high on a 375x523 card, at most ~48 px wide, right edge at 92.2%, centered at 59.25%.
-SYMBOL_H = 19.5 / 523
-SYMBOL_MAX_W = 48 / 375
+# ~22 px high on a 375x523 card, at most ~54 px wide, right edge at 92.2%, centered at 59.25%.
+SYMBOL_H = 22 / 523
+SYMBOL_MAX_W = 54 / 375
 SYMBOL_RIGHT = 0.922
 SYMBOL_CY = 0.5925
 
@@ -145,13 +145,15 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
     fields.update(planeswalker_fields(c.get("oracle_text")) if pw
                   else {"rule text": rules_text(c.get("oracle_text"))})
     if c.get("flavor_text"):
-        fields["flavor text"] = f"<i-flavor>{esc(c['flavor_text'])}</i-flavor>"
+        # the attribution line ("—Arlinn Kord") follows without a paragraph gap: soft line break
+        flavor = esc(c["flavor_text"]).replace("\n", "<soft-line>\n</soft-line>")
+        fields["flavor text"] = f"<i-flavor>{flavor}</i-flavor>"
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if pw:
         out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
-               f"\t\tfont cap: {text_size(c.get('oracle_text'), c.get('flavor_text'))}\n"
+               f"\t\tfont cap: {BODY_SIZE}\n"
                f"\t\trarity offsets: 0,0,{rarity_grow}\n")   # type line stops before the symbol
     out += f"\ttime created: {now}\n\ttime modified: {now}\n"
     return out + "".join(value(k, v) for k, v in fields.items())
@@ -363,10 +365,10 @@ def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
 # Rules text of the stock M15 style is a bit loosely spaced and grows up to size 14,
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
-BODY_SIZE = env("MSE_BODY_SIZE", "14")
+BODY_SIZE = env("MSE_BODY_SIZE", "16")         # max; MSE shrinks the text until the box is full
 INFO_SIZE = env("MSE_INFO_SIZE", "6.2")         # bottom line (collector number, set code)
 PW_TEXT_SIZE = env("MSE_PW_TEXT_SIZE", "10")  # planeswalker abilities, measured on scans (XLN Vraska)
-LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.1,1.0,0.84").split(",")))
+LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.35,1.8,0.84").split(",")))
 
 
 def text_size(rules: str | None, flavor: str | None) -> str:
