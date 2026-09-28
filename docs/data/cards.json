@@ -3,62 +3,28 @@
   "count": 6,
   "cards": [
     {
-      "name": "Drowsing Tyrannodon",
+      "name": "Infernal Brute",
+      "mana_cost": "{2}{R}",
+      "type_line": "Creature — Demon",
+      "oracle_text": "Whenever Infernal Brute attacks, it deals 1 damage to each opponent.",
+      "flavor_text": "\"Its roar shatters the silence of the grave, a herald of chaos in Bolas's name.\"\n—Tezzeret",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "4b420f7ca3f2ab95.webp",
+      "s": "0XTHAm2V+gNTOaMdVymTgzwEoaO9tyoFC8iV7V0/QqLCM5U0fJiqUlFz4lNFPsvKbQPm7b+vU0gyzo2sV3khvsU/l0ss27lLBwCkA0shnZk+VZC+/exmU3vax59TPgekiCs="
+    },
+    {
+      "name": "Bond of Flourishing",
       "mana_cost": "{1}{G}",
-      "type_line": "Creature — Dinosaur",
-      "oracle_text": "Defender (This creature can't attack.)\nAs long as you control a creature with power 4 or greater, Drowsing Tyrannodon can attack as though it didn't have defender.",
-      "flavor_text": "What the rangers thought were warning growls turned out to be nothing but monstrous snoring.",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "61badc64ab0ea037.webp",
-      "s": "eZa0HPw4JlVx0eORak2xacG7bskwskggkqS1BYCfSfcwhPRIv3gkTTDX5Y18FbNxkvxJgmf9BEO5ub1MvZNe9S6U5AzvOCZVcYf5kHsR4nGd8WmIeOsMApG6/ka8lxK0Y8aiVvBmNUBgkqnLaxP+PMG3dIwn5hMRnLi+SreVU+h3wKsm7jtxHTLArIV/CLM2"
-    },
-    {
-      "name": "Llanowar Stalker",
-      "mana_cost": "{G}",
-      "type_line": "Creature — Elf Warrior",
-      "oracle_text": "Whenever another creature enters the battlefield under your control, Llanowar Stalker gets +1/+0 until end of turn.",
-      "flavor_text": "If you spot one elf in Llanowar, it's likely there's another with a knife at your back.",
-      "power": "1",
-      "toughness": "1",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "G"
-      ],
-      "card": true,
-      "img": "ddb842a3b7cb3a09.webp",
-      "s": "mPVzVdyhZ4EIHNFU0Xl8R+eaFkBeS5SYCPVjSm7AJGzDgm9ZyaghmQRIgUDGITUW4N1YQkYt164O+msERNosYJCyaRKR7WfOWgSBG5R3NBHgjxFYS0TFvxXhbEVj3mNujLouU9y/IZRMBdYOhWJtSviTAwwLHNeuSut+RWPZKH/conVd4r4qzloLxhzVJTVH6Q=="
-    },
-    {
-      "name": "Kavath, Wielder of Flames",
-      "mana_cost": "{2}{B}{B}",
-      "type_line": "Legendary Creature — Vampire Wizard",
-      "oracle_text": "Whenever you cast a noncreature spell, Kavath, Wielder of Flames deals 1 damage to each opponent.\n{3}{B}: Target player discards a card.",
-      "flavor_text": "\"In the heart of the storm, I summon the flames that dance in your darkest dreams.\"",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "6753e5c5b9e3975d.webp",
-      "s": "8b3mvqVMEXRjmv1JY1KIRqa4X3s2Q7kfNEpLw7pZRp2qraTp9QIfbmGd7lF5RNBEvusYS3UY61YSSxuKuihCm/7A8qmrTRF0Y97XRHVF0gPv5xp7fBy5bgdMTcP8f0/L9w=="
-    },
-    {
-      "name": "Defensive Resurgence",
-      "mana_cost": "{G}",
-      "type_line": "Instant",
-      "oracle_text": "Kicker {2}\nTarget creature gets +2/+2 until end of turn. If this spell was kicked, that creature also gains reach until end of turn.",
-      "flavor_text": "\"When the skies rage, the grove's might rises with them.\"\n—Elysia, Guardian of the Grove",
+      "type_line": "Sorcery",
+      "oracle_text": "Look at the top three cards of your library. You may reveal a permanent card from among them and put it into your hand. Put the rest on the bottom of your library in any order. You gain 3 life.",
+      "flavor_text": "\"We agree that life should flourish. We disagree on the optimal number of limbs.\"",
       "power": null,
       "toughness": null,
       "loyalty": null,
@@ -67,42 +33,79 @@
         "G"
       ],
       "card": true,
-      "img": "d57c07a55cedc7db.webp",
-      "s": "EaHm+x333ZMNluEiSx9/jBbgbq6QxDHIZs5QnkBJCU8Lo8HwFe+azQ/coGxZCCfFR+cp4JLcW59R1VSZSwg4VB/5trJcuZ7bWa/mPFcXcZYUsViuwJt/jVbJHZhICA9OD6PX8R33lt1En+5sRQ=="
+      "img": "8223d4619df7f84a.webp",
+      "s": "AfVZTePllP9GYJipZfFZzEsFtieI6PSGJAI/n1E4wq0f93hY4/vd50o0yL1yqRCdTEL4JZCcr70gAj+nVnTGqhayCQSiq8O3CjbQ/CK1DZpIE/gqnbu1ozwWfpxbNtWqF/hISfDtmbIHZsXtNehWjFcOpijdrvu3KR9qgl5r3qwUsBRd9uTptglhmL9l4BieUUK/"
     },
     {
-      "name": "Rend the Chase",
-      "mana_cost": "{1}{B}",
+      "name": "Rictus Robber",
+      "mana_cost": "{3}{B}",
+      "type_line": "Creature — Zombie Rogue",
+      "oracle_text": "When Rictus Robber enters the battlefield, if a creature died this turn, create a 2/2 blue and black Zombie Rogue creature token.\nPlot {2}{B} (You may pay {2}{B} and exile this card from your hand. Cast it as a sorcery on a later turn without paying its mana cost. Plot only as a sorcery.)",
+      "flavor_text": null,
+      "power": "4",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "f8a54495dce709ac.webp",
+      "s": "IHbKrIVLBrckWzcK1AtZFGYoGneGeNb1wT7qkUM7IrU9dOyhkUlA6HYPDwrfRA1feiNMeZx6lcjAI/WEFnIi+Bg10abEakvjcEosDd4FVRY3OBw5nmLUmNw+8oBHci31KDfKsIJGSOEqTCoSnkQYRHFiASHWd8WKhmX0mVc8d6l2JterhkJWsnFbKCDCSAxEdihTNMwx1sc="
+    },
+    {
+      "name": "Tactical Reprisal",
+      "mana_cost": "{4}{B}{G}{W}",
       "type_line": "Instant",
-      "oracle_text": "Destroy target Vehicle. You gain 1 life for each number of creatures you control.",
-      "flavor_text": "\"In this blazing maelstrom, we’ll catch them before they turn to ash!\"",
+      "oracle_text": "Choose one —\n• Return target creature card from your graveyard to your hand.\n• Creatures you control gain deathtouch until end of turn.",
+      "flavor_text": "\"Every decision carries the weight of history. Choose wisely, or face the tempest that follows.\"\n—Narset, the Unseen Path",
       "power": null,
       "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B",
+        "G",
+        "W"
+      ],
+      "card": true,
+      "img": "b0d16775fcd542a4.webp",
+      "s": "eqg9gfIksQuHDa4mT7twbZj4DPg0t0S+JU5aMS3fn7BF+C6D/CbgRcgZomgQ/n4syP8A/2KvXrxTdUk5L4325GTmI4WxZLMTxhm7FVqsMyCYsUmuXeQKsSVdTT9k/sDmZPguivAtsUw="
+    },
+    {
+      "name": "Marshal of the Lost",
+      "mana_cost": "{2}{W}{B}",
+      "type_line": "Creature — Orc Warrior",
+      "oracle_text": "Deathtouch\nWhenever you attack, target creature gets +X/+X until end of turn, where X is the number of attacking creatures.",
+      "flavor_text": "Gvar carved his way through the Ancestral Maelstrom, seeking to restore the withered Kin-Tree and soothe the raging spirits.",
+      "power": "3",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B",
+        "W"
+      ],
+      "card": true,
+      "img": "6525e5edec64935f.webp",
+      "s": "BOj1l6+b6oIhZMIJ2XAKsICB3Z0v9FnUQKPteD39Q9oNq+CdoIS813N9klCcfkvgh43ayzfuW6Jgv+JjKqYQviWr4Zu8lrzXcjKcXJ4pWP7R3omdfaAP8FLrqT48pBHnGavrnuCUp9Uuc9EO2HNe9p7Lm48i+xbhU6LucCPqDPhSvu+X45uny3UvxQjRA1n9hpbK2ii1C+kDrA=="
+    },
+    {
+      "name": "Twilight Raven",
+      "mana_cost": "{1}{B}",
+      "type_line": "Creature — Bird",
+      "oracle_text": "Flying\nWhen Twilight Raven enters the battlefield, target player mills a card.",
+      "flavor_text": "\"They say the raven bears secrets from the sand's depths, ever watchful over the forgotten.\"\n—Mira, desert soothsayer",
+      "power": "2",
+      "toughness": "2",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "958b1e517c618a6e.webp",
-      "s": "UBa+SqnzfsaaSL54JhU2yrdHySAx7DdzOAdBqcVnLe1CUrgN5L9+nchatmchUiDKt37NInqzZXE6ClSz0nprswsWrV28wDqO1UP9LnVSV4vtXcEhfvZYJxwQUbPJYyy9Vg=="
-    },
-    {
-      "name": "Nimble Thopterist",
-      "mana_cost": "{3}{U}",
-      "type_line": "Creature — Vedalken Artificer",
-      "oracle_text": "When this creature enters, create a 1/1 colorless Thopter artifact creature token with flying.",
-      "flavor_text": "The Aether Rangers repurposed thopters once used for Consulate surveillance so they could scout the track.",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "7d02a748e4c2d4b7.webp",
-      "s": "bf3u3VF7uxjqA1N3q1Q5v6lb4ICZLVxGMVaAk3ZcIlFwq76UEDX4UL4eUnbsQjm/k1H1zM1kDScSS4eEYRp8GDSq7tQSLbkAogNVcr1CNrKpXebbxWwSa3pBh5srWzFKcvD43kQ4rBHlGUhvrBR8sK5W+9LXaAxuJ1bXg3BVD0t5qu7bVSr4UqNVXA=="
+      "img": "6a3797a94457729e.webp",
+      "s": "8GdDYrmvloqvrEGpI348xX/+8oAcrYzBxtoKVNGmDKPkIxFTsLba1Oq4AI8ldXORNOL51hK3joL72xdLxPNFo6kPRHSsqtqQzKVSqzV3fMdxrbWVTOPzhfvAExqK8V3R6jNUafis0pDJr0ypcFR9gDP+tYk="
     }
   ]
 }
