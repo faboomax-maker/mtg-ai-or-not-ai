@@ -22,11 +22,12 @@ import io
 import re
 import subprocess
 import sys
+import time
 import zipfile
 from collections import defaultdict
 from pathlib import Path
 
-from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageColor, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 from common import DOCS, ROOT, WORK, WORK_IMG, WORK_SETS, env, fetch_bytes, load_json, save_json, session
 
@@ -51,7 +52,7 @@ RARITY_LETTER = {"common": "c", "uncommon": "u", "rare": "r", "mythic": "m"}
 SYMBOL_STROKE = 22                           # outline width at glyph size 900 (~2.5%, thin like print)
 # Size and place of the set symbol, measured on Scryfall scans (fractions of the card):
 # ~22 px high on a 375x523 card, at most ~54 px wide, right edge at 92.2%, centered at 59.25%.
-SYMBOL_H = 22 / 523
+SYMBOL_H = 20.5 / 523
 SYMBOL_MAX_W = 54 / 375
 SYMBOL_RIGHT = 0.922
 SYMBOL_CY = 0.5925
@@ -292,6 +293,19 @@ def official_symbol_mask(code: str, height: int = 900) -> Image.Image | None:
         return None
 
 
+def hole_count(solid: Image.Image, shape: Image.Image) -> int:
+    """Number of enclosed holes in a symbol (areas of `solid` not covered by `shape`)."""
+    holes = ImageChops.subtract(solid, shape).point(lambda v: 255 if v > 128 else 0)
+    holes = holes.resize((max(1, holes.width // 8), max(1, holes.height // 8)), Image.NEAREST)
+    count = 0
+    while (bb := holes.getbbox()):
+        seed = next((x, y) for y in range(bb[1], bb[3]) for x in range(bb[0], bb[2])
+                    if holes.getpixel((x, y)) == 255)
+        ImageDraw.floodfill(holes, seed, 0)
+        count += 1
+    return count
+
+
 def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> dict[str, Image.Image]:
     """Write <code>c/u/r/m.png: the set symbol filled with the rarity colours."""
     size, stroke = 900, SYMBOL_STROKE
@@ -321,9 +335,14 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
     # Keyrune draws inner details as holes; printed symbols fill them with the outline colour
     # (white letters on a black common M21, black ones on a gold rare): paint the whole
     # silhouette, gaps included, in the outline colour, then the symbol on top.
+    # In the official SVGs, lettering is holes too (the "M21" of Core Set 2021, filled on print)
+    # but a lone hole is part of the design (the centre of the RNA symbol shows the type bar):
+    # fill the holes only when there are several.
     solid = ImageOps.expand(outline_mask, 2, 0)
     ImageDraw.floodfill(solid, (0, 0), 128)                  # flood the outside from a margin
     solid = solid.point(lambda v: 0 if v == 128 else 255).crop((2, 2, w + 2, h + 2))
+    if official is not None and hole_count(solid, outline_mask) < 3:
+        solid = outline_mask
     inverted = common_inverted(code, fill_mask, outline_mask, solid)
     for r, (colors, outline) in RARITY_LOOK.items():
         img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -445,16 +464,17 @@ def draw_info(card_png: Path, base: Path, line1: str, line2: str, artist: str) -
     card.save(card_png)
 
 
-def paste_symbol(card_png: Path, symbol: Image.Image) -> None:
-    """Set symbol at the size and place measured on Scryfall scans of M15-frame cards."""
+def paste_symbol(card_png: Path, symbol: Image.Image, box: dict | None = None) -> None:
+    """Set symbol at the size and place measured on a real card of the set (else defaults)."""
     card = Image.open(card_png).convert("RGBA")
     cw, ch = card.size
-    h = SYMBOL_H * ch
+    box = box or {}
+    h = box.get("h", SYMBOL_H) * ch
     w = symbol.width * h / symbol.height
-    if w > SYMBOL_MAX_W * cw:                  # very wide symbols (M21...) are width-limited
+    if not box and w > SYMBOL_MAX_W * cw:      # very wide symbols (M21...) are width-limited
         w, h = SYMBOL_MAX_W * cw, symbol.height * SYMBOL_MAX_W * cw / symbol.width
     s = symbol.resize((max(1, round(w)), max(1, round(h))), Image.LANCZOS)
-    at = (round(SYMBOL_RIGHT * cw - s.width), round(SYMBOL_CY * ch - s.height / 2))
+    at = (round(box.get("right", SYMBOL_RIGHT) * cw - s.width), round(box.get("cy", SYMBOL_CY) * ch - s.height / 2))
     card.alpha_composite(s, at)
     card.save(card_png)
     if env("DEBUG_SYMBOLS"):
@@ -578,7 +598,8 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
         for c, _ in todo:                        # set symbol and collector info, as printed
             png = out_dir / f"{c['id']}.png"
             if png.exists():
-                paste_symbol(png, symbols.get(RARITY_LETTER.get(c["rarity"], "r"), symbols["r"]))
+                sym = symbols.get(RARITY_LETTER.get(c["rarity"], "r"), symbols["r"])
+                paste_symbol(png, sym)
                 if "Planeswalker" not in c["type_line"]:
                     num, rar = card_number(c, meta), RARITY_LETTER.get(c["rarity"], "r").upper()
                     new = meta["released_at"] >= NEW_NUMBERING
