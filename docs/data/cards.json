@@ -3,109 +3,102 @@
   "count": 6,
   "cards": [
     {
-      "name": "Infernal Brute",
-      "mana_cost": "{2}{R}",
-      "type_line": "Creature — Demon",
-      "oracle_text": "Whenever Infernal Brute attacks, it deals 1 damage to each opponent.",
-      "flavor_text": "\"Its roar shatters the silence of the grave, a herald of chaos in Bolas's name.\"\n—Tezzeret",
-      "power": "3",
-      "toughness": "2",
+      "name": "Chrome Companion",
+      "mana_cost": "{2}",
+      "type_line": "Artifact Creature — Dog",
+      "oracle_text": "Whenever this creature becomes tapped, you gain 1 life.\n{2}, {T}: Put target card from a graveyard on the bottom of its owner's library.",
+      "flavor_text": "Liberation Station's morale greatly improved after Rover took up residence.",
+      "power": "2",
+      "toughness": "1",
       "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
+      "rarity": "common",
+      "colors": [],
       "card": true,
-      "img": "4b420f7ca3f2ab95.webp",
-      "s": "0XTHAm2V+gNTOaMdVymTgzwEoaO9tyoFC8iV7V0/QqLCM5U0fJiqUlFz4lNFPsvKbQPm7b+vU0gyzo2sV3khvsU/l0ss27lLBwCkA0shnZk+VZC+/exmU3vax59TPgekiCs="
+      "img": "553e8f515f10d850.webp",
+      "s": "lbU1/HwGTelLcI1lQxIMLzCzFr+x2c0LHABU1I+PGnqa8jX3dB4Gthgm0zAEX155KqUWv7HZzQkKBkjUqIBdV536Lu11SEPzSXGNfAQEDC8rohbt+MPAYQsEQ42GiFZTwPQo9DIJDqEPK5p/QxEePnX5AfX5loIrVQRemZCIVFaB+XjsaQcwoARxjXNDA019KvQf"
     },
     {
-      "name": "Bond of Flourishing",
+      "name": "Embrace the Wilds",
       "mana_cost": "{1}{G}",
-      "type_line": "Sorcery",
-      "oracle_text": "Look at the top three cards of your library. You may reveal a permanent card from among them and put it into your hand. Put the rest on the bottom of your library in any order. You gain 3 life.",
-      "flavor_text": "\"We agree that life should flourish. We disagree on the optimal number of limbs.\"",
+      "type_line": "Instant",
+      "oracle_text": "Coven — Choose target creature you control. If you control three or more creatures with different powers, it gains trample until end of turn.",
+      "flavor_text": "\"The spirit of the wild rewards those who honor its ancient ways.\" \n—Sister Alia, Keeper of the Grove",
       "power": null,
       "toughness": null,
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
       "colors": [
         "G"
       ],
       "card": true,
-      "img": "8223d4619df7f84a.webp",
-      "s": "AfVZTePllP9GYJipZfFZzEsFtieI6PSGJAI/n1E4wq0f93hY4/vd50o0yL1yqRCdTEL4JZCcr70gAj+nVnTGqhayCQSiq8O3CjbQ/CK1DZpIE/gqnbu1ozwWfpxbNtWqF/hISfDtmbIHZsXtNehWjFcOpijdrvu3KR9qgl5r3qwUsBRd9uTptglhmL9l4BieUUK/"
+      "img": "c7b4a6ea3c04960d.webp",
+      "s": "8Ljk4/OE8M0cB1QfqxGaKLx73oUSuW+153mndVwasmvvoLbL+4y8nlsJQVOQAdh8vCSb01HxO/7dY+smD0yab/Hy+fOyq7qSUkMZU/oVxHzBbsmeXaF1t4xaoHtHGuBl7bri7vfInZtYQWISoQeUdQ=="
     },
     {
-      "name": "Rictus Robber",
-      "mana_cost": "{3}{B}",
-      "type_line": "Creature — Zombie Rogue",
-      "oracle_text": "When Rictus Robber enters the battlefield, if a creature died this turn, create a 2/2 blue and black Zombie Rogue creature token.\nPlot {2}{B} (You may pay {2}{B} and exile this card from your hand. Cast it as a sorcery on a later turn without paying its mana cost. Plot only as a sorcery.)",
-      "flavor_text": null,
-      "power": "4",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "f8a54495dce709ac.webp",
-      "s": "IHbKrIVLBrckWzcK1AtZFGYoGneGeNb1wT7qkUM7IrU9dOyhkUlA6HYPDwrfRA1feiNMeZx6lcjAI/WEFnIi+Bg10abEakvjcEosDd4FVRY3OBw5nmLUmNw+8oBHci31KDfKsIJGSOEqTCoSnkQYRHFiASHWd8WKhmX0mVc8d6l2JterhkJWsnFbKCDCSAxEdihTNMwx1sc="
-    },
-    {
-      "name": "Tactical Reprisal",
-      "mana_cost": "{4}{B}{G}{W}",
-      "type_line": "Instant",
-      "oracle_text": "Choose one —\n• Return target creature card from your graveyard to your hand.\n• Creatures you control gain deathtouch until end of turn.",
-      "flavor_text": "\"Every decision carries the weight of history. Choose wisely, or face the tempest that follows.\"\n—Narset, the Unseen Path",
+      "name": "Shard of Indomitable Will",
+      "mana_cost": "{2}",
+      "type_line": "Legendary Artifact",
+      "oracle_text": "When this Equipment enters, create a 2/2 colorless Robot artifact creature token and attach this Equipment to it.\nEquipped creature gets +2/+2 and has menace.\nEquip {1}",
+      "flavor_text": "\"In the swirling chaos, a single resolve can carve a path through the void.\"\n—Unknown warrior",
       "power": null,
       "toughness": null,
       "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B",
-        "G",
-        "W"
-      ],
+      "rarity": "mythic",
+      "colors": [],
       "card": true,
-      "img": "b0d16775fcd542a4.webp",
-      "s": "eqg9gfIksQuHDa4mT7twbZj4DPg0t0S+JU5aMS3fn7BF+C6D/CbgRcgZomgQ/n4syP8A/2KvXrxTdUk5L4325GTmI4WxZLMTxhm7FVqsMyCYsUmuXeQKsSVdTT9k/sDmZPguivAtsUw="
+      "img": "7ad55248236b724c.webp",
+      "s": "9Q8xk/l52GgpVpNdlNhLTb/yPx/Gl2A7H3SiWFpzdDrLWSaE9nyOO2xD0B3HnwYf6egpH8aXYDsUcbFVG3J7f+INC5/1dI0zZxLeEcXcFRnC5ygEiY96OXhErVhaWH1350MqmfY1uCBoU5ddgslFEA=="
     },
     {
-      "name": "Marshal of the Lost",
-      "mana_cost": "{2}{W}{B}",
-      "type_line": "Creature — Orc Warrior",
-      "oracle_text": "Deathtouch\nWhenever you attack, target creature gets +X/+X until end of turn, where X is the number of attacking creatures.",
-      "flavor_text": "Gvar carved his way through the Ancestral Maelstrom, seeking to restore the withered Kin-Tree and soothe the raging spirits.",
+      "name": "Playful Raptors",
+      "mana_cost": "{4}{R}",
+      "type_line": "Creature — Dinosaur",
+      "oracle_text": "Whenever Playful Raptors attacks, it explores. (Reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on this creature, then put the card back or put it into your graveyard.)",
+      "flavor_text": null,
       "power": "3",
-      "toughness": "3",
+      "toughness": "2",
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "common",
       "colors": [
-        "B",
-        "W"
+        "R"
       ],
       "card": true,
-      "img": "6525e5edec64935f.webp",
-      "s": "BOj1l6+b6oIhZMIJ2XAKsICB3Z0v9FnUQKPteD39Q9oNq+CdoIS813N9klCcfkvgh43ayzfuW6Jgv+JjKqYQviWr4Zu8lrzXcjKcXJ4pWP7R3omdfaAP8FLrqT48pBHnGavrnuCUp9Uuc9EO2HNe9p7Lm48i+xbhU6LucCPqDPhSvu+X45uny3UvxQjRA1n9hpbK2ii1C+kDrA=="
+      "img": "14cb4a3fcf7e666a.webp",
+      "s": "dAzVz9dfN08I9/l1a/GJi5p7h8/YhUvxc3YYK+NWBnovDMbYwlpmAQqruDtS+8vKzGCD1dr0HrwYIlll40pQCWlcyMeUCTVXfPnqeGv8hcTeKLDaissEoUksBA=="
     },
     {
-      "name": "Twilight Raven",
-      "mana_cost": "{1}{B}",
-      "type_line": "Creature — Bird",
-      "oracle_text": "Flying\nWhen Twilight Raven enters the battlefield, target player mills a card.",
-      "flavor_text": "\"They say the raven bears secrets from the sand's depths, ever watchful over the forgotten.\"\n—Mira, desert soothsayer",
-      "power": "2",
-      "toughness": "2",
+      "name": "March of the Drowned",
+      "mana_cost": "{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Choose one —\n• Return target creature card from your graveyard to your hand.\n• Return two target Pirate cards from your graveyard to your hand.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "6a3797a94457729e.webp",
-      "s": "8GdDYrmvloqvrEGpI348xX/+8oAcrYzBxtoKVNGmDKPkIxFTsLba1Oq4AI8ldXORNOL51hK3joL72xdLxPNFo6kPRHSsqtqQzKVSqzV3fMdxrbWVTOPzhfvAExqK8V3R6jNUafis0pDJr0ypcFR9gDP+tYk="
+      "img": "f62a0a223f9e0bf5.webp",
+      "s": "C3nsqhXnIYX1TIybv3vV97Im0OhruFH80aNuZ3QFG/9SOuy7Hfh3ne8Y3Ky/OdWCrizQvjT2UZmJ4Hd0dgUN/1Iz6rsE+DmQ+kudnKMxlLmtbcelPLcQ1NumLX52SRjuQWmxohX5YNf4V5jDrj+Q+KUxy70//ReK3LZvWWlIQq0TPqOuBOIhwg=="
+    },
+    {
+      "name": "Sunset Revelry",
+      "mana_cost": "{1}{W}",
+      "type_line": "Sorcery",
+      "oracle_text": "If an opponent has more life than you, you gain 4 life.\nIf an opponent controls more creatures than you, create two 1/1 white Human creature tokens.\nIf an opponent has more cards in hand than you, draw a card.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "0e694a1914d579b9.webp",
+      "s": "w8JX9/P+KbZAEA6oPQwoXJM6eBiMfaPSvDpnY9O9Z5eCwGj79vxi6wgQXJUtTnxczH8uW8Qp6OimdjQwhY5oh9eOTP2y2GT/o81ckDlOch+OOmhVlHGhuacmYjKd7ySbzJRV4ai9JP8DFgW7OUxkUIMwYRXVPPP//TlndIj8PtzLlUvh9+Ym/gUSGbEqWTcLlDJTSdko8/i3aW9gzu17"
     }
   ]
 }
