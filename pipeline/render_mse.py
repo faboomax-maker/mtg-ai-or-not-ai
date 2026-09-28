@@ -153,7 +153,7 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
         out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
-               f"\t\tfont cap: {BODY_SIZE}\n"
+               f"\t\tfont cap: {min(float(BODY_SIZE), float(text_size(c.get('oracle_text'), c.get('flavor_text')))):g}\n"
                f"\t\trarity offsets: 0,0,{rarity_grow}\n")   # type line stops before the symbol
     out += f"\ttime created: {now}\n\ttime modified: {now}\n"
     return out + "".join(value(k, v) for k, v in fields.items())

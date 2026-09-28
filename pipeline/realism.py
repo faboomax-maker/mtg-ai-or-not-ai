@@ -183,6 +183,22 @@ def subtype_color_problem(type_line: str, colors, pool: list[dict]) -> str | Non
     return None
 
 
+# Creature types renamed by Oracle updates, as printed in their era: (from, to, old name, new name).
+# Amonkhet (2017) turned Dog into Hound, Core Set 2021 turned Hound back into Dog.
+TYPE_ERAS = [("2017-04-28", "2020-07-03", "Hound", "Dog")]
+
+
+def printed_type_line(type_line: str, released_at: str) -> str:
+    """Type line as printed in the set's era ('Creature — Hound' for a 2019 card)."""
+    if "—" not in type_line or not released_at:
+        return type_line
+    sup, sub = type_line.split("—", 1)
+    for start, end, old, new in TYPE_ERAS:
+        if start <= released_at < end:
+            sub = re.sub(rf"\b{new}\b", old, sub)
+    return f"{sup}—{sub}"
+
+
 def fix_type_line(type_line: str, text: str) -> str:
     """An 'Enchant ...' card is an Aura: add the subtype the LLM forgot."""
     if re.search(r"(^|\n)Enchant ", text or "") and "Enchantment" in type_line and "Aura" not in type_line:

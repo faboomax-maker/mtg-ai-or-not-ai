@@ -54,7 +54,7 @@ from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_pri
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
                      flavor_fits, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
-                     subtype_color_problem,
+                     subtype_color_problem, printed_type_line,
                      tone_down, too_simple, uses_old_wording)
 
 BATCH = 8
@@ -923,7 +923,7 @@ def main() -> None:
             err = validate(c, spec)
             if not err:
                 c["oracle_text"] = fix_templating(c["oracle_text"], meta["released_at"])
-                c["type_line"] = fix_type_line(c["type_line"], c["oracle_text"])
+                c["type_line"] = printed_type_line(fix_type_line(c["type_line"], c["oracle_text"]), meta["released_at"])
                 bad_kw = misused_keywords(c["oracle_text"], *kw_catalogs)
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])

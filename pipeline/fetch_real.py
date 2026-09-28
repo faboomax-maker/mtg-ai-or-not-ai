@@ -17,6 +17,7 @@ import re
 import sys
 import time
 
+from realism import printed_type_line
 from common import WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_bytes, load_json, normalize_image, save_json, session
 
 API = "https://api.scryfall.com"
@@ -69,12 +70,12 @@ def ensure_set_icon(s, code: str) -> None:
 MTGJSON = "https://mtgjson.com/api/v5"
 
 
-def printed_texts(s, code: str) -> dict[str, str]:
-    """{scryfall id: rules text as printed} for one set, from MTGJSON (cached).
+def printed_texts(s, code: str) -> dict[str, dict]:
+    """{scryfall id: {"text", "type"} as printed} for one set, from MTGJSON (cached).
 
     Scryfall only has the current Oracle wording ("When this creature enters"); the
     cards themselves say what was printed at the time ("When X enters the battlefield")."""
-    path = WORK_SETS / f"{code}.printed.json"
+    path = WORK_SETS / f"{code}.printed2.json"
     texts = load_json(path, None)
     if texts is None:
         texts = {}
@@ -87,8 +88,8 @@ def printed_texts(s, code: str) -> dict[str, str]:
                 save_json(meta_path, {**meta, "printed_size": data["data"]["baseSetSize"]})
             for c in data["data"]["cards"]:
                 sid = c.get("identifiers", {}).get("scryfallId")
-                if sid and c.get("originalText") and c.get("language", "English") == "English":
-                    texts[sid] = c["originalText"]
+                if sid and c.get("language", "English") == "English" and (c.get("originalText") or c.get("originalType")):
+                    texts[sid] = {"text": c.get("originalText"), "type": c.get("originalType")}
         except Exception as e:                     # fall back to Oracle text
             print(f"  no printed text for {code}: {e}", file=sys.stderr)
         save_json(path, texts)
@@ -106,11 +107,16 @@ def same_card_text(printed: str, oracle: str, name: str) -> bool:
 
 def with_printed_text(s, card: dict) -> dict:
     """Card entry with the printed rules text (Oracle text kept in oracle_text_current)."""
-    printed = printed_texts(s, card["set"]).get(card["id"])
+    entry = printed_texts(s, card["set"]).get(card["id"]) or {}
+    printed, ptype = entry.get("text"), entry.get("type")
     if printed and card.get("oracle_text") and not same_card_text(printed, card["oracle_text"], card["name"]):
-        printed = None                                    # wrong text in MTGJSON: keep Oracle
+        printed = ptype = None                            # wrong card in MTGJSON: keep Oracle
     if printed and printed != card.get("oracle_text"):
         card = {**card, "oracle_text_current": card.get("oracle_text"), "oracle_text": printed}
+    # printed type line: creature types renamed since (MTGJSON updates its "original" type too)
+    printed_tl = printed_type_line(card["type_line"], card.get("released_at") or "")
+    if printed_tl != card["type_line"]:
+        card = {**card, "type_line_current": card["type_line"], "type_line": printed_tl}
     return card
 
 
