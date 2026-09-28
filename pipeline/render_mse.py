@@ -55,7 +55,7 @@ SYMBOL_STROKE = 22                           # outline width at glyph size 900 (
 SYMBOL_H = 20.5 / 523
 SYMBOL_MAX_W = 54 / 375
 SYMBOL_RIGHT = 0.922
-SYMBOL_CY = 0.5925
+SYMBOL_CY = 308 / 523                       # centre of the M15 type bar in MSE (rarity box 297 + 22/2)
 
 
 # ------------------------------------------------------------ text conversion
@@ -519,6 +519,12 @@ def tune_style(base: Path) -> None:
         rf"\g<1>\t\tline height hard: {lh['hard']}\g<2>\t\tline height line: {lh['line']}\g<3>"
         rf"\t\tline height soft: {lh['soft']}\g<4>\t\tline height hard max: {lh['hard']}\g<5>"
         rf"\t\tline height line max: {lh['line']}", text, count=1)
+    # The text box runs down behind the P/T box, so MSE lets long texts go under it; on
+    # printed creatures the text stops above it (about 16 px higher on a 523 px card)
+    text, n3 = re.subn(r"(?m)^(\ttext:\s*\r?\n(?:\t\t.*\r?\n)*?\t\tbottom: )\{ bottom_of_textbox\(\) \}",
+                       r'\g<1>{ bottom_of_textbox() - (if card.power != "" or card.toughness != "" then 16 else 0) }',
+                       text, count=1)
+    n2 += n3
     if n1 or n2:
         path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + text.encode("utf-8"))
         print(f"M15 style tuned (font size: {n1} patch(es), line heights: {n2})")
