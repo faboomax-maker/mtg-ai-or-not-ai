@@ -49,7 +49,7 @@ RARITY_LOOK = {
     "m": (("#b21f0f", "#f38300", "#b21f0f"), "#000000"),
 }
 RARITY_LETTER = {"common": "c", "uncommon": "u", "rare": "r", "mythic": "m"}
-SYMBOL_STROKE = 22                           # outline width at glyph size 900 (~2.5%, thin like print)
+SYMBOL_STROKE = 42                           # outline width at glyph size 900 (~2.5%, thin like print)
 # Size and place of the set symbol, measured on Scryfall scans (fractions of the card):
 # ~22 px high on a 375x523 card, at most ~54 px wide, right edge at 92.2%, centered at 59.25%.
 SYMBOL_H = 20.5 / 523
@@ -124,11 +124,11 @@ def value(key: str, v: str, indent: int = 1) -> str:
     return f"{tab}{key}:\n" + "".join(f"{tab}\t{line}\n" for line in v.split("\n"))
 
 
-def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> str:
+def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size: str = "", tag: str = "") -> str:
     sup, sub = split_type(c["type_line"])
     pw = "Planeswalker" in sup
     fields = {
-        "notes": c["id"],                    # used as the export file name
+        "notes": c["id"] + tag,              # used as the export file name
         "name": esc(c["name"]),
         "illustrator": esc(c.get("artist") or ""),
         # the thin line between rules and flavor text is printed since Dominaria (April 2018)
@@ -154,7 +154,7 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0) -> st
         out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
-               f"\t\tfont cap: {min(float(BODY_SIZE), float(text_size(c.get('oracle_text'), c.get('flavor_text')))):g}\n"
+               f"\t\tfont cap: {size or BODY_SIZE}\n"
                f"\t\trarity offsets: 0,0,{rarity_grow}\n")   # type line stops before the symbol
     out += f"\ttime created: {now}\n\ttime modified: {now}\n"
     return out + "".join(value(k, v) for k, v in fields.items())
@@ -235,13 +235,61 @@ def art_bytes(path: Path, planeswalker: bool) -> bytes:
 
 
 def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow: int = 0) -> None:
+    """One MSE set; every non-planeswalker card appears once per candidate text size
+    (notes '<id>__<k>'), the best render being picked afterwards (pick_size)."""
     meta = set_meta(code, [c for c, _ in cards])
     text = set_header(code, meta)
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for i, (c, art) in enumerate(cards, 1):
             z.writestr(f"image{i}", art_bytes(art, "Planeswalker" in c["type_line"]))
-            text += card_block(c, f"image{i}", meta, rarity_grow)
+            if "Planeswalker" in c["type_line"]:
+                text += card_block(c, f"image{i}", meta, rarity_grow)
+            else:
+                for k, size in enumerate(SIZE_STEPS):
+                    text += card_block(c, f"image{i}", meta, rarity_grow, f"{size:g}", f"__{k}")
         z.writestr("set", text)
+
+
+# Candidate text sizes, largest first: MSE shrinks overflowing text in coarse steps and ends
+# far below the size that fits, so each card is rendered at these sizes and the largest one
+# whose text stays in the box (and above the P/T box) is kept.
+SIZE_STEPS = [14.3, 13.9, 13.5, 13.1, 12.7, 12.3, 11.9, 11.5, 11.1, 10.7, 10.3]
+
+
+def _text_rows(img: Image.Image, x0: float, x1: float, y0: float, y1: float) -> list[int]:
+    """Rows (pixels) of the card that contain dark text pixels in a region."""
+    W, H = img.size
+    g = img.convert("L").crop((round(x0 * W), round(y0 * H), round(x1 * W), round(y1 * H)))
+    g = g.point(lambda v: 255 if v < 90 else 0)
+    return [round(y0 * H) + y for y in range(g.height) if g.crop((0, y, g.width, y + 1)).getbbox()]
+
+
+def pick_size(out_dir: Path, card: dict) -> bool:
+    """Keep the largest candidate size whose text stays clear of the box bottom and of
+    the P/T box; rename it <id>.png and delete the other candidates."""
+    cands = [out_dir / f"{card['id']}__{k}.png" for k in range(len(SIZE_STEPS))]
+    cands = [p for p in cands if p.exists()]
+    if not cands:
+        return False
+    pt = card.get("power") not in (None, "") or card.get("toughness") not in (None, "")
+    best = cands[-1]
+    for p in cands:
+        img = Image.open(p)
+        W, H = img.size
+        # below the text: 4% band above the box's bottom border; for creatures the band
+        # above the P/T box, over its columns
+        low = _text_rows(img, .09, .70 if pt else .90, .905, .921)        # border at .9235
+        pt_low = _text_rows(img, .74, .88, .868, .882) if pt else []    # P/T box top ~.885-.892
+        img.close()
+        if not low and not pt_low:
+            best = p
+            break
+    for p in cands:
+        if p == best:
+            p.replace(out_dir / f"{card['id']}.png")
+        else:
+            p.unlink(missing_ok=True)
+    return True
 
 
 # --------------------------------------------------------------- set symbols
@@ -486,10 +534,11 @@ def paste_symbol(card_png: Path, symbol: Image.Image, box: dict | None = None) -
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
 BODY_SIZE = env("MSE_BODY_SIZE", "14.3")       # standard print size; MSE shrinks long texts to fit
+PT_CHOP = env("MSE_PT_CHOP", "0")                 # rules text stops this far above the P/T box
 INFO_SIZE = env("MSE_INFO_SIZE", "5.6")         # bottom line (collector number, set code)
 TRACK = ""                                     # (hair spaces are not drawn by MSE: no tracking)
 PW_TEXT_SIZE = env("MSE_PW_TEXT_SIZE", "10")  # planeswalker abilities, measured on scans (XLN Vraska)
-LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.35,1.8,0.84").split(",")))
+LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.25,1.7,0.84").split(",")))
 
 
 def text_size(rules: str | None, flavor: str | None) -> str:
@@ -522,7 +571,8 @@ def tune_style(base: Path) -> None:
     # The text box runs down behind the P/T box, so MSE lets long texts go under it; on
     # printed creatures the text stops above it (about 16 px higher on a 523 px card)
     text, n3 = re.subn(r"(?m)^(\ttext:\s*\r?\n(?:\t\t.*\r?\n)*?\t\tbottom: )\{ bottom_of_textbox\(\) \}",
-                       r'\g<1>{ bottom_of_textbox() - (if card.power != "" or card.toughness != "" then 16 else 0) }',
+                       r'\g<1>{ bottom_of_textbox() - (if card.power != "" or card.toughness != "" then '
+                       + PT_CHOP + r' else 0) }',
                        text, count=1)
     n2 += n3
     if n1 or n2:
@@ -598,6 +648,9 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
                         if line.strip() and "Unexpected key" not in line)
         if log:
             print(log[-2000:])
+        for c, _ in todo:                        # keep the largest text size that fits
+            if "Planeswalker" not in c["type_line"]:
+                pick_size(out_dir, c)
         missing = [c["name"] for c, _ in todo if not (out_dir / f"{c['id']}.png").exists()]
         failed += missing
         meta = set_meta(code, [c for c, _ in todo])
