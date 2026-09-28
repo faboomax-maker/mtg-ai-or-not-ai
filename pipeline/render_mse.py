@@ -318,13 +318,13 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
     # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
     # images, and the real-size symbol is pasted onto the rendered card (paste_symbol).
     symbols = {}
-    inverted = common_inverted(code, fill_mask)
     # Keyrune draws inner details as holes; printed symbols fill them with the outline colour
     # (white letters on a black common M21, black ones on a gold rare): paint the whole
     # silhouette, gaps included, in the outline colour, then the symbol on top.
     solid = ImageOps.expand(outline_mask, 2, 0)
     ImageDraw.floodfill(solid, (0, 0), 128)                  # flood the outside from a margin
     solid = solid.point(lambda v: 0 if v == 128 else 255).crop((2, 2, w + 2, h + 2))
+    inverted = common_inverted(code, fill_mask, outline_mask, solid)
     for r, (colors, outline) in RARITY_LOOK.items():
         img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         if r == "c" and inverted:             # inverted common: white shape, black lines
@@ -346,38 +346,39 @@ def symbol_grow(symbol: Image.Image) -> int:
     return max(0, round(w - 44 + 3))
 
 
-def common_inverted(code: str, fill: Image.Image) -> bool:
-    """Some sets print their common symbol inverted (white shape, black lines: Dominaria 2018...).
-    Tell from a real common of the set on Scryfall: brightness of the scan inside the symbol's
-    own shape (`fill`, the glyph mask) - dark = black symbol, light = inverted (cached)."""
-    path = WORK_SETS / f"{code}.symbol2.json"
+def common_inverted(code: str, fill: Image.Image, outline: Image.Image, solid: Image.Image) -> bool:
+    """Some sets print their common symbol inverted (white shape, black lines: Dominaria 2018,
+    Rivals of Ixalan...). Both versions are drawn over the symbol of a few real commons of the
+    set (Scryfall scans), and the one closer to the scans wins (cached)."""
+    path = WORK_SETS / f"{code}.symbol3.json"
     cached = load_json(path, None)
     if cached is not None:
         return cached["inverted"]
-    aspect = fill.width / fill.height
     inverted = False
     try:
         s = session()
         r = s.get("https://api.scryfall.com/cards/search", timeout=60,
                   params={"q": f"e:{code} r:common frame:2015 -t:basic", "order": "set"})
-        card = next(c for c in r.json()["data"] if "image_uris" in c)
-        img = Image.open(io.BytesIO(fetch_bytes(s, card["image_uris"]["normal"]))).convert("L")
-        W, H = img.size
-        h = SYMBOL_H * H
-        w = min(h * aspect, SYMBOL_MAX_W * W)
-        box = img.crop((round(SYMBOL_RIGHT * W - w), round(SYMBOL_CY * H - h / 2),
-                        round(SYMBOL_RIGHT * W), round(SYMBOL_CY * H + h / 2)))
-        mask = fill.resize(box.size, Image.BILINEAR).point(lambda v: 255 if v > 200 else 0)
-        inside = [p for p, m in zip(box.getdata(), mask.getdata()) if m]
-        mean = sum(inside) / max(1, len(inside))
-        inverted = mean > 140                 # black symbols read ~30-60, inverted ones ~200+
-        print(f"  [{code}] common symbol {'inverted' if inverted else 'black'} (inside brightness {mean:.0f})")
+        err_black = err_inv = 0.0
+        for card in [c for c in r.json()["data"] if "image_uris" in c][:3]:
+            img = Image.open(io.BytesIO(fetch_bytes(s, card["image_uris"]["normal"]))).convert("L")
+            W, H = img.size
+            h = SYMBOL_H * H
+            w = min(h * fill.width / fill.height, SYMBOL_MAX_W * W)
+            box = img.crop((round(SYMBOL_RIGHT * W - w), round(SYMBOL_CY * H - h / 2),
+                            round(SYMBOL_RIGHT * W), round(SYMBOL_CY * H + h / 2)))
+            m = lambda k: k.resize(box.size, Image.LANCZOS)
+            black = box.copy(); black.paste(255, mask=m(outline)); black.paste(26, mask=m(fill))
+            inv = box.copy(); inv.paste(0, mask=m(solid)); inv.paste(255, mask=m(fill))
+            diff = lambda a: sum(abs(p - q) for p, q in zip(a.getdata(), box.getdata()))
+            err_black += diff(black); err_inv += diff(inv)
+        inverted = err_inv < err_black
+        print(f"  [{code}] common symbol {'inverted' if inverted else 'black'} "
+              f"(error black {err_black:.0f} / inverted {err_inv:.0f})")
     except Exception as e:
         print(f"  [{code}] common symbol check failed ({e}); using black", file=sys.stderr)
     save_json(path, {"inverted": inverted})
     return inverted
-
-
 # Collector info (bottom left), measured on Scryfall scans (fractions of the card): line 1
 # "085/196 U" digits from y .9365 to .9500, line 2 "RIX • EN" letters from .9548 to .9673,
 # left edge .0644; Gotham Medium, widely letter-spaced ("085/196 U" is .137 of the width);
