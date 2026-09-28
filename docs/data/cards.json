@@ -1,345 +1,108 @@
 {
   "generated": "2026-09-28",
-  "count": 20,
+  "count": 6,
   "cards": [
     {
-      "name": "Aetherstream Racer",
-      "mana_cost": "{3}{U}",
-      "type_line": "Sorcery",
-      "oracle_text": "Create a 1/1 blue Construct creature token with flying. This creature gains haste until end of turn. You may have it enter tapped instead. Then, draw a card.",
-      "flavor_text": "\"In the skies, it's not just speed we chase; it's the thrill of the unknown!\"\n—Jessa, champion of the airways",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "34e1368684a8c766.webp",
-      "s": "0dVu99P503yO2gRXCC9gMRYG8TVuc/SyzsEwQxL77SDDkWiwnrXTJ9zIDEgPaHYxFjj9IiQsuPWv4y1EBe7gcIbXPvPA4a4g3NMIGUFqbkNbFPAyJS2xsM3IK1wY/P1w1w=="
-    },
-    {
-      "name": "Whispering Shadow",
-      "mana_cost": "{2}{U}",
-      "type_line": "Sorcery",
-      "oracle_text": "Kicker {1}{B} (You may pay an additional {1}{B} as you cast this spell.)\nScry 3. Then draw a card. If this spell was kicked, target opponent discards a card.",
-      "flavor_text": "\"In the twilight hours, even the shadows conspire to guard their secrets.\"\n—Sorin Markov",
-      "power": null,
-      "toughness": null,
+      "name": "Drowsing Tyrannodon",
+      "mana_cost": "{1}{G}",
+      "type_line": "Creature — Dinosaur",
+      "oracle_text": "Defender (This creature can't attack.)\nAs long as you control a creature with power 4 or greater, Drowsing Tyrannodon can attack as though it didn't have defender.",
+      "flavor_text": "What the rangers thought were warning growls turned out to be nothing but monstrous snoring.",
+      "power": "3",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "U"
+        "G"
       ],
       "card": true,
-      "img": "b22a3c96cca85949.webp",
-      "s": "nbud4q/82ExUSjk3SftbSol8zw1BkA86JXVVHK5Ou5aHubrpp+SfElYAeHlb7AMD2HuIQ0OIbnQNf1ZVl0alk4/4gvTsvNpUFV4sBFzsGAeJNYpbM8JWagRiURSuD4yMlvCA6a/3n1QJ"
+      "img": "61badc64ab0ea037.webp",
+      "s": "eZa0HPw4JlVx0eORak2xacG7bskwskggkqS1BYCfSfcwhPRIv3gkTTDX5Y18FbNxkvxJgmf9BEO5ub1MvZNe9S6U5AzvOCZVcYf5kHsR4nGd8WmIeOsMApG6/ka8lxK0Y8aiVvBmNUBgkqnLaxP+PMG3dIwn5hMRnLi+SreVU+h3wKsm7jtxHTLArIV/CLM2"
     },
     {
-      "name": "Gibbering Fiend",
-      "mana_cost": "{1}{R}",
-      "type_line": "Creature — Devil",
-      "oracle_text": "When Gibbering Fiend enters the battlefield, it deals 1 damage to each opponent.\nDelirium — At the beginning of each opponent's upkeep, if there are four or more card types among cards in your graveyard, Gibbering Fiend deals 1 damage to that player.",
-      "flavor_text": null,
-      "power": "2",
+      "name": "Llanowar Stalker",
+      "mana_cost": "{G}",
+      "type_line": "Creature — Elf Warrior",
+      "oracle_text": "Whenever another creature enters the battlefield under your control, Llanowar Stalker gets +1/+0 until end of turn.",
+      "flavor_text": "If you spot one elf in Llanowar, it's likely there's another with a knife at your back.",
+      "power": "1",
       "toughness": "1",
       "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "72369b5df25f7381.webp",
-      "s": "6iNpzpgS/HJOt0M1R5iiHzQxm6Y4ayU58dLok3kQgQTnZGmLsBCwIR23QyFGlq4dZTWd8Gs4c0ijk66/ZhHIGLFTeseVF61qQuMTNVDYoAdndofwdjt0ULac/598GscK/W01yJYT8SsPsVVvUdvrEnZi3qtlImUI/MHlkmlOxwL0b3+UjAqzFx2sRDJB0b9cNz3N+Q=="
-    },
-    {
-      "name": "Ruins Caller",
-      "mana_cost": "{2}{B}{G}",
-      "type_line": "Creature — Zombie Shaman",
-      "oracle_text": "Deathtouch\nWhenever Ruins Caller attacks, you may return target creature card from your graveyard to your hand.",
-      "flavor_text": "\"The whispers of the drowned guide my hand back to the surface.\"\n—Tana, keeper of the depths",
-      "power": "3",
-      "toughness": "2",
-      "loyalty": null,
       "rarity": "common",
       "colors": [
-        "B",
         "G"
       ],
       "card": true,
-      "img": "649d4323d2b71dd7.webp",
-      "s": "lg4Jck8EaPC1qPfqUKeVWiP59E1a55fmL8gMnx7v3FOLDCl2WAYjqfTsuqYBo8sOaPnlG0L9lYUE2B3TMfOST5lNHzUCSGir57rJ4FGt1Fg7qrNpEaneqA3OFtM9845bgkJZag=="
+      "img": "ddb842a3b7cb3a09.webp",
+      "s": "mPVzVdyhZ4EIHNFU0Xl8R+eaFkBeS5SYCPVjSm7AJGzDgm9ZyaghmQRIgUDGITUW4N1YQkYt164O+msERNosYJCyaRKR7WfOWgSBG5R3NBHgjxFYS0TFvxXhbEVj3mNujLouU9y/IZRMBdYOhWJtSviTAwwLHNeuSut+RWPZKH/conVd4r4qzloLxhzVJTVH6Q=="
     },
     {
-      "name": "Cloaked Conductor",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human Soldier",
-      "oracle_text": "Vigilance\nWhenever Cloaked Conductor attacks, other target creatures you control gain indestructible until end of turn.",
-      "flavor_text": "\"In the chaos of battle, I shield my allies from the worst of the storm.\"\n—Leader of the Stormwatch",
+      "name": "Kavath, Wielder of Flames",
+      "mana_cost": "{2}{B}{B}",
+      "type_line": "Legendary Creature — Vampire Wizard",
+      "oracle_text": "Whenever you cast a noncreature spell, Kavath, Wielder of Flames deals 1 damage to each opponent.\n{3}{B}: Target player discards a card.",
+      "flavor_text": "\"In the heart of the storm, I summon the flames that dance in your darkest dreams.\"",
       "power": "3",
-      "toughness": "2",
+      "toughness": "3",
       "loyalty": null,
       "rarity": "rare",
       "colors": [
-        "W"
+        "B"
       ],
       "card": true,
-      "img": "1f5128c4d6981722.webp",
-      "s": "umLb5f0wcLSRZILhwjo2ZD8ry91yLdX4ZMirTvqElU2ALMXl+zUz4NJnwaGRfXs2aTHd3XIt1fh027xNs7SRAbJihaC+PSD67mSR4tx9IGQ/EMvbPzeavBb5r0XwjpoOtWDm7vl+Lw=="
+      "img": "6753e5c5b9e3975d.webp",
+      "s": "8b3mvqVMEXRjmv1JY1KIRqa4X3s2Q7kfNEpLw7pZRp2qraTp9QIfbmGd7lF5RNBEvusYS3UY61YSSxuKuihCm/7A8qmrTRF0Y97XRHVF0gPv5xp7fBy5bgdMTcP8f0/L9w=="
     },
     {
-      "name": "Oviya Pashiri, Sage Lifecrafter",
+      "name": "Defensive Resurgence",
       "mana_cost": "{G}",
-      "type_line": "Legendary Creature — Human Artificer",
-      "oracle_text": "{2}{G}, {T}: Create a 1/1 colorless Servo artifact creature token.\n{4}{G}, {T}: Create an X/X colorless Construct artifact creature token, where X is the number of creatures you control.",
-      "flavor_text": "\"Inspiration is reciprocal: we all have a responsibility to each other to create.\"",
-      "power": "1",
-      "toughness": "2",
+      "type_line": "Instant",
+      "oracle_text": "Kicker {2}\nTarget creature gets +2/+2 until end of turn. If this spell was kicked, that creature also gains reach until end of turn.",
+      "flavor_text": "\"When the skies rage, the grove's might rises with them.\"\n—Elysia, Guardian of the Grove",
+      "power": null,
+      "toughness": null,
       "loyalty": null,
-      "rarity": "rare",
+      "rarity": "uncommon",
       "colors": [
         "G"
       ],
       "card": true,
-      "img": "9272c36f8df9aa89.webp",
-      "s": "Mcfo3VCMp7LW5yIX0epbdM7u0cTSIaJpycYzGbOX70lmxbjZQ5Ts+4KxakKWixox3OfMxr5o7E7NxDcIoIGlR2rH78pdwr+o1PskFsS1QXmS+MaUkWfhTsSEMRK7y+QKOIG1012EqrnApn8Nwq8CN5D7xJWAaPJLhdkzGrPJ6wIsgPnKUIbx7YSsJRbZmQg5yPnGg9Vg8EuK1w=="
+      "img": "d57c07a55cedc7db.webp",
+      "s": "EaHm+x333ZMNluEiSx9/jBbgbq6QxDHIZs5QnkBJCU8Lo8HwFe+azQ/coGxZCCfFR+cp4JLcW59R1VSZSwg4VB/5trJcuZ7bWa/mPFcXcZYUsViuwJt/jVbJHZhICA9OD6PX8R33lt1En+5sRQ=="
     },
     {
-      "name": "Captain's Spyglass",
-      "mana_cost": "{2}",
-      "type_line": "Artifact",
-      "oracle_text": "When Captain's Spyglass enters the battlefield, create two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")\n{T}, Sacrifice Captain's Spyglass: Draw a card.",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [],
-      "card": true,
-      "img": "7180c92a7b3b26e2.webp",
-      "s": "iLEH0UFQQVAPo8ur6iNX5pW/pMKwKYSdK4Ky6eLXKP3TsRTGVFUQHg3/iuXSLx601qLh7/N9ytoQ2P+lodh4paz1B9tNHllKDZbFtfojCanCv+Hl4mrD0wOJoKf+"
-    },
-    {
-      "name": "Fateful Clash",
-      "mana_cost": "{5}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature fights another target creature.",
-      "flavor_text": "\"They may wear different colors, but in the end, all blood spills the same.\"\n—Pavel, Kessig swordsman",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "be5c85e7efc04d9a.webp",
-      "s": "nhqtNgiAGUGbA759xpEuBa3dMmObDwKWeNpQO2g+D46KTrohSaVVFdIWq2PUkCAJr4w2Zc1cUcAJiBF9TSgX24cYlDIanF4JmUn/M9SGdnrp3Dh6mw8Clm/bQixiJw/Hilb/OgfMTxPeRY1w259xB/I="
-    },
-    {
-      "name": "Fiery Spiritbinder",
-      "mana_cost": "{1}{R}",
-      "type_line": "Enchantment Creature — Elemental Spirit",
-      "oracle_text": "Fiery Spiritbinder gets +1/+0 for each other Spirit you control.\nWhenever Fiery Spiritbinder attacks, you may pay {1}{R}. If you do, create a 1/1 red Spirit creature token with haste.",
-      "flavor_text": "From the neon-lit alleys of Towashi, he summons spirits to dance in the blaze of rebellion.",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "7729376651d47513.webp",
-      "s": "G72c+fJ9yQbbMG7zrATZxZ+gW0aa20cjwy+wVdIyIBZav6D5/H/LeII4buyrGNfJnfFfQMyIFHWqdP0e9CMlHgy/vu76fI4e13Yt/q0VqoPPvFMQgsFFQOMltBzwPjUSErKl+fZhjk7ZKw=="
-    },
-    {
-      "name": "Resolute Watchdog",
-      "mana_cost": "{W}",
-      "type_line": "Creature — Dog",
-      "oracle_text": "Defender\n{1}, Sacrifice Resolute Watchdog: Target creature you control gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)",
-      "flavor_text": "A friend in good times, a guardian in bad times, and a savior when all else fails.",
-      "power": "1",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "328565147d89ea42.webp",
-      "s": "s80Ap+JWDXUwAQQVYuYGIqA3prkB7nbzDe7M1eG1P+2kgxel6ltBLHVXWkAlq1R0uiGmuQHuduwF9MvK7b4/aE6KAKPtGANvMgAEDCXwBiK7JqbrSPR7jh/70MXktXPA5owdr6xZTj10WgQOZuUXOfwgt+hUoiHVCbXV3fa3d8iniE2391dwPH8ABANi90dwunCv"
-    },
-    {
-      "name": "Silence the Echo",
+      "name": "Rend the Chase",
       "mana_cost": "{1}{B}",
-      "type_line": "Sorcery",
-      "oracle_text": "As an additional cost to cast this spell, sacrifice a creature or planeswalker or pay {3}.\nDestroy target creature or planeswalker.",
-      "flavor_text": "The Vraska who had never known pain could not comprehend the unyielding will of the Vraska who had known too much.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "f1dd1d6fd20a3083.webp",
-      "s": "K6hF746JKGtpsYMkN2+09xvtxSZwjXlKh2eA8KNlom4i61T+mpdvc2Xl0zAgN/2mHKqLJGj9Om6HaszSuHDtRTXzUv6cxyZxa7CDPXB5tPcA/MV0OZd0N5FlnuCxfe5EfulY58CGayMt6pcjM2yi40f72Ggvwzh9z3KE/Pp54UA/tUL+grp5Pjy3kjRvIuS8SvU="
-    },
-    {
-      "name": "Alysara, Hall of Inspiration",
-      "mana_cost": "{1}{U}{W}",
-      "type_line": "Legendary Creature — Human Wizard",
-      "oracle_text": "Flash (You may cast this spell any time you could cast an instant.)\nWhen Alysara, Hall of Inspiration enters the battlefield, choose one —\n• Draw a card.\n• Target creature you control gains flying until end of turn.",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "rare",
-      "colors": [
-        "U",
-        "W"
-      ],
-      "card": true,
-      "img": "f48e6543cee7792a.webp",
-      "s": "JyyE3tcHDa+GAEc4pYspuj25St6GuENBb8nuMPutNs18PMaJh0kDtYQHVCC/nXG4JeoN79brAENow+82s58+yS8s2puUCl3h+QBUO7vMP7o9hEbLyeAKTwzj7yG+mz7cOC6ly9MKRPDURFs="
-    },
-    {
-      "name": "Vicious Conquistador",
-      "mana_cost": "{B}",
-      "type_line": "Creature — Vampire Soldier",
-      "oracle_text": "Whenever Vicious Conquistador attacks, each opponent loses 1 life.",
-      "flavor_text": "\"He is ambitious. Tireless. And utterly ruthless. Ideal for the frontier.\"\n—Viceroy Elia Sotonores, report to the queen",
-      "power": "1",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "8a74607f966dc77f.webp",
-      "s": "DrfFIpABT9d3XZpSoPqUdSr5YmnHgSXvH+9+esX4OKpX9MUzmB4Zz20Jymyss8Y2N7xPKpPPYtRFojI53qh4qE+1lS+FGR2ebQbHVKakzTE48Hplns5qiQTvYH+EonjkWqSFf94bBI4+Rp1U6LXbOSjpfziJwGPJFbFnb8aFZ+UA59QizAwdhHVU"
-    },
-    {
-      "name": "Sabotage Strategist",
-      "mana_cost": "{2}{U}{U}",
-      "type_line": "Creature — Vedalken Ranger",
-      "oracle_text": "Flying, vigilance\nWhenever one or more creatures attack you, those creatures get -1/-0 until end of turn.\nExhaust — {5}{U}{U}: Put three +1/+1 counters on this creature. (Activate each exhaust ability only once.)",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "9a163590db061db9.webp",
-      "s": "h6GP9nQ/CrbFgpCtf0wCN6NcniZwl24s/NZtiGqnP4qa99+/NXFJ/pGfkaw4WgI3lFiYdi/ZbDn4zCfBOOE4kZChx7M3O1z4lYXY9zUTQWepX4toJpkvAvSNZoxqp2KHmvfSpix8W+2HmZa5fQUPZqRLi3Av0CUe7Z1wmXWcPoyJ8Z72KDJY5ceL"
-    },
-    {
-      "name": "Terror of the Peaks",
-      "mana_cost": "{3}{R}{R}",
-      "type_line": "Creature — Dragon",
-      "oracle_text": "Flying\nSpells your opponents cast that target Terror of the Peaks cost an additional 3 life to cast.\nWhenever another creature enters the battlefield under your control, Terror of the Peaks deals damage equal to that creature's power to any target.",
-      "flavor_text": null,
-      "power": "5",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "mythic",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "7b62d505d096e49a.webp",
-      "s": "aNBFtzKRUEKYz41Y8Vh+y8tJA/xTz9TK5iT4Y4XkcwYhwgXjcdFSWtnJi0TnAHzTmA42sA2dk/CpHeg5v+90TXqLFf5z3wcK1JnFDbYcKp3IX03xRpyV+/Aw/C+6r2RJft1UsyGZXRWKitAcokBxnd1eBbEbwpnvpCL1JvvxYkd4gQinJ5AtC9fOjU7xST+Z0Q4K"
-    },
-    {
-      "name": "Aether Surge",
-      "mana_cost": "{3}{R}",
       "type_line": "Instant",
-      "oracle_text": "Aether Surge deals 4 damage to any target. You may pay {E}. If you do, create a 1/1 colorless Servo artifact creature token.",
-      "flavor_text": "The energy courses through the air, igniting invention and chaos alike.\n—Rashmi, aether-seer",
+      "oracle_text": "Destroy target Vehicle. You gain 1 life for each number of creatures you control.",
+      "flavor_text": "\"In this blazing maelstrom, we’ll catch them before they turn to ash!\"",
       "power": null,
       "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "e19d4170b80b9214.webp",
-      "s": "bf6Xb1RKKpJHQgRTyOs56UX1NtwfZkruTAzhYReqAf808MUoVFR8wRRQRwWbrEeoHus8xll8ObtmA+FhHatQuzb+hHhBeW7aCElHBZusQqwL4jrGWnw5vGYf5nNRsg=="
-    },
-    {
-      "name": "Mechanical Manipulator",
-      "mana_cost": "{2}{B}",
-      "type_line": "Creature — Human Rogue",
-      "oracle_text": "Whenever this creature attacks, you may pay {1}. If you do, create a 1/1 colorless Construct artifact creature token with \"This creature has flying.\"",
-      "flavor_text": "\"I walk the razor's edge of reality itself. Creation is but a flick of my wrist.\" \n—Celia, Nexus Architect",
-      "power": "2",
-      "toughness": "3",
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "b4722262994f079f.webp",
-      "s": "eI/jPps98isYqjaSmxeFbulBfCbP8ZTtNq6LO3/uh45F3/A4jiSidBrgd9yJAN0nuEY7aM3p96cWopl3RPuSwmres3fac7FjTJMxjIcfi3TrEE06iKTGqhCiiTZ6urDLYN/+Nps/s3RK7io="
+      "img": "958b1e517c618a6e.webp",
+      "s": "UBa+SqnzfsaaSL54JhU2yrdHySAx7DdzOAdBqcVnLe1CUrgN5L9+nchatmchUiDKt37NInqzZXE6ClSz0nprswsWrV28wDqO1UP9LnVSV4vtXcEhfvZYJxwQUbPJYyy9Vg=="
     },
     {
-      "name": "Radiant Grove",
-      "mana_cost": "",
-      "type_line": "Land — Forest Plains",
-      "oracle_text": "({T}: Add {G} or {W}.)\nRadiant Grove enters the battlefield tapped.",
-      "flavor_text": "Yavimaya's inhabitants are dedicated to protecting its unspoiled jungle from the scourge of artifice.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [],
-      "card": true,
-      "img": "14d178c11abc6282.webp",
-      "s": "Va/aCmneFgB7i8YAndjPDukkujDdTEIiIHE4GQfFV6sO2MYGfNdQGHfflhSKgIZf7mP0MsUgDxQqcisYRvtfpEj/yQFr3VpTedOUV42Ggw6gYex6kxgQFXUzfgQFxUesT+HEQWvdWRU4nsYR15CCWbVz+yHIHgECJn0/A0vQTKVY6JcafN9rSTSKxhadyY5c82Oz"
-    },
-    {
-      "name": "Hypothesizzle",
-      "mana_cost": "{3}{U}{R}",
-      "type_line": "Instant",
-      "oracle_text": "Draw two cards. Then you may discard a nonland card. When you do, Hypothesizzle deals 4 damage to target creature.",
-      "flavor_text": "\"It's like blowing up an arcane library in a thermobaric explosion. But in a good way.\"\n—Bori Andon, Izzet blastseeker",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "R",
-        "U"
-      ],
-      "card": true,
-      "img": "65432832fc64b488.webp",
-      "s": "af1HZ5wy7LNQtcp+tkeDKcj0DcjTn3lrTGaD3hL9VIEyjVR0kzet6FLtmCmyGddiyOVb0MmdGERLZpyaMrhainOxFy7dfLv7HOOCK/ED13/L4kPFxsw4XkBpjtYN81iIf/BWY4864e4Cr5c65FOMY8LhFp6B2ihFQ3WD316oT4pNrFp3jz2rtBGx0Smu"
-    },
-    {
-      "name": "Biting-Palm Ninja",
-      "mana_cost": "{2}{B}",
-      "type_line": "Creature — Human Ninja",
-      "oracle_text": "Ninjutsu {2}{B}\nBiting-Palm Ninja enters the battlefield with a menace counter on it.\nWhenever Biting-Palm Ninja deals combat damage to a player, you may remove a menace counter from it. When you do, that player reveals their hand and you choose a nonland card from it. Exile that card.",
-      "flavor_text": null,
+      "name": "Nimble Thopterist",
+      "mana_cost": "{3}{U}",
+      "type_line": "Creature — Vedalken Artificer",
+      "oracle_text": "When this creature enters, create a 1/1 colorless Thopter artifact creature token with flying.",
+      "flavor_text": "The Aether Rangers repurposed thopters once used for Consulate surveillance so they could scout the track.",
       "power": "3",
-      "toughness": "3",
+      "toughness": "2",
       "loyalty": null,
-      "rarity": "rare",
+      "rarity": "common",
       "colors": [
-        "B"
+        "U"
       ],
       "card": true,
-      "img": "92a0cf8cfbca7ad9.webp",
-      "s": "kLGyDWCnkfqB9DScVYLFfVgvlcAKKvgTfJ//OH4MYAfL3aUHb+v3uc/hNZ1JjMl/CSuTlll5rnon0rQecR9zWIrg4DJgrdqywPQpmhKCxX1eOI3ACir4MGmG5iwlVC5OiOG5DmCn3+7C7yvGU8+XOwQkhI0fMuJ3f5viNnEcLE2K/61Fb6LdqsC/M51d8ZYwXjiChw1rqjE/jw=="
+      "img": "7d02a748e4c2d4b7.webp",
+      "s": "bf3u3VF7uxjqA1N3q1Q5v6lb4ICZLVxGMVaAk3ZcIlFwq76UEDX4UL4eUnbsQjm/k1H1zM1kDScSS4eEYRp8GDSq7tQSLbkAogNVcr1CNrKpXebbxWwSa3pBh5srWzFKcvD43kQ4rBHlGUhvrBR8sK5W+9LXaAxuJ1bXg3BVD0t5qu7bVSr4UqNVXA=="
     }
   ]
 }
