@@ -34,11 +34,11 @@ SIZE = (745, 1040)                  # measuring size (Scryfall 'png' scans); ren
 
 # ------------------------------------------------------------------ sample
 def sample(count: int, names: list[str] | None = None) -> list[tuple[dict, str]]:
-    """Real cards (mostly commons/uncommons, some creatures, a few planeswalkers) + scan URL;
+    """Real cards (mostly commons/uncommons, some creatures) + scan URL;
     or the named cards (first printing in the quiz frame)."""
     s, llm = session(), scan_llm()
     queries = ([f"({DEFAULT_QUERY}) r:common"] * 5 + [f"({DEFAULT_QUERY}) r:uncommon"] * 4
-               + [f"({DEFAULT_QUERY}) t:creature"] * 2 + [f"({DEFAULT_QUERY}) t:planeswalker"])
+               + [f"({DEFAULT_QUERY}) t:creature"] * 2)
     todo = list(names or [])
     count = len(todo) or count
     out, seen, tries = [], set(), 0

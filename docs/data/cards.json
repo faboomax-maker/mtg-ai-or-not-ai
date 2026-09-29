@@ -1,6 +1,6 @@
 {
   "generated": "2026-09-29",
-  "count": 20,
+  "count": 19,
   "cards": [
     {
       "name": "Potioner's Trove",
@@ -135,24 +135,6 @@
       "card": true,
       "img": "73d7dc2bd453e90e.webp",
       "s": "oIjm4l+LRAnS4Ef2so4Pz0AiIQYxjwX1cLLNi4gIfb775/voUMVKE9DnVO6omFfNWHFmMXvHTKQVjMiVjRVt9PeKtuZMkzlVgOlLuPvLAa0DMi8FfNpBpBWN3IuXFWi3t8Pn803FGw=="
-    },
-    {
-      "name": "Professor Dellian Fel",
-      "mana_cost": "{2}{B}{G}",
-      "type_line": "Legendary Planeswalker — Dellian",
-      "oracle_text": "+2: You gain 3 life.\n0: You draw a card and lose 1 life.\n−3: Destroy target creature.\n−6: You get an emblem with “Whenever you gain life, target opponent loses that much life.”",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": "5",
-      "rarity": "mythic",
-      "colors": [
-        "B",
-        "G"
-      ],
-      "card": true,
-      "img": "717ca6cc494d25ea.webp",
-      "s": "mrivYFXiievuvEaMzabQB4zXCd1PpStoOXEG8ELve+yHuo5xRufTua++UZeKptAHnsAJlgbxKwF8MDj8U7wI5pXzvHJV4In97upBi8SoygXd2gmLBfYzFHNhF+dP+jrvjbS+almhyLC8rBuKx/nfF86GUo8H6m9eL2Eb5xv4Pu+N87xrGejOvfG9QJT3+Z9QjdEYwhT1YBkh"
     },
     {
       "name": "Spectral Reserves",

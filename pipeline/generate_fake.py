@@ -268,10 +268,6 @@ Standard-legal expansions. Rules you always follow:
 - Names: original (never an existing card name), in the naming style of this set's cards —
   proper nouns, places, factions and turns of phrase of this world. Avoid generic AI
   patterns like colour+noun ("Azurewing Tempest") or adjective+class ("Cunning Illusionist").
-- Planeswalkers are the set's famous characters: when a profile gives a "character", the
-  card is a new version of that same character. Name it "<character>, <new title>" (like
-  "Jace, Cunning Castaway") with a title that has never been printed, and use exactly the
-  profile's type_line ("Legendary Planeswalker — Jace"). Abilities fit that character.
 - Keyword actions (explore, connive, venture, scry, surveil, investigate...) are verbs inside
   sentences ("Whenever this creature attacks, it connives"), never a standalone line like
   keyword abilities (Flying, Ward {2}). Write "Draw a card", never "You draw a card".
@@ -306,18 +302,6 @@ def type_bucket(type_line: str) -> str:
     return type_line.split("—")[0].strip()
 
 
-def pw_character(type_line: str) -> str | None:
-    """'Legendary Planeswalker — Jace' -> 'Jace' (the famous character), else None."""
-    if "Planeswalker" not in type_line or "—" not in type_line:
-        return None
-    return type_line.split("—")[1].strip() or None
-
-
-def name_title(name: str, character: str | None) -> str:
-    """The invented part of a name: 'Jace, Warden of Echoes' -> 'Warden of Echoes'."""
-    return name.split(",", 1)[1].strip() if character and "," in name else name
-
-
 def spec_from(card: dict) -> dict:
     """Profile copied from a real card of the set, keywords included (same mechanics mix)."""
     colors = "".join(card.get("colors") or []) or "colorless"
@@ -332,12 +316,6 @@ def spec_from(card: dict) -> dict:
         # lands are colorless: what matters is the mana they make (dual land, utility land...)
         spec["produces_mana"] = card.get("produced_mana") or []
         spec["land_types"] = card["type_line"].split("—")[1].strip() if "—" in card["type_line"] else ""
-    character = pw_character(card["type_line"])
-    if character:
-        # planeswalkers are famous characters: an unknown one is an instant giveaway
-        spec["character"] = character
-        spec["name_pattern"] = f"{character}, <new title>"
-        spec["type_line"] = f"Legendary Planeswalker — {character}"
     return spec
 
 
@@ -412,14 +390,8 @@ def validate(c: dict, spec: dict) -> str | None:
     tl = c["type_line"]
     if "Creature" in tl and not (c.get("power") and c.get("toughness")):
         return "creature without P/T"
-    if "Planeswalker" in tl and not c.get("loyalty"):
-        return "planeswalker without loyalty"
-    character = spec.get("character")
-    if character:
-        if not c["name"].startswith(f"{character}, ") or not name_title(c["name"], character):
-            return f"planeswalker not named '{character}, <title>'"
-        if pw_character(tl) != character:
-            return f"planeswalker subtype is not {character}"
+    if "Planeswalker" in tl:
+        return "planeswalker (not used in the quiz)"
     if len(c["oracle_text"]) > 480 or len(c.get("flavor_text") or "") > 200:
         return "too long"
     if re.search(r"\bCARDNAME\b|~", c["oracle_text"]):
@@ -735,8 +707,6 @@ short (usually under 25 words). Bad flavor text is a vague maxim about fate, vic
 knowledge, wisdom, balance, legends or "the heart of" something - rewrite those.
 Names must sound like this set's real names: specific to the world, not generic
 adjective+class or colour+noun patterns; keep a name if it is already good.
-Planeswalker names keep their character before the comma ("Jace, ..."): only the title
-after it may change.
 Never add flavor text to a card that has none, never change rules text.
 Answer with a JSON array of {"name": ..., "flavor_text": ...} in the same order, no commentary."""
 
@@ -753,9 +723,7 @@ def creative_review(llm: str, batch: list[dict], flavors: list[str], brief: dict
         if len(out) == len(batch):
             for c, o in zip(batch, out):
                 if isinstance(o, dict) and o.get("name"):
-                    name, character = str(o["name"]).strip(), pw_character(c.get("type_line") or "")
-                    if not character or name.startswith(f"{character}, "):   # keep "Jace, ..."
-                        c["name"] = name
+                    c["name"] = str(o["name"]).strip()
                     if c.get("flavor_text"):            # never add flavor to a card without it
                         c["flavor_text"] = o.get("flavor_text") or c["flavor_text"]
     except (Exception, SystemExit) as e:          # a bonus, never a blocker
@@ -871,7 +839,7 @@ def main() -> None:
     set_names = {c["set"]: c["set_name"] for c in real}
     artists = real_artists(s)
     used_artists = {c["artist"] for c in fakes if c.get("artist")}
-    used_name_words = {w for c in fakes for w in name_words(name_title(c["name"], pw_character(c["type_line"])))}
+    used_name_words = {w for c in fakes for w in name_words(c["name"])}
     used_art = {c["art_source_id"] for c in fakes if c.get("art_source_id")}   # one card per real art
     kw_catalogs = keyword_catalogs(s)
     numbers: dict[str, set[str]] = defaultdict(set)   # collector numbers already on a quiz card
@@ -963,7 +931,7 @@ def main() -> None:
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
                        else rules_problem(c["oracle_text"], c["type_line"])
                        or subtype_color_problem(c["type_line"], spec["colors"], pool)
-                       or name_problem(name_title(c["name"], spec.get("character")), used_name_words)
+                       or name_problem(c["name"], used_name_words)
                        or (None if real_art() else art_problem(c["art_description"])))
             if not err and c["name"].lower() in banned:
                 err = "name already used"
@@ -973,7 +941,7 @@ def main() -> None:
                 print(f"  rejected {c.get('name')!r}: {err}")
                 annotate("notice", f"rejected {c.get('name')!r}: {err}"); continue
             banned.add(c["name"].lower())
-            used_name_words |= name_words(name_title(c["name"], spec.get("character")))
+            used_name_words |= name_words(c["name"])
             # Text: the set's real reminder texts (added where the set prints them at this
             # rarity) and era wording, whatever the LLM wrote. Art brief without "glowing" haze.
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)

@@ -28,7 +28,8 @@ API = "https://api.scryfall.com"
 # Modern single-faced paper cards, same frame era as what the AI imitates.
 DEFAULT_QUERY = (
     "game:paper layout:normal lang:en frame:2015 year>=2016 "
-    "(st:expansion or st:core) -is:funny -is:reprint -is:promo -is:universesbeyond -type:basic"
+    "(st:expansion or st:core) -is:funny -is:reprint -is:promo -is:universesbeyond -type:basic "
+    "-type:planeswalker"
 )
 
 # Rares and mythics are the cards players know by heart: a famous real card is spotted at
@@ -235,6 +236,8 @@ def keep(card: dict) -> bool:
         return False                                  # Universes Beyond (licensed IP = too easy)
     # special frames MSE's M15 template can't draw (text vanishes): Spacecraft, Planets (station)
     if re.search(r"\b(Spacecraft|Planet)\b", card.get("type_line", "")) or "Station" in (card.get("keywords") or []):
+        return False
+    if "Planeswalker" in card.get("type_line", ""):    # famous characters, frame hard to match: none
         return False
     if len(card.get("oracle_text", "")) > 420:          # would not fit the frame
         return False
