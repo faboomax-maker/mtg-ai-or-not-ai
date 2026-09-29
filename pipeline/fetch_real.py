@@ -25,12 +25,25 @@ from common import WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_bytes, loa
 
 API = "https://api.scryfall.com"
 
-# Modern single-faced paper cards, same frame era as what the AI imitates.
-DEFAULT_QUERY = (
-    "game:paper layout:normal lang:en frame:2015 year>=2016 "
-    "(st:expansion or st:core) -is:funny -is:reprint -is:promo -is:universesbeyond -type:basic "
-    "-type:planeswalker"
-)
+# Single-faced paper cards of the regular sets, in three frame eras (Future Sight's frame,
+# Planar Chaos' colorshifted cards and other special frames are left out).
+BASE_QUERY = ("game:paper layout:normal lang:en (st:expansion or st:core) -is:funny -is:promo "
+              "-is:universesbeyond -is:colorshifted -frame:future -type:basic -type:planeswalker")
+ERAS = {
+    "old": "(frame:1993 or frame:1997)",           # 1993-2003, white-bordered core sets included
+    "modern": "frame:2003",                          # 8th Edition / Mirrodin -> Magic 2014
+    "current": "frame:2015 year>=2016 -is:reprint",  # M15 frame
+}
+ERA_WEIGHTS = {"old": 1, "modern": 1, "current": 1}
+DEFAULT_QUERY = f"{BASE_QUERY} {ERAS['current']}"
+
+
+def era_query(era: str) -> str:
+    return f"{BASE_QUERY} {ERAS[era]}"
+
+
+def era_of(frame: str | None) -> str:
+    return {"1993": "old", "1997": "old", "2003": "modern"}.get(frame or "", "current")
 
 # Rares and mythics are the cards players know by heart: a famous real card is spotted at
 # once, and so is a fake "mythic" nobody has heard of. Both pools (real cards here, AI card
@@ -38,9 +51,9 @@ DEFAULT_QUERY = (
 RARITY_WEIGHTS = {"common": 55, "uncommon": 40, "rare": 4, "mythic": 1}
 
 
-def parse_weights(text: str | None) -> dict[str, float]:
-    """'common=55,uncommon=40,rare=4,mythic=1' -> dict (missing rarities keep the default)."""
-    weights = dict(RARITY_WEIGHTS)
+def parse_weights(text: str | None, default: dict | None = None) -> dict[str, float]:
+    """'common=55,uncommon=40,rare=4,mythic=1' -> dict (missing keys keep the default)."""
+    weights = dict(RARITY_WEIGHTS if default is None else default)
     for part in (text or "").split(","):
         if "=" in part:
             k, v = part.split("=", 1)
@@ -54,7 +67,8 @@ def pick_rarity(weights: dict[str, float]) -> str:
 
 FIELDS = ("name", "mana_cost", "type_line", "oracle_text", "flavor_text",
           "power", "toughness", "loyalty", "rarity", "colors", "cmc", "keywords", "produced_mana", "edhrec_rank",
-          "set", "set_name", "artist", "collector_number", "released_at", "scryfall_uri")
+          "set", "set_name", "artist", "collector_number", "released_at", "scryfall_uri",
+          "frame", "border_color")
 
 
 def ensure_set_icon(s, code: str) -> None:
@@ -100,12 +114,37 @@ def printed_texts(s, code: str) -> dict[str, dict]:
     return texts
 
 
+OLD_WORDING = [
+    (r"enters the battlefield|comes into play", "enters"),
+    (r"remove (.*?) from the game", r"exile \1"), (r"removed from the game", "exiled"),
+    (r"is put into a graveyard from play", "dies"), (r"put into a graveyard from play", "dies"),
+    (r"this (creature|artifact|enchantment|land|spell|permanent)", "this"),
+    (r"converted mana cost", "mana value"), (r"target creature or player", "any target"),
+    (r"\bplay(ed|s)?\b", r"cast\1"),
+]
+
+
+def gatherer_symbols(text: str | None) -> str | None:
+    """Clean-up of the printed texts of old cards (from Gatherer): old tap/untap symbols
+    'ocT' / 'ocQ', costs in one brace '{1W}', activated abilities without their colon
+    ('{U} Mountainwalk until end of turn')."""
+    if not text:
+        return text
+    text = re.sub(r"\boc([TQ])\b", r"{\1}", text)
+    text = re.sub(r"\{(\d*)([WUBRGC]+)\}", lambda m: "".join(f"{{{x}}}" for x in
+                  ([m.group(1)] if m.group(1) else []) + list(m.group(2))), text)
+    return re.sub(r"(?m)^((?:\{[^}]+\})+) (?=[A-Z])", r"\1: ", text)
+
+
 def same_card_text(printed: str, oracle: str, name: str, threshold: float = 0.6) -> bool:
     """Printed and Oracle texts differ only by wording updates ('enters the battlefield',
     self-reference by name...). MTGJSON sometimes attaches another card's text (SNC Most
     Wanted got a tri-land's): reject printed texts that don't resemble the Oracle text."""
-    norm = lambda t: re.sub(r"\s+", " ", re.sub(r"\([^)]*\)", "", t.replace(name, "this")).lower()
-                            .replace("enters the battlefield", "enters")).strip()
+    def norm(t: str) -> str:
+        t = re.sub(r"\([^)]*\)", "", t.replace(name, "this")).lower()
+        for old, new in OLD_WORDING:               # 1990s-2000s wording -> today's Oracle wording
+            t = re.sub(old, new, t)
+        return re.sub(r"\s+", " ", t).strip()
     return difflib.SequenceMatcher(None, norm(printed), norm(oracle)).ratio() >= threshold
 
 
@@ -158,11 +197,15 @@ def _tokens(t: str) -> list[str]:
 def scan_agrees(scan: dict, card: dict) -> str | None:
     """Why the scan reading can't be trusted (None: it can)."""
     rules, known = scan.get("rules") or "", card.get("oracle_text") or ""
-    if not same_card_text(_plain(rules), known, card["name"], 0.9):
+    # cards of the 1990s were often reworded since ("If Elvish Spirit Guide is in your hand, you
+    # may remove it from the game..." -> "Exile this card from your hand: ..."): a looser match
+    # is enough, the symbols and numbers still have to be the same
+    old = (card.get("released_at") or "") < "2003-07-28"
+    if not same_card_text(_plain(rules), known, card["name"], 0.5 if old else 0.9):
         return "rules text differs"
     if _tokens(rules) != _tokens(known):
         return "symbols/numbers differ"
-    if len([l for l in rules.split("\n") if l.strip()]) != len([l for l in known.split("\n") if l.strip()]):
+    if not old and len([l for l in rules.split("\n") if l.strip()]) != len([l for l in known.split("\n") if l.strip()]):
         return "line count differs"
     return None
 
@@ -180,7 +223,7 @@ def read_scan(s, card: dict, png_url: str, llm: str) -> dict:
         img.save(buf, "JPEG", quality=92)
         time.sleep(0.12)
         text = call_llm(llm, SCAN_SYSTEM, f"Transcribe the text of this card, «{card['name']}».",
-                        image=buf.getvalue(), detail="high",
+                        image=buf.getvalue(), detail="high", timeout=90,
                         model=env("SCAN_MODEL") or scan_model(llm), temperature=0)
         cache[card["id"]] = json.loads(re.search(r"\{.*\}", text, re.S).group(0))
         save_json(path, cache)
@@ -211,18 +254,31 @@ def with_scan_text(s, card: dict, png_url: str | None, llm: str | None) -> dict:
     if tl and tl.split("—")[0].strip() == card["type_line"].split("—")[0].strip() and \
             difflib.SequenceMatcher(None, tl, card["type_line"]).ratio() >= 0.8:
         card["type_line"] = tl
+    elif tl and (card.get("released_at") or "") < "2007-10-12":
+        # older type lines ("Summon Knight", "Enchant Creature", "Creature — Cleric" before
+        # Lorwyn added "Human"): any words the card's current type line or its era has
+        known = set(re.findall(r"\w+", card.get("type_line_current") or card["type_line"]))
+        era_words = {"Summon", "Legend", "Enchant", "Creature", "Land", "Artifact", "World", "Interrupt",
+                     "Mana", "Source", "Enchantment", "Wall"}
+        stem = lambda words: {w.rstrip("s") for w in words}          # "Summon Knights"
+        if stem(re.findall(r"\w+", tl)) <= stem(known | era_words):
+            card["type_line"] = tl
     return card
 
 
 def with_printed_text(s, card: dict) -> dict:
     """Card entry with the printed rules text (Oracle text kept in oracle_text_current)."""
     entry = printed_texts(s, card["set"]).get(card["id"]) or {}
-    printed, ptype = entry.get("text"), entry.get("type")
-    if printed and card.get("oracle_text") and not same_card_text(printed, card["oracle_text"], card["name"]):
+    printed, ptype = gatherer_symbols(entry.get("text")), entry.get("type")
+    # (older printings were reworded more by Oracle updates: "As Body Double comes into play, you
+    # may choose..." -> "You may have this creature enter as a copy...")
+    threshold = 0.45 if (card.get("released_at") or "") < "2010-01-01" else 0.6
+    if printed and card.get("oracle_text") and not same_card_text(printed, card["oracle_text"], card["name"], threshold):
         printed = ptype = None                            # wrong card in MTGJSON: keep Oracle
     if printed and printed != card.get("oracle_text"):
         card = {**card, "oracle_text_current": card.get("oracle_text"), "oracle_text": printed}
-    # printed type line: creature types renamed since (MTGJSON updates its "original" type too)
+    # printed type line: creature types renamed since (MTGJSON updates its "original" type too;
+    # the exact old types, "Summon Knight", come from the scan: with_scan_text)
     printed_tl = printed_type_line(card["type_line"], card.get("released_at") or "")
     if printed_tl != card["type_line"]:
         card = {**card, "type_line_current": card["type_line"], "type_line": printed_tl}
@@ -247,11 +303,14 @@ def keep(card: dict) -> bool:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=60)
-    ap.add_argument("--query", default=DEFAULT_QUERY)
+    ap.add_argument("--query", default=None, help="one Scryfall query instead of the era mix")
     ap.add_argument("--rarity-weights", default=None,
                     help="e.g. 'common=55,uncommon=40,rare=4,mythic=1' (default: RARITY_WEIGHTS)")
+    ap.add_argument("--era-weights", default=None,
+                    help="e.g. 'old=1,modern=1,current=1' (default: ERA_WEIGHTS)")
     args = ap.parse_args()
     weights = parse_weights(args.rarity_weights or env("RARITY_WEIGHTS"))
+    eras = parse_weights(args.era_weights or env("ERA_WEIGHTS"), ERA_WEIGHTS)
     llm = scan_llm()
     print(f"text read on the scans: {llm or 'off (no API key or SCAN_TEXT=0)'}")
 
@@ -265,10 +324,11 @@ def main() -> None:
     tries = 0
     while len(cards) < args.count and tries < args.count * 6:
         tries += 1
-        # rarity drawn first with the quiz weights, then a random card of that rarity
-        r = s.get(f"{API}/cards/random", params={"q": f"({args.query}) r:{pick_rarity(weights)}"}, timeout=30)
-        if r.status_code == 404:                          # no card of that rarity for this query
-            r = s.get(f"{API}/cards/random", params={"q": args.query}, timeout=30)
+        # frame era and rarity drawn first with the quiz weights, then a random card of both
+        query = args.query or era_query(pick_rarity(eras))
+        r = s.get(f"{API}/cards/random", params={"q": f"({query}) r:{pick_rarity(weights)}"}, timeout=30)
+        if r.status_code == 404:                          # no card of that rarity (old sets: no mythics)
+            r = s.get(f"{API}/cards/random", params={"q": query}, timeout=30)
         if r.status_code != 200:
             print(f"Scryfall error {r.status_code}: {r.text[:300]}", file=sys.stderr)
             if r.status_code in (400, 404):
@@ -292,7 +352,7 @@ def main() -> None:
         cards.append(entry)
         seen.add(card["id"]); names.add(card["name"])
         save_json(out_path, cards)                        # resumable
-        print(f"[{len(cards)}/{args.count}] {card['name']}  ({card['set_name']})")
+        print(f"[{len(cards)}/{args.count}] {card['name']}  ({card['set_name']}, {era_of(card.get('frame'))} frame)")
 
     print(f"Done: {len(cards)} real cards in {out_path}")
 

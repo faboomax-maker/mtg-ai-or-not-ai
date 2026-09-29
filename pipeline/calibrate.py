@@ -24,7 +24,7 @@ import time
 from PIL import Image, ImageDraw
 
 from common import WORK, WORK_IMG, ensure_dirs, fetch_bytes, normalize_image, save_json, session
-from fetch_real import (API, DEFAULT_QUERY, FIELDS, ensure_set_icon, keep, scan_llm, with_printed_text,
+from fetch_real import (API, FIELDS, ensure_set_icon, era_query, keep, scan_llm, with_printed_text,
                         with_scan_text)
 import render_mse as R
 
@@ -33,12 +33,12 @@ SIZE = (745, 1040)                  # measuring size (Scryfall 'png' scans); ren
 
 
 # ------------------------------------------------------------------ sample
-def sample(count: int, names: list[str] | None = None) -> list[tuple[dict, str]]:
-    """Real cards (mostly commons/uncommons, some creatures) + scan URL;
-    or the named cards (first printing in the quiz frame)."""
+def sample(count: int, names: list[str] | None = None, era: str = "current") -> list[tuple[dict, str]]:
+    """Real cards of one frame era (mostly commons/uncommons, some creatures) + scan URL;
+    or the named cards."""
     s, llm = session(), scan_llm()
-    queries = ([f"({DEFAULT_QUERY}) r:common"] * 5 + [f"({DEFAULT_QUERY}) r:uncommon"] * 4
-               + [f"({DEFAULT_QUERY}) t:creature"] * 2)
+    q = era_query(era)
+    queries = [f"({q}) r:common"] * 5 + [f"({q}) r:uncommon"] * 4 + [f"({q}) t:creature"] * 2
     todo = list(names or [])
     count = len(todo) or count
     out, seen, tries = [], set(), 0
@@ -166,6 +166,8 @@ def info_lines(img: Image.Image) -> dict | None:
 
 
 def measure(img: Image.Image, card: dict) -> dict:
+    if R.era(card) != "current":                 # measuring boxes are the M15 frame's: sheets only
+        return {"text": None, "symbol": None, "info": None}
     pt = card.get("power") not in (None, "") or card.get("toughness") not in (None, "")
     pw = "Planeswalker" in card["type_line"]
     sym = None if pw else symbol(img)             # (the planeswalker frame has its own type bar)
@@ -240,10 +242,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--count", type=int, default=30)
     ap.add_argument("--cards", default="", help="';'-separated card names instead of a random sample")
+    ap.add_argument("--era", default="current", choices=["old", "modern", "current"], help="frame era")
     args = ap.parse_args()
     ensure_dirs()
     CALIB.mkdir(parents=True, exist_ok=True)
-    cards = sample(args.count, [n.strip() for n in args.cards.split(";") if n.strip()])
+    cards = sample(args.count, [n.strip() for n in args.cards.split(";") if n.strip()], args.era)
     out_dir = CALIB / "render"
     R.render([(c, WORK_IMG / c["image"]) for c, _ in cards], out_dir)
 

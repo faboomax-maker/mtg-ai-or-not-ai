@@ -50,10 +50,10 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
                     normalize_image, save_json, session)
 
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
-from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_printed_text
-from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
+from fetch_real import API, BASE_QUERY, FIELDS, keep, parse_weights, with_printed_text
+from realism import (KEYWORD_SINCE, add_missing_reminders, anachronism, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
-                     fix_cost_order, flavor_fits, join_follow_ups, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
+                     fix_cost_order, flavor_fits, join_follow_ups, name_problem, old_frame_text, name_words, number_in_group, reminder_texts, rules_problem,
                      subtype_color_problem, printed_type_line,
                      tone_down, too_simple, uses_old_wording)
 
@@ -250,7 +250,10 @@ Standard-legal expansions. Rules you always follow:
 - Exact templating of the set, as printed on its cards: the examples show the text as
   printed at the time, so copy their wording exactly. Older cards say "enters the
   battlefield" and refer to themselves by their own name ("When Grim Scavenger enters the
-  battlefield"); cards printed since 2024 say "enters" and "this creature". Include
+  battlefield"); cards printed since 2024 say "enters" and "this creature". Cards from the
+  1990s and 2000s use the wording of their time, as in the examples: "comes into play",
+  "is put into a graveyard from play", "remove ... from the game", "played" for spells,
+  and their power level and simplicity (many vanilla or one-line creatures). Include
   reminder text in parentheses when the examples do for the same keyword.
 - Modal cards put each mode on its own line after a bullet: "Choose one —\\n• Destroy
   target artifact.\\n• Create a Treasure token." (never "Choose one — X; or Y").
@@ -309,6 +312,11 @@ def spec_from(card: dict) -> dict:
     # Scryfall also lists the names of modes as "keywords" ("• Repair — ..."): not mechanics
     keywords = [k for k in card.get("keywords") or []
                 if not (re.search(rf"•\s*{re.escape(k)}\b", text) and not re.search(rf"(^|\n){re.escape(k)}\b", text))]
+    # Oracle lists keywords the card's era did not print (an old "can attack the turn it comes
+    # into play" is Haste today): only the ones printed at the time
+    released = card.get("released_at") or ""
+    keywords = [k for k in keywords if released >= KEYWORD_SINCE.get(k.lower(), "")
+                and k.lower() in text.lower()]
     spec = {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
             "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text")),
             "keywords": keywords, "art_focus": art_focus(card["type_line"])}
@@ -336,7 +344,8 @@ def check(r, fatal=(400, 401, 403, 404)) -> None:
 
 
 def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
-             detail: str = "low", model: str | None = None, temperature: float = 1.0) -> str:
+             detail: str = "low", model: str | None = None, temperature: float = 1.0,
+             timeout: float = 600) -> str:
     """One chat call; `image` (JPEG bytes) is sent along for vision checks (`detail`: 'high'
     to read small print). `model` overrides LLM_MODEL."""
     s = session()
@@ -345,7 +354,7 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
         key = env("ANTHROPIC_API_KEY") or sys.exit("ANTHROPIC_API_KEY missing")
         content = ([{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}}]
                    if b64 else []) + [{"type": "text", "text": user}]
-        r = s.post("https://api.anthropic.com/v1/messages", timeout=300, headers={
+        r = s.post("https://api.anthropic.com/v1/messages", timeout=min(timeout, 300), headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
             json={"model": model or env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
                   "temperature": temperature, "system": system,
@@ -363,7 +372,7 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
     content = user if not b64 else [
         {"type": "text", "text": user},
         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}", "detail": detail}}]
-    r = s.post(f"{base}/chat/completions", timeout=600, headers=headers, json={
+    r = s.post(f"{base}/chat/completions", timeout=timeout, headers=headers, json={
         "model": model, "temperature": temperature,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}]})
     check(r)
@@ -552,7 +561,7 @@ def set_pool(code: str, quiz_ids: set[str]) -> list[dict]:
     cards = load_json(path, None)
     if cards is None:
         s, cards = session(), []
-        url, params = f"{API}/cards/search", {"q": f"e:{code} {DEFAULT_QUERY}", "order": "set"}
+        url, params = f"{API}/cards/search", {"q": f"e:{code} {BASE_QUERY}", "order": "set"}
         for _ in range(6):                       # the whole set (175 cards per page)
             r = s.get(url, params=params, timeout=60)
             time.sleep(0.12)
@@ -928,8 +937,10 @@ def main() -> None:
                 c["type_line"] = printed_type_line(fix_type_line(c["type_line"], c["oracle_text"]), meta["released_at"])
                 bad_kw = misused_keywords(c["oracle_text"], *kw_catalogs)
                 err = (f"keyword action used as an ability {bad_kw}" if bad_kw
-                       else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
+                       else f"too simple for a {spec['rarity']}" if (meta["released_at"] >= "2003-07-28"   # (old rares were often simple)
+                                                                     and too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"]))
                        else rules_problem(c["oracle_text"], c["type_line"])
+                       or anachronism(c["oracle_text"], meta["released_at"])
                        or subtype_color_problem(c["type_line"], spec["colors"], pool)
                        or name_problem(c["name"], used_name_words)
                        or (None if real_art() else art_problem(c["art_description"])))
@@ -946,7 +957,8 @@ def main() -> None:
             # rarity) and era wording, whatever the LLM wrote. Art brief without "glowing" haze.
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)
             text = add_missing_reminders(text, spec["rarity"], by_keyword, remind_rates, by_clause)
-            c["oracle_text"] = fix_cost_order(join_follow_ups(fix_wording(text, c["name"], c["type_line"], old_wording)))
+            text = join_follow_ups(fix_wording(text, c["name"], c["type_line"], old_wording))
+            c["oracle_text"] = fix_cost_order(old_frame_text(text, c["name"], c["type_line"], meta["released_at"]))
             if "Land" in c["type_line"]:
                 c["mana_cost"] = None            # lands have no mana cost (not even {0})
             if not flavor_fits(c["oracle_text"], c.get("flavor_text")):
@@ -973,6 +985,8 @@ def main() -> None:
                           "rarity": spec["rarity"], "colors": list(spec["colors"]) if spec["colors"] != "colorless" else [],
                           "set": code, "set_name": set_names[code], "artist": artist,
                           "collector_number": number, "released_at": meta["released_at"],
+                          # printed like the real card it copies: same frame and border colour
+                          "frame": src.get("frame"), "border_color": src.get("border_color"),
                           "set_description": brief.get("description", ""),
                           "art_style": brief.get("art_style", ""),
                           "style_refs": [] if real_art() else

@@ -1,7 +1,8 @@
 # Regenerates the card pool directly on GitHub (no local setup needed).
 # Actions tab -> "Générer les cartes" -> Run workflow.
 # Requires the API keys as repository secrets (Settings -> Secrets and variables -> Actions).
-# Optional variable RARITY_WEIGHTS, e.g. "common=55,uncommon=40,rare=4,mythic=1" (the default).
+# Optional variables RARITY_WEIGHTS, e.g. "common=55,uncommon=40,rare=4,mythic=1" (the default),
+# and ERA_WEIGHTS, e.g. "old=1,modern=1,current=1" (old frame 1993-2003, modern 2003-2014, M15).
 name: Générer les cartes
 
 on:
@@ -23,10 +24,12 @@ permissions:
 jobs:
   generate:
     runs-on: windows-latest          # Magic Set Editor is a Windows program
-    timeout-minutes: 90
+    timeout-minutes: 150            # older frame eras spread the cards over more sets
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
       RARITY_WEIGHTS: ${{ vars.RARITY_WEIGHTS }}
+      # frame eras of the cards, e.g. "old=1,modern=1,current=1" (the default: equal thirds)
+      ERA_WEIGHTS: ${{ vars.ERA_WEIGHTS }}
       # AI cards illustrations: real (default: art of the real card they copy) or generate
       ART_SOURCE: ${{ vars.ART_SOURCE }}
     steps:

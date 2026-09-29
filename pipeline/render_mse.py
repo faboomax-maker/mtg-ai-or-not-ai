@@ -57,6 +57,29 @@ SYMBOL_MAX_W = 54 / 375
 SYMBOL_RIGHT = 0.922
 SYMBOL_CY = 308 / 523                       # centre of the M15 type bar in MSE (rarity box 297 + 22/2)
 
+# Old frame (1993-2003): white outlines (MSE's "Old Main" style); before Exodus (June 1998)
+# every rarity was printed black.
+OLD_LOOK = {
+    "c": (("#1a1718", "#1a1718", "#1a1718"), "#ffffff"),
+    "u": (("#545454", "#e0e0e0", "#545454"), "#ffffff"),
+    "r": (("#5f5428", "#d6c45e", "#5f5428"), "#ffffff"),
+}
+OLD_LOOK["m"] = OLD_LOOK["r"]
+RARITY_COLORS_SINCE = "1998-06-15"          # Exodus
+NO_SYMBOL = {"lea", "leb", "2ed", "3ed", "4ed", "5ed"}   # Alpha -> Fifth Edition: no set symbol
+
+# The three frame eras (see fetch_real.ERAS): MSE style, and where the set symbol goes
+# (the style's rarity box, fractions of the card), same symbol height rule as M15 for now.
+FRAMES = {
+    "current": {"style": STYLE, "right": SYMBOL_RIGHT, "cy": SYMBOL_CY, "h": SYMBOL_H},
+    "modern": {"style": "new", "right": 342 / 375, "cy": (297 + 11) / 523, "h": SYMBOL_H},
+    "old": {"style": "old", "right": 337 / 375, "cy": (290 + 11) / 523, "h": SYMBOL_H},
+}
+
+
+def era(c: dict) -> str:
+    return {"1993": "old", "1997": "old", "2003": "modern"}.get(c.get("frame") or "", "current")
+
 
 # ------------------------------------------------------------ text conversion
 # Same conversions as the Scryfall importer of magic.mse-game.
@@ -136,7 +159,8 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
     fields = {
         "notes": c["id"] + tag,              # used as the export file name
         "name": esc(c["name"]),
-        "illustrator": esc(c.get("artist") or ""),
+        # old frame: "Illus. Carl Critchlow" (the modern and M15 frames draw a brush instead)
+        "illustrator": ("Illus. " if era(c) == "old" and c.get("artist") else "") + esc(c.get("artist") or ""),
         # the thin line between rules and flavor text is printed since Dominaria (April 2018)
         "separator": "flavor bar" if meta["released_at"] >= FLAVOR_BAR_SINCE else "none",
         "custom card number": TRACK.join(card_number(c, meta)),
@@ -157,9 +181,19 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
         # the attribution line ("—Arlinn Kord") follows without a paragraph gap: soft line break
         flavor = esc(c["flavor_text"]).replace("\n", "<soft-line>\n</soft-line>")
         fields["flavor text"] = f"<i-flavor>{flavor}</i-flavor>"
+    if c.get("border_color") == "white":               # Revised, 4th-7th Edition...
+        fields["border color"] = "rgb(255,255,255)"
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    frame = era(c)
     if pw:
         out = f"card:\n\thas styling: false\n\tstylesheet: {STYLE_PW}\n"
+    elif frame == "old":
+        # P/T in MPlantin before Mirage (October 1996), MPlantin-Bold after
+        pt_font = "MPlantin" if meta["released_at"] < "1996-10-08" else "MPlantin-Bold"
+        out = (f"card:\n\tstylesheet: old\n\thas styling: true\n\tstyling data:\n"
+               f"\t\tpt font: {pt_font}\n\t\tcolored rarities: no\n")
+    elif frame == "modern":
+        out = "card:\n\tstylesheet: new\n\thas styling: false\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
                f"\t\tfont cap: {size or BODY_SIZE}\n"
@@ -175,12 +209,29 @@ NYX_SETS = {"ths", "bng", "jou", "thb"}     # the starry enchantment frame is a 
 
 def card_number(c: dict, meta: dict) -> str:
     n = str(c.get("collector_number") or "")
+    if meta["released_at"] < RARITY_COLORS_SINCE:
+        return ""                            # no collector numbers before Exodus
     if not n.isdigit():                      # e.g. "123a", "★": print as is
         return n
+    if era(c) != "current":                  # old and modern frames: "85/306", not zero-padded
+        size = meta.get("printed_size") or meta.get("card_count")
+        return f"{n}/{size}" if size else n
     if meta["released_at"] >= NEW_NUMBERING:
         return n.zfill(4)
     size = meta.get("printed_size") or meta.get("card_count")
     return f"{n.zfill(3)}/{str(size).zfill(3)}" if size else n.zfill(3)
+
+
+def copyright_line(released: str) -> str:
+    """The copyright as printed in the set's era."""
+    y = released[:4]
+    if released < "1998-01-01":
+        return f"© {y} Wizards of the Coast, Inc."
+    if released < "2009-01-01":
+        return f"™ & © 1993-{y} Wizards of the Coast, Inc."
+    if released < "2013-07-19":                      # Magic 2014: the year alone
+        return f"™ & © 1993-{y} Wizards of the Coast LLC"
+    return f"™ & © {y} Wizards of the Coast"
 
 
 def set_header(code: str, meta: dict) -> str:
@@ -191,7 +242,7 @@ set info:
 \ttitle: quiz
 	set code: {TRACK.join(code.upper())}
 	set language: {TRACK.join('EN')}
-\tcopyright: ™ & © {meta['released_at'][:4]} Wizards of the Coast
+\tcopyright: {copyright_line(meta['released_at'])}
 \tautomatic copyright: yes
 \tautomatic card numbers: no
 \tcard number style: {"0001" if meta["released_at"] >= NEW_NUMBERING else "001/099"}
@@ -250,7 +301,7 @@ def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for i, (c, art) in enumerate(cards, 1):
             z.writestr(f"image{i}", art_bytes(art, "Planeswalker" in c["type_line"]))
-            if "Planeswalker" in c["type_line"]:
+            if "Planeswalker" in c["type_line"] or era(c) != "current":   # (older frames: MSE's own fit)
                 text += card_block(c, f"image{i}", meta, rarity_grow)
             else:
                 for k, size in enumerate(SIZE_STEPS):
@@ -459,6 +510,11 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
         symbols[r] = img
         # transparent stand-in with the symbol's proportions: MSE reserves that width on the type line
         Image.new("RGBA", (round(100 * w / h), 100), (255, 255, 255, 1)).save(dest / f"{code}{r}.png")
+    for r, (colors, outline) in OLD_LOOK.items():   # old frame colours: "old-c", "old-u"...
+        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        img.paste(Image.new("RGB", (w, h), outline), mask=solid)
+        img.paste(gradient((w, h), colors), mask=fill_mask)
+        symbols[f"old-{r}"] = img
     return symbols
 
 
@@ -625,7 +681,7 @@ def paste_symbol(card_png: Path, symbol: Image.Image, box: dict | None = None) -
     box = box or {}
     h = box.get("h", SYMBOL_H) * ch
     w = symbol.width * h / symbol.height
-    if not box and w > SYMBOL_MAX_W * cw:      # very wide symbols (M21...) are width-limited
+    if w > SYMBOL_MAX_W * cw:                  # very wide symbols (M21...) are width-limited
         w, h = SYMBOL_MAX_W * cw, symbol.height * SYMBOL_MAX_W * cw / symbol.width
     s = symbol.resize((max(1, round(w)), max(1, round(h))), Image.LANCZOS)
     at = (round(box.get("right", SYMBOL_RIGHT) * cw - s.width), round(box.get("cy", SYMBOL_CY) * ch - s.height / 2))
@@ -643,6 +699,8 @@ BODY_SIZE = env("MSE_BODY_SIZE", "13.9")       # standard print size; MSE shrink
 PT_CHOP = env("MSE_PT_CHOP", "0")                 # rules text stops this far above the P/T box
 INFO_SIZE = env("MSE_INFO_SIZE", "5.6")         # bottom line (collector number, set code)
 TRACK = ""                                     # (hair spaces are not drawn by MSE: no tracking)
+OLD_TEXT_SIZE = env("MSE_OLD_TEXT_SIZE", "12.2")        # old frame (1993-2003), MSE: 14
+MODERN_TEXT_SIZE = env("MSE_MODERN_TEXT_SIZE", "13.2")  # modern frame (2003-2014), MSE: 14
 PW_TEXT_SIZE = env("MSE_PW_TEXT_SIZE", "10")  # planeswalker abilities, measured on scans (XLN Vraska)
 LINE_HEIGHTS = dict(zip(("hard", "line", "soft"), env("MSE_LINE_HEIGHTS", "1.25,1.7,0.84").split(",")))
 
@@ -691,6 +749,16 @@ def tune_style(base: Path) -> None:
     if "horizontal space: 2\n" in t.replace("\r\n", "\n"):
         sym.write_text(re.sub(r"(?m)^horizontal space: 2\s*$", "horizontal space: 0", t), encoding="utf-8")
         print("text mana symbols: no extra spacing")
+    # Older frames ("Old Main", "New Main"): rules text at size 14 in MSE, smaller on print
+    # (compared with scans: calibrate.py --era old/modern)
+    for style, size in (("old", OLD_TEXT_SIZE), ("new", MODERN_TEXT_SIZE)):
+        p = base / "data" / f"magic-{style}.mse-style" / "style"
+        t = p.read_text(encoding="utf-8-sig")
+        block = re.search(r"(?m)^\ttext:\s*\n(?:\t\t.*\n|\s*\n)+", t.replace("\r\n", "\n"))
+        if block and "size: 14\n" in block.group(0):
+            new_block = block.group(0).replace("size: 14\n", f"size: {size}\n")
+            p.write_text(t.replace("\r\n", "\n").replace(block.group(0), new_block), encoding="utf-8")
+            print(f"{style} frame text size -> {size}")
     # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
     # planeswalkers use smaller type (measured on scans: ~10)
     pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
@@ -734,7 +802,7 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
     by_set: dict[str, list] = defaultdict(list)
     for c, art in cards:
         code = (c.get("set") or "").lower()
-        if code in glyphs or official_symbol_mask(code, height=64) is not None:
+        if code in NO_SYMBOL or code in glyphs or official_symbol_mask(code, height=64) is not None:
             by_set[code].append((c, art))
         else:
             print(f"  skipped {c['name']!r}: no symbol for set {code!r}")
@@ -744,28 +812,44 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
         todo = [(c, a) for c, a in group if not (out_dir / f"{c['id']}.png").exists()]
         if not todo:
             continue
-        symbols = symbol_images(code, font, glyphs.get(code), sym_dir)
+        symbols = {} if code in NO_SYMBOL else symbol_images(code, font, glyphs.get(code), sym_dir)
+        if code in NO_SYMBOL:                     # (MSE still looks for the rarity images)
+            for r in RARITY_LOOK:
+                Image.new("RGBA", (1, 1), (0, 0, 0, 0)).save(sym_dir / f"{code}{r}.png")
         set_path = WORK / f"quiz-{code}.mse-set"
         write_set(code, todo, set_path)
         cmd = [str(exe), "--export-images", str(set_path), str(out_dir / "{card.notes}.png")]
-        r = subprocess.run(cmd, capture_output=True, text=True, errors="replace",
-                           timeout=1800)
-        log = "\n".join(line for line in (r.stdout + r.stderr).splitlines()
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
+        try:
+            out, _ = proc.communicate(timeout=float(env("MSE_TIMEOUT", "900")))
+        except subprocess.TimeoutExpired:         # MSE waiting on a dialog: show it, then move on
+            try:
+                from PIL import ImageGrab
+                ImageGrab.grab().save(out_dir / f"hang-{code}.png")
+            except Exception as e:
+                print(f"  (no screenshot: {e})")
+            proc.kill()
+            out, _ = proc.communicate()
+            print(f"  [{code}] Magic Set Editor did not finish in time")
+        log = "\n".join(line for line in (out or "").splitlines()
                         if line.strip() and "Unexpected key" not in line)
         if log:
             print(log[-2000:])
         for c, _ in todo:                        # keep the largest text size that fits
-            if "Planeswalker" not in c["type_line"]:
+            if "Planeswalker" not in c["type_line"] and era(c) == "current":
                 pick_size(out_dir, c)
         missing = [c["name"] for c, _ in todo if not (out_dir / f"{c['id']}.png").exists()]
         failed += missing
         meta = set_meta(code, [c for c, _ in todo])
         for c, _ in todo:                        # set symbol and collector info, as printed
             png = out_dir / f"{c['id']}.png"
+            if png.exists() and symbols:
+                letter, frame = RARITY_LETTER.get(c["rarity"], "r"), era(c)
+                if frame == "old":                # white outlines; all black before Exodus
+                    letter = "old-" + (letter if meta["released_at"] >= RARITY_COLORS_SINCE else "c")
+                paste_symbol(png, symbols.get(letter, symbols["r"]), FRAMES[frame])
             if png.exists():
-                sym = symbols.get(RARITY_LETTER.get(c["rarity"], "r"), symbols["r"])
-                paste_symbol(png, sym)
-                if "Planeswalker" not in c["type_line"]:
+                if "Planeswalker" not in c["type_line"] and era(c) == "current":
                     num, rar = card_number(c, meta), RARITY_LETTER.get(c["rarity"], "r").upper()
                     new = meta["released_at"] >= NEW_NUMBERING
                     draw_info(png, base, f"{rar} {num}" if new else f"{num} {rar}",

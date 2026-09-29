@@ -107,7 +107,10 @@ def add_missing_reminders(text: str, rarity: str, by_keyword: dict, rates: dict,
 # Rules wording that changed over time: (date the new wording was first printed,
 # old wording -> new wording for later sets, new wording -> old wording for earlier sets)
 ERA_TERMS = [
-    ("2017-04-28", (r"\btarget creature or player\b", "any target"), None),        # Amonkhet
+    ("2017-04-28", (r"\btarget creature or player\b", "any target"),               # Amonkhet
+                   (r"\bany target\b", "target creature or player")),
+    # Duskmourn (2024) shortened "enters the battlefield" (then older eras: "comes into play")
+    ("2024-09-27", None, (r"\benters\b(?! the battlefield)", "enters the battlefield")),
     ("2021-04-23", (r"\bconverted mana cost\b", "mana value"),                    # Strixhaven
                    (r"\bmana value\b", "converted mana cost")),
     ("2020-07-03", (r"\bput the top (\w+) cards of your library into your graveyard\b", r"mill \1 cards"),
@@ -116,6 +119,11 @@ ERA_TERMS = [
                    (r"(?i)\bmill a card\b", "put the top card of your library into your graveyard")),
     ("2024-09-27", (r"Sacrifice this artifact: Add one mana", "Sacrifice this token: Add one mana"),
                    (r"Sacrifice this token: Add one mana", "Sacrifice this artifact: Add one mana")),
+    # older eras (Magic 2010 / Magic 2012 rules updates)
+    ("2009-07-17", None, (r"\benters the battlefield\b", "comes into play")),
+    ("2009-07-17", None, (r"\bExile (target [^.]*?)\.", r"Remove \1 from the game.")),
+    ("2009-07-17", None, (r"\bexile (target [^.]*?)\.", r"remove \1 from the game.")),
+    ("2011-07-15", None, (r"\bdies\b", "is put into a graveyard from play")),
 ]
 
 
@@ -188,10 +196,53 @@ def subtype_color_problem(type_line: str, colors, pool: list[dict]) -> str | Non
 TYPE_ERAS = [("2017-04-28", "2020-07-03", "Hound", "Dog")]
 
 
+SUMMON_UNTIL = "1999-04-21"      # Classic Sixth Edition: "Summon Goblin" -> "Creature — Goblin"
+AURA_SINCE = "2004-10-01"        # Champions of Kamigawa: "Enchant Creature" -> "Enchantment — Aura"
+LORWYN = "2007-10-12"            # Grand Creature Type Update: "Human" added to most humanoids
+
+# Keywords and ability words did not exist before these sets: on an older AI card they are a
+# giveaway ("reach" on a 1995 card).
+KEYWORD_SINCE = {
+    "haste": "1999-04-21", "vigilance": "2004-10-01", "defender": "2004-10-01", "scry": "2004-06-04",
+    "flash": "2006-10-06", "reach": "2007-05-04", "deathtouch": "2007-05-04", "lifelink": "2007-07-13",
+    "hexproof": "2011-07-15", "menace": "2015-07-17", "prowess": "2014-09-26", "ward": "2021-07-23",
+    "landfall": "2009-10-02", "indestructible": "2004-02-06", "double strike": "2001-02-05",
+}
+ABILITY_WORDS_SINCE = "2001-10-01"   # Odyssey ("Threshold — ...")
+# keywords with a cost or number, never followed by a colon like an activated ability
+COLON_KEYWORD = re.compile(r"(?mi)^(?:cumulative upkeep|echo|kicker|buyback|flashback|cycling|madness|"
+                           r"morph|flanking|rampage|banding|phasing|fading|vanishing|bushido|ninjutsu|"
+                           r"equip|bestow|unearth|evoke|suspend)\s*:")
+
+
+def anachronism(text: str, released_at: str) -> str | None:
+    """A keyword printed only after the card's set, or an ability word before they existed."""
+    plain = PAREN.sub("", text or "").lower()
+    for kw, since in KEYWORD_SINCE.items():
+        if released_at < since and re.search(rf"\b{kw}\b", plain):
+            return f"'{kw}' did not exist yet ({since[:4]})"
+    if released_at < ABILITY_WORDS_SINCE and re.search(r"(?m)^[A-Z][\w' -]+ — ", text or ""):
+        return "ability word before Odyssey (2001)"
+    if COLON_KEYWORD.search(text or ""):
+        return "keyword written like an activated ability ('Echo: ...')"
+    return None
+
+
 def printed_type_line(type_line: str, released_at: str) -> str:
-    """Type line as printed in the set's era ('Creature — Hound' for a 2019 card)."""
+    """Type line as printed in the set's era ('Creature — Hound' for a 2019 card, 'Summon
+    Goblin' for a 1997 one, 'Enchant Creature' for an Aura before 2004)."""
     if "—" not in type_line or not released_at:
         return type_line
+    sup, sub = (p.strip() for p in type_line.split("—", 1))
+    if released_at < AURA_SINCE and sup == "Enchantment" and "Aura" in sub.split():
+        return "Enchant Creature"                    # (the usual case; see old_frame_text)
+    if released_at < LORWYN and "Creature" in sup and sub.startswith("Human "):
+        sub = sub[len("Human "):]                    # "Human" was added to most of them in 2007
+        type_line = f"{sup} — {sub}"
+    if released_at < SUMMON_UNTIL and sup == "Artifact Creature":
+        return "Artifact Creature"                   # no subtypes then
+    if released_at < SUMMON_UNTIL and sup in ("Creature", "Legendary Creature"):
+        return "Summon Legend" if sup.startswith("Legendary") else f"Summon {sub}"
     sup, sub = type_line.split("—", 1)
     for start, end, old, new in TYPE_ERAS:
         if start <= released_at < end:
@@ -333,6 +384,22 @@ def fix_wording(text: str, name: str, type_line: str, old: bool | None) -> str:
 FOLLOW_UP = re.compile(r"\n(?=(?:This damage|That damage|That (?:creature|player|card|token|spell|permanent)|"
                        r"It |It's |Its |They |Their |Then |If you do|If you don't|If it |If that |"
                        r"If they |Otherwise|Those |Each of them|Return it|Exile it|Sacrifice it|Put it)\b)")
+
+
+def old_frame_text(text: str, name: str, type_line: str, released_at: str) -> str:
+    """Before Auras (2004) the type line said what the card enchants ('Enchant Creature'),
+    so the text has no 'Enchant creature' line; before 2024 cards call themselves by name."""
+    if type_line.startswith("Enchant "):
+        text = re.sub(r"^Enchant [^\n]*\n?", "", text)
+    if released_at < "2024-01-01":
+        kind = next((k for k in ("creature", "artifact", "enchantment", "land")
+                     if k in type_line.lower().replace("summon", "creature")), None)
+        if kind:
+            parts = re.split(r"(\([^()]*\))", text)       # reminder text keeps its wording
+            for i in range(0, len(parts), 2):
+                parts[i] = re.sub(rf"\b[Tt]his {kind}\b", _self_name(name, type_line), parts[i])
+            text = "".join(parts)
+    return text
 
 
 def join_follow_ups(text: str) -> str:
