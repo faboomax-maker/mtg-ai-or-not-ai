@@ -372,6 +372,35 @@ def hole_count(solid: Image.Image, shape: Image.Image) -> int:
     return count
 
 
+def outline_around_parts(shape: Image.Image, stroke: int, cut: float = 1.0) -> Image.Image:
+    """The shape grown by `stroke` px, part by part, as printed: a thin cut between two parts
+    (narrower than `cut` strokes) is filled with the outline colour, but a wider gap (the
+    segments of the March of the Machine ring) keeps its light middle, each side outlined."""
+    parts, work = [], shape.copy()
+    while (bb := work.getbbox()):                   # connected parts of the symbol
+        seed = next((x, y) for y in range(bb[1], bb[3]) for x in range(bb[0], bb[2])
+                    if work.getpixel((x, y)) == 255)
+        ImageDraw.floodfill(work, seed, 128)
+        parts.append(work.point(lambda v: 255 if v == 128 else 0))
+        ImageDraw.floodfill(work, seed, 0)
+    reach = 2 * stroke + 1
+    d1 = Image.new("L", shape.size, 255)             # distance to the nearest part
+    d2 = Image.new("L", shape.size, 255)             # ... and to the second nearest one
+    for part in parts:
+        dist, cur = Image.new("L", shape.size, 255), part
+        dist.paste(0, mask=part)
+        for i in range(1, reach + 1):                # (chessboard) distance, up to `reach`
+            grown = cur.filter(ImageFilter.MaxFilter(3))
+            dist.paste(i, mask=ImageChops.subtract(grown, cur))
+            cur = grown
+        d2 = ImageChops.darker(d2, ImageChops.lighter(d1, dist))
+        d1 = ImageChops.darker(d1, dist)
+    out = Image.new("L", shape.size)
+    out.putdata([255 if a <= stroke and (b == 255 or a + b <= cut * stroke or a <= 0.35 * (a + b)) else 0
+                 for a, b in zip(d1.getdata(), d2.getdata())])
+    return out
+
+
 def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> dict[str, Image.Image]:
     """Write <code>c/u/r/m.png: the set symbol filled with the rarity colours."""
     size, stroke = 900, SYMBOL_STROKE
@@ -379,11 +408,13 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
     if official is not None:
         pad = stroke + 2
         fill_mask = ImageOps.expand(official, pad, 0)
-        # outline: the shape grown by `stroke` px (max filter on a reduced copy, for speed)
+        # outline: the shape grown by `stroke` px (on a reduced copy, for speed); a second
+        # version keeps the gaps between the symbol's parts open (see gaps_open)
         k = 4
         small = fill_mask.resize((fill_mask.width // k, fill_mask.height // k), Image.BILINEAR)
-        grown = small.filter(ImageFilter.MaxFilter(2 * (stroke // k) + 1))
-        outline_mask = grown.resize(fill_mask.size, Image.BILINEAR).point(lambda v: 255 if v > 100 else 0)
+        big = lambda m: m.resize(fill_mask.size, Image.BILINEAR).point(lambda v: 255 if v > 100 else 0)
+        outline_mask = big(small.filter(ImageFilter.MaxFilter(2 * (stroke // k) + 1)))
+        open_outline = big(outline_around_parts(small.point(lambda v: 255 if v > 127 else 0), stroke // k))
     else:
         font = ImageFont.truetype(str(font_path), size)
         box = font.getbbox(glyph, stroke_width=stroke)
@@ -394,6 +425,8 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
         ImageDraw.Draw(outline_mask).text(at, glyph, font=font, fill=255, stroke_width=stroke, stroke_fill=255)
     ink = outline_mask.getbbox()                # empty space around the symbol:
     fill_mask, outline_mask = fill_mask.crop(ink), outline_mask.crop(ink)   # keep visible pixels only
+    if official is not None:
+        open_outline = open_outline.crop(ink)
     w, h = outline_mask.size
     # MSE draws its rarity symbol too small (~12 px high instead of ~19): it gets transparent
     # images, and the real-size symbol is pasted onto the rendered card (paste_symbol).
@@ -409,6 +442,11 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
     solid = solid.point(lambda v: 0 if v == 128 else 255).crop((2, 2, w + 2, h + 2))
     if official is not None and hole_count(solid, outline_mask) < 3:
         solid = outline_mask
+    # Some sets print the gaps and holes of their symbol open (March of the Machine's ring,
+    # the knuckle-duster holes of Streets of New Capenna), others as black lines and filled
+    # lettering (Wilds of Eldraine, Core Set 2021): the scans decide.
+    if official is not None and gaps_open(code, fill_mask, outline_mask, solid, open_outline):
+        outline_mask = solid = open_outline
     inverted = common_inverted(code, fill_mask, outline_mask, solid)
     for r, (colors, outline) in RARITY_LOOK.items():
         img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -429,6 +467,56 @@ def symbol_grow(symbol: Image.Image) -> int:
     type line stops before the pasted symbol, as on printed cards."""
     w = min(SYMBOL_H * 523 * symbol.width / symbol.height, SYMBOL_MAX_W * 375)
     return max(0, round(w - 44 + 3))
+
+
+def gaps_open(code: str, fill: Image.Image, outline: Image.Image, solid: Image.Image,
+              open_outline: Image.Image) -> bool:
+    """Are the gaps and holes of the symbol open on print (March of the Machine's ring, the
+    knuckle-duster holes of Streets of New Capenna) or black lines / filled lettering (Wilds of
+    Eldraine, Core Set 2021)? Where the two versions differ, the scans of a few uncommons (silver
+    shape, black outline) are either light like the type bar or dark like the outline (cached)."""
+    path = WORK_SETS / f"{code}.gaps.json"
+    cached = load_json(path, None)
+    if cached is not None:
+        return cached["open"]
+    is_open = False
+    try:
+        s = session()
+        r = s.get("https://api.scryfall.com/cards/search", timeout=60,
+                  params={"q": f"e:{code} r:uncommon frame:2015 -t:basic -t:planeswalker", "order": "set"})
+        gap, ring, bar = [], [], []
+        for card in [c for c in r.json()["data"] if "image_uris" in c][:3]:
+            img = Image.open(io.BytesIO(fetch_bytes(s, card["image_uris"]["large"]))).convert("L")
+            W, H = img.size
+            h = SYMBOL_H * H
+            w = min(h * fill.width / fill.height, SYMBOL_MAX_W * W)
+            x0, y0 = round(SYMBOL_RIGHT * W - w), round(SYMBOL_CY * H - h / 2)
+            size = (round(SYMBOL_RIGHT * W) - x0, round(SYMBOL_CY * H + h / 2) - y0)
+            m = lambda k: k.resize(size, Image.LANCZOS).point(lambda v: 255 if v > 200 else 0)
+            areas = [m(a) for a in (ImageChops.subtract(solid, open_outline),   # open in one version only
+                                    ImageChops.subtract(outline, fill),          # the black outline
+                                    ImageOps.invert(solid.filter(ImageFilter.MaxFilter(9))))]  # type bar
+
+            def mean(box: Image.Image, mask: Image.Image) -> float | None:
+                vals = [p for p, v in zip(box.getdata(), mask.getdata()) if v]
+                return sum(vals) / len(vals) if len(vals) >= 4 else None
+
+            # the printed symbol may sit a pixel or two away: align our outline on its dark outline
+            boxes = [img.crop((x0 + dx, y0 + dy, x0 + dx + size[0], y0 + dy + size[1]))
+                     for dx in range(-4, 5) for dy in range(-4, 5)]
+            box = min(boxes, key=lambda b: mean(b, areas[1]) or 255)
+            for acc, area in zip((gap, ring, bar), areas):
+                if (v := mean(box, area)) is not None:
+                    acc.append(v)
+        if gap and ring and bar:
+            g, o, b = (sum(x) / len(x) for x in (gap, ring, bar))
+            is_open = g > o + 0.55 * (b - o)          # clearly closer to the bar than to the outline
+            print(f"  [{code}] symbol gaps {'open' if is_open else 'as lines'} "
+                  f"(gaps {g:.0f}, outline {o:.0f}, type bar {b:.0f})")
+    except Exception as e:
+        print(f"  [{code}] symbol gaps check failed ({e})", file=sys.stderr)
+    save_json(path, {"open": is_open})
+    return is_open
 
 
 def common_inverted(code: str, fill: Image.Image, outline: Image.Image, solid: Image.Image) -> bool:

@@ -328,6 +328,17 @@ def fix_wording(text: str, name: str, type_line: str, old: bool | None) -> str:
     return "".join(parts)
 
 
+# A sentence that refers back to the ability before it ("This damage can't be prevented.",
+# "If you do, ...", "It gains haste.") is part of that ability: same paragraph, as printed.
+FOLLOW_UP = re.compile(r"\n(?=(?:This damage|That damage|That (?:creature|player|card|token|spell|permanent)|"
+                       r"It |It's |Its |They |Their |Then |If you do|If you don't|If it |If that |"
+                       r"If they |Otherwise|Those |Each of them|Return it|Exile it|Sacrifice it|Put it)\b)")
+
+
+def join_follow_ups(text: str) -> str:
+    return FOLLOW_UP.sub(" ", text)
+
+
 # -------------------------------------------------------- collector numbers
 GROUP_ORDER = "WUBRGMAL"
 
