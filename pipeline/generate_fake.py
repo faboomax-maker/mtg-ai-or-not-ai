@@ -268,6 +268,10 @@ Standard-legal expansions. Rules you always follow:
 - Names: original (never an existing card name), in the naming style of this set's cards —
   proper nouns, places, factions and turns of phrase of this world. Avoid generic AI
   patterns like colour+noun ("Azurewing Tempest") or adjective+class ("Cunning Illusionist").
+- Planeswalkers are the set's famous characters: when a profile gives a "character", the
+  card is a new version of that same character. Name it "<character>, <new title>" (like
+  "Jace, Cunning Castaway") with a title that has never been printed, and use exactly the
+  profile's type_line ("Legendary Planeswalker — Jace"). Abilities fit that character.
 - Keyword actions (explore, connive, venture, scry, surveil, investigate...) are verbs inside
   sentences ("Whenever this creature attacks, it connives"), never a standalone line like
   keyword abilities (Flying, Ward {2}). Write "Draw a card", never "You draw a card".
@@ -302,6 +306,18 @@ def type_bucket(type_line: str) -> str:
     return type_line.split("—")[0].strip()
 
 
+def pw_character(type_line: str) -> str | None:
+    """'Legendary Planeswalker — Jace' -> 'Jace' (the famous character), else None."""
+    if "Planeswalker" not in type_line or "—" not in type_line:
+        return None
+    return type_line.split("—")[1].strip() or None
+
+
+def name_title(name: str, character: str | None) -> str:
+    """The invented part of a name: 'Jace, Warden of Echoes' -> 'Warden of Echoes'."""
+    return name.split(",", 1)[1].strip() if character and "," in name else name
+
+
 def spec_from(card: dict) -> dict:
     """Profile copied from a real card of the set, keywords included (same mechanics mix)."""
     colors = "".join(card.get("colors") or []) or "colorless"
@@ -316,6 +332,12 @@ def spec_from(card: dict) -> dict:
         # lands are colorless: what matters is the mana they make (dual land, utility land...)
         spec["produces_mana"] = card.get("produced_mana") or []
         spec["land_types"] = card["type_line"].split("—")[1].strip() if "—" in card["type_line"] else ""
+    character = pw_character(card["type_line"])
+    if character:
+        # planeswalkers are famous characters: an unknown one is an instant giveaway
+        spec["character"] = character
+        spec["name_pattern"] = f"{character}, <new title>"
+        spec["type_line"] = f"Legendary Planeswalker — {character}"
     return spec
 
 
@@ -335,8 +357,10 @@ def check(r, fatal=(400, 401, 403, 404)) -> None:
     raise RuntimeError(msg)
 
 
-def call_llm(provider: str, system: str, user: str, image: bytes | None = None) -> str:
-    """One chat call; `image` (JPEG bytes) is sent along for vision checks."""
+def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
+             detail: str = "low", model: str | None = None, temperature: float = 1.0) -> str:
+    """One chat call; `image` (JPEG bytes) is sent along for vision checks (`detail`: 'high'
+    to read small print). `model` overrides LLM_MODEL."""
     s = session()
     b64 = base64.b64encode(image).decode() if image else None
     if provider == "anthropic":
@@ -345,8 +369,8 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None) 
                    if b64 else []) + [{"type": "text", "text": user}]
         r = s.post("https://api.anthropic.com/v1/messages", timeout=300, headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-            json={"model": env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
-                  "temperature": 1.0, "system": system,
+            json={"model": model or env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
+                  "temperature": temperature, "system": system,
                   "messages": [{"role": "user", "content": content}]})
         check(r)
         return "".join(b.get("text", "") for b in r.json()["content"])
@@ -354,15 +378,15 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None) 
     # An OpenAI key (sk-..., not OpenRouter's sk-or-...) goes to OpenAI itself by default.
     is_openai = key and key.startswith("sk-") and not key.startswith("sk-or-")
     base = env("LLM_BASE_URL", "https://api.openai.com/v1" if is_openai else "https://openrouter.ai/api/v1").rstrip("/")
-    model = env("LLM_MODEL", "gpt-4.1-mini" if "api.openai.com" in base else "anthropic/claude-haiku-4.5")
+    model = model or env("LLM_MODEL", "gpt-4.1-mini" if "api.openai.com" in base else "anthropic/claude-haiku-4.5")
     headers = {"content-type": "application/json"}
     if key:
         headers["authorization"] = f"Bearer {key}"
     content = user if not b64 else [
         {"type": "text", "text": user},
-        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}", "detail": "low"}}]
+        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}", "detail": detail}}]
     r = s.post(f"{base}/chat/completions", timeout=600, headers=headers, json={
-        "model": model, "temperature": 1.0,
+        "model": model, "temperature": temperature,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}]})
     check(r)
     return r.json()["choices"][0]["message"]["content"]
@@ -390,6 +414,12 @@ def validate(c: dict, spec: dict) -> str | None:
         return "creature without P/T"
     if "Planeswalker" in tl and not c.get("loyalty"):
         return "planeswalker without loyalty"
+    character = spec.get("character")
+    if character:
+        if not c["name"].startswith(f"{character}, ") or not name_title(c["name"], character):
+            return f"planeswalker not named '{character}, <title>'"
+        if pw_character(tl) != character:
+            return f"planeswalker subtype is not {character}"
     if len(c["oracle_text"]) > 480 or len(c.get("flavor_text") or "") > 200:
         return "too long"
     if re.search(r"\bCARDNAME\b|~", c["oracle_text"]):
@@ -705,6 +735,8 @@ short (usually under 25 words). Bad flavor text is a vague maxim about fate, vic
 knowledge, wisdom, balance, legends or "the heart of" something - rewrite those.
 Names must sound like this set's real names: specific to the world, not generic
 adjective+class or colour+noun patterns; keep a name if it is already good.
+Planeswalker names keep their character before the comma ("Jace, ..."): only the title
+after it may change.
 Never add flavor text to a card that has none, never change rules text.
 Answer with a JSON array of {"name": ..., "flavor_text": ...} in the same order, no commentary."""
 
@@ -721,7 +753,9 @@ def creative_review(llm: str, batch: list[dict], flavors: list[str], brief: dict
         if len(out) == len(batch):
             for c, o in zip(batch, out):
                 if isinstance(o, dict) and o.get("name"):
-                    c["name"] = str(o["name"]).strip()
+                    name, character = str(o["name"]).strip(), pw_character(c.get("type_line") or "")
+                    if not character or name.startswith(f"{character}, "):   # keep "Jace, ..."
+                        c["name"] = name
                     if c.get("flavor_text"):            # never add flavor to a card without it
                         c["flavor_text"] = o.get("flavor_text") or c["flavor_text"]
     except (Exception, SystemExit) as e:          # a bonus, never a blocker
@@ -837,7 +871,7 @@ def main() -> None:
     set_names = {c["set"]: c["set_name"] for c in real}
     artists = real_artists(s)
     used_artists = {c["artist"] for c in fakes if c.get("artist")}
-    used_name_words = {w for c in fakes for w in name_words(c["name"])}
+    used_name_words = {w for c in fakes for w in name_words(name_title(c["name"], pw_character(c["type_line"])))}
     used_art = {c["art_source_id"] for c in fakes if c.get("art_source_id")}   # one card per real art
     kw_catalogs = keyword_catalogs(s)
     numbers: dict[str, set[str]] = defaultdict(set)   # collector numbers already on a quiz card
@@ -929,7 +963,7 @@ def main() -> None:
                        else f"too simple for a {spec['rarity']}" if too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"])
                        else rules_problem(c["oracle_text"], c["type_line"])
                        or subtype_color_problem(c["type_line"], spec["colors"], pool)
-                       or name_problem(c["name"], used_name_words)
+                       or name_problem(name_title(c["name"], spec.get("character")), used_name_words)
                        or (None if real_art() else art_problem(c["art_description"])))
             if not err and c["name"].lower() in banned:
                 err = "name already used"
@@ -939,7 +973,7 @@ def main() -> None:
                 print(f"  rejected {c.get('name')!r}: {err}")
                 annotate("notice", f"rejected {c.get('name')!r}: {err}"); continue
             banned.add(c["name"].lower())
-            used_name_words |= name_words(c["name"])
+            used_name_words |= name_words(name_title(c["name"], spec.get("character")))
             # Text: the set's real reminder texts (added where the set prints them at this
             # rarity) and era wording, whatever the LLM wrote. Art brief without "glowing" haze.
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)

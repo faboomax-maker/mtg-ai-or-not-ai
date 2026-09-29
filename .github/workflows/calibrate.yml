@@ -1,0 +1,43 @@
+# Compares rendered real cards with their Scryfall scans and suggests the shared rendering
+# constants (set symbol, text size, collector info). Nothing is published: the report and the
+# side-by-side sheets are in the run's artifact "calibration".
+name: Calibrer le rendu
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Nombre de vraies cartes à comparer"
+        default: "30"
+
+jobs:
+  calibrate:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      PYTHONUTF8: "1"
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LLM_BASE_URL: ${{ vars.LLM_BASE_URL || secrets.LLM_BASE_URL }}
+      SCAN_MODEL: ${{ vars.SCAN_MODEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Magic Set Editor (cadres M15)
+        run: ./pipeline/setup_mse.ps1 -Dir mse
+      - name: Calibration
+        env:
+          MSE_DIR: ${{ github.workspace }}/mse
+        run: python pipeline/calibrate.py --count ${{ inputs.count }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: calibration
+          path: |
+            pipeline/work/calib/calibration.json
+            pipeline/work/calib/sheet_*.png
+          if-no-files-found: ignore

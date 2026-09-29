@@ -92,8 +92,14 @@ def minus_signs(t: str) -> str:
     return re.sub(r"(?<=[\dX]/)-(?=[\dX])", "−", t)
 
 
-def rules_text(text: str | None) -> str:
-    t = ABILITY_WORD.sub(_italic_ability_word, minus_signs(esc(text or "")))
+def rules_text(text: str | None, marked: bool = False) -> str:
+    """`marked`: the text carries its printed italics as <i>...</i> (read on the scan of a real
+    card), used as is; otherwise ability words are put in italics by rule."""
+    if marked:
+        t = esc((text or "").replace("<i>", "\x01").replace("</i>", "\x02"))
+        t = minus_signs(t).replace("\x01", "<i>").replace("\x02", "</i>")
+    else:
+        t = ABILITY_WORD.sub(_italic_ability_word, minus_signs(esc(text or "")))
     t = re.sub(r"\{([A-Z0-9/]+)\}", r"<sym>\1</sym>", _mana_common(t))
     return t.replace("</sym><sym>", "")
 
@@ -103,7 +109,7 @@ def split_type(type_line: str) -> tuple[str, str]:
     return sup.strip(), sub.strip()
 
 
-def planeswalker_fields(text: str) -> dict:
+def planeswalker_fields(text: str, marked: bool = False) -> dict:
     """'+1: Draw a card.\\n−3: ...' -> one 'level N text' per ability + its loyalty cost
     (the planeswalker style lays each ability out after its '[+1]:' badge)."""
     fields = {}
@@ -112,7 +118,7 @@ def planeswalker_fields(text: str) -> dict:
         if m:
             fields[f"loyalty cost {i}"] = m.group(1).replace("-", "−")
             line = m.group(2)
-        fields[f"level {i} text"] = rules_text(line)
+        fields[f"level {i} text"] = rules_text(line, marked)
     return fields
 
 
@@ -143,8 +149,10 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
         "toughness": c.get("toughness") or "",
         "loyalty": c.get("loyalty") or "",
     }
-    fields.update(planeswalker_fields(c.get("oracle_text")) if pw
-                  else {"rule text": rules_text(c.get("oracle_text"))})
+    # real cards: the text with its italics as read on the scan, when available
+    marked = bool(c.get("printed_markup"))
+    text = c["printed_markup"] if marked else c.get("oracle_text")
+    fields.update(planeswalker_fields(text, marked) if pw else {"rule text": rules_text(text, marked)})
     if c.get("flavor_text"):
         # the attribution line ("—Arlinn Kord") follows without a paragraph gap: soft line break
         flavor = esc(c["flavor_text"]).replace("\n", "<soft-line>\n</soft-line>")
@@ -253,7 +261,8 @@ def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow
 # Candidate text sizes, largest first: MSE shrinks overflowing text in coarse steps and ends
 # far below the size that fits, so each card is rendered at these sizes and the largest one
 # whose text stays in the box (and above the P/T box) is kept.
-SIZE_STEPS = [14.3, 13.9, 13.5, 13.1, 12.7, 12.3, 11.9, 11.5, 11.1, 10.7, 10.3]
+# Calibrated on scans (calibrate.py): the largest printed size gives the line pitch of 13.9.
+SIZE_STEPS = [13.9, 13.5, 13.1, 12.7, 12.3, 11.9, 11.5, 11.1, 10.7, 10.3]
 
 
 def _text_rows(img: Image.Image, x0: float, x1: float, y0: float, y1: float) -> list[int]:
@@ -278,15 +287,24 @@ def pick_size(out_dir: Path, card: dict) -> bool:
         W, H = img.size
         # below the text: 4% band above the box's bottom border; for creatures the band
         # above the P/T box, over its columns
-        low = _text_rows(img, .09, .70 if pt else .90, .905, .921)        # border at .9235
-        pt_low = _text_rows(img, .74, .88, .868, .882) if pt else []    # P/T box top ~.885-.892
+        # printed text (descenders included) runs down to ~.915 (calibrate.py)
+        low = _text_rows(img, .09, .70 if pt else .90, .917, .921)        # border at .9235
+        # a line may run over the P/T box's columns down to just above its outline (.891; the
+        # descenders of such a line end ~.885, as on scans: calibrate.py); ink in the last few
+        # rows above the outline means a line running into the box
+        pt_low = _text_rows(img, .74, .88, .886, .8905) if pt else []
         img.close()
+        if env("DEBUG_SIZES"):
+            print(f"  {card['name']} {p.stem}: low rows {low[:3]} pt rows {pt_low[:3]} (H={H})")
         if not low and not pt_low:
             best = p
             break
     for p in cands:
         if p == best:
             p.replace(out_dir / f"{card['id']}.png")
+        elif env("DEBUG_SIZES"):                  # kept for inspection
+            (out_dir / "rejected").mkdir(exist_ok=True)
+            p.replace(out_dir / "rejected" / p.name)
         else:
             p.unlink(missing_ok=True)
     return True
@@ -533,7 +551,7 @@ def paste_symbol(card_png: Path, symbol: Image.Image, box: dict | None = None) -
 # Rules text of the stock M15 style is a bit loosely spaced and grows up to size 14,
 # so long texts spill onto the P/T box. Measured against printed cards (same scale):
 # body text ~12.7, wrapped lines ~9% tighter, paragraphs ~8% tighter.
-BODY_SIZE = env("MSE_BODY_SIZE", "14.3")       # standard print size; MSE shrinks long texts to fit
+BODY_SIZE = env("MSE_BODY_SIZE", "13.9")       # standard print size; MSE shrinks long texts to fit
 PT_CHOP = env("MSE_PT_CHOP", "0")                 # rules text stops this far above the P/T box
 INFO_SIZE = env("MSE_INFO_SIZE", "5.6")         # bottom line (collector number, set code)
 TRACK = ""                                     # (hair spaces are not drawn by MSE: no tracking)

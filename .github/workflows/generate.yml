@@ -38,6 +38,13 @@ jobs:
       - name: Magic Set Editor (cadres M15)
         run: ./pipeline/setup_mse.ps1 -Dir mse
       - name: Vraies cartes (Scryfall)
+        env:
+          # the text of each real card is read on its scan (italics as printed)
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL || secrets.LLM_BASE_URL }}
+          SCAN_MODEL: ${{ vars.SCAN_MODEL }}
         run: python pipeline/fetch_real.py --count ${{ inputs.count }}
       - name: Cartes IA
         env:
