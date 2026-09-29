@@ -49,7 +49,7 @@ RARITY_LOOK = {
     "m": (("#b21f0f", "#f38300", "#b21f0f"), "#000000"),
 }
 RARITY_LETTER = {"common": "c", "uncommon": "u", "rare": "r", "mythic": "m"}
-SYMBOL_STROKE = 42                           # outline width at glyph size 900 (~2.5%, thin like print)
+SYMBOL_STROKE = 34                           # outline width at glyph size 900 (~2%, thin like print)
 # Size and place of the set symbol, measured on Scryfall scans (fractions of the card):
 # ~22 px high on a 375x523 card, at most ~54 px wide, right edge at 92.2%, centered at 59.25%.
 SYMBOL_H = 20.5 / 523

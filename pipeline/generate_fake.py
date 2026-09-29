@@ -53,7 +53,7 @@ WORK_RAW = WORK / "raw"                      # original full-resolution AI image
 from fetch_real import API, DEFAULT_QUERY, FIELDS, keep, parse_weights, with_printed_text
 from realism import (add_missing_reminders, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
-                     flavor_fits, join_follow_ups, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
+                     fix_cost_order, flavor_fits, join_follow_ups, name_problem, name_words, number_in_group, reminder_texts, rules_problem,
                      subtype_color_problem, printed_type_line,
                      tone_down, too_simple, uses_old_wording)
 
@@ -978,7 +978,9 @@ def main() -> None:
             # rarity) and era wording, whatever the LLM wrote. Art brief without "glowing" haze.
             text = fix_reminders(c["oracle_text"], by_clause, by_keyword)
             text = add_missing_reminders(text, spec["rarity"], by_keyword, remind_rates, by_clause)
-            c["oracle_text"] = join_follow_ups(fix_wording(text, c["name"], c["type_line"], old_wording))
+            c["oracle_text"] = fix_cost_order(join_follow_ups(fix_wording(text, c["name"], c["type_line"], old_wording)))
+            if "Land" in c["type_line"]:
+                c["mana_cost"] = None            # lands have no mana cost (not even {0})
             if not flavor_fits(c["oracle_text"], c.get("flavor_text")):
                 c["flavor_text"] = None          # like printed cards: no room left for flavor
             # Credits: with real art, its real artist (and the card it comes from, told on reveal);

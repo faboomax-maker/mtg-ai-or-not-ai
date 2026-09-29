@@ -339,6 +339,22 @@ def join_follow_ups(text: str) -> str:
     return FOLLOW_UP.sub(" ", text)
 
 
+# Activation costs are printed mana first, then {T}/{Q}, then the other costs:
+# "{1}, {T}, Sacrifice this artifact:", never "{T}, {1}:".
+COST = re.compile(r"(?m)^((?:(?:\{[^}]+\})+|[A-Z][^,:\n]*)(?:, (?:(?:\{[^}]+\})+|[A-Za-z][^,:\n]*))+):")
+
+
+def fix_cost_order(text: str) -> str:
+    def order(m: re.Match) -> str:
+        parts = m.group(1).split(", ")
+        if re.match(r"(?:When|Whenever|At|If|As|Choose)\b", parts[0]) or any("." in p for p in parts):
+            return m.group(0)                                   # a sentence, not a cost
+        rank = lambda p: (0 if re.fullmatch(r"(\{(?![TQ]\})[^}]+\})+", p)
+                          else 1 if p in ("{T}", "{Q}") else 2)
+        return ", ".join(sorted(parts, key=rank)) + ":"      # (stable: other costs keep their order)
+    return COST.sub(order, text)
+
+
 # -------------------------------------------------------- collector numbers
 GROUP_ORDER = "WUBRGMAL"
 
