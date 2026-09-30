@@ -66,6 +66,12 @@ OLD_LOOK = {
 }
 OLD_LOOK["m"] = OLD_LOOK["r"]
 RARITY_COLORS_SINCE = "1998-06-15"          # Exodus
+
+# Per-set corrections of the set symbol, checked by eye against printed cards:
+# "stroke" multiplies the outline width, "size" the symbol height.
+SYMBOL_TWEAKS = {
+    "mat": {"stroke": 0.7, "size": 1.1},     # March of the Machine: The Aftermath
+}
 NO_SYMBOL = {"lea", "leb", "2ed", "3ed", "4ed", "5ed"}   # Alpha -> Fifth Edition: no set symbol
 
 # The three frame eras (see fetch_real.ERAS): MSE style, and where the set symbol goes
@@ -457,7 +463,7 @@ def outline_around_parts(shape: Image.Image, stroke: int, cut: float = 1.0) -> I
 
 def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> dict[str, Image.Image]:
     """Write <code>c/u/r/m.png: the set symbol filled with the rarity colours."""
-    size, stroke = 900, SYMBOL_STROKE
+    size, stroke = 900, round(SYMBOL_STROKE * SYMBOL_TWEAKS.get(code, {}).get("stroke", 1))
     official = official_symbol_mask(code)
     if official is not None:
         pad = stroke + 2
@@ -858,7 +864,9 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
                 letter, frame = RARITY_LETTER.get(c["rarity"], "r"), era(c)
                 if frame == "old":                # white outlines; all black before Exodus
                     letter = "old-" + (letter if meta["released_at"] >= RARITY_COLORS_SINCE else "c")
-                paste_symbol(png, symbols.get(letter, symbols["r"]), FRAMES[frame])
+                box = dict(FRAMES[frame])
+                box["h"] *= SYMBOL_TWEAKS.get(code, {}).get("size", 1)
+                paste_symbol(png, symbols.get(letter, symbols["r"]), box)
             if png.exists():
                 if "Planeswalker" not in c["type_line"] and era(c) == "current":
                     num, rar = card_number(c, meta), RARITY_LETTER.get(c["rarity"], "r").upper()
