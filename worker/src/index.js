@@ -14,9 +14,11 @@ const GRACE_MS = 2500;                // network and rendering slack on the hard
 const MODES = ["normal", "hardcore"];
 const TOP = 10;
 
-/** Hardcore time limit of card i (0-based): 10 s for the first, 5 s for the last. */
+/** Hardcore time limit of card i (0-based): from FIRST_MS for the first card down to LAST_MS for
+ *  the last (the page uses the same values, docs/app.js). */
+const FIRST_MS = 8000, LAST_MS = 4000;
 function limitMs(i, n) {
-  return Math.round(10000 - 5000 * i / Math.max(1, n - 1));
+  return Math.round(FIRST_MS - (FIRST_MS - LAST_MS) * i / Math.max(1, n - 1));
 }
 
 const SCHEMA = [
