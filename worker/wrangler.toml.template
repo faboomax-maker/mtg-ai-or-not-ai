@@ -3,6 +3,7 @@
 name = "mtg-quiz"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
+workers_dev = true                  # served at https://mtg-quiz.<subdomain>.workers.dev
 
 [vars]
 GH_REPO = "__GH_REPO__"
