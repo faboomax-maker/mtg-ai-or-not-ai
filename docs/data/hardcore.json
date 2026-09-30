@@ -1,0 +1,327 @@
+{
+  "generated": "2026-09-30",
+  "mode": "hardcore",
+  "count": 20,
+  "img": "img/hardcore/",
+  "api": "https://mtg-quiz.faboo-max.workers.dev",
+  "cards": [
+    {
+      "name": "Golden-Scale Aeronaut",
+      "mana_cost": "{4}{W}",
+      "type_line": "Creature — Dwarf Pilot",
+      "oracle_text": "Backup 1 (When this creature enters the battlefield, put a +1/+1 counter on target creature. If that’s another creature, it gains the following ability until end of turn.)\nFlying",
+      "flavor_text": "Johar had never heard of a pterodon. He just knew Saheeli’s new invention let him fly circles around the invading monsters.",
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "41f8b7ddd437d4b7.webp"
+    },
+    {
+      "name": "Hardened Escort",
+      "mana_cost": "{2}{W}",
+      "type_line": "Creature — Human Soldier",
+      "oracle_text": "Whenever Hardened Escort attacks, another target creature you control gets +1/+0 and gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)",
+      "flavor_text": "\"It's not magic. I read the writing on the House's walls. I listen to its sighs. I smell the changes in its air. It tells me where danger lies.\"",
+      "power": "2",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "5ca3ac2676d669fd.webp"
+    },
+    {
+      "name": "Omen of the Hollow",
+      "mana_cost": "{1}{B}",
+      "type_line": "Enchantment",
+      "oracle_text": "When Omen of the Hollow enters the battlefield, target creature gets -1/-1 until end of turn.\nAt the beginning of your upkeep, each opponent loses 1 life if they control a creature with the greatest power among creatures on the battlefield.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "6369633337fa254d.webp"
+    },
+    {
+      "name": "Pyrecoil Adept",
+      "mana_cost": "{2}{R}",
+      "type_line": "Creature — Elemental Shaman",
+      "oracle_text": "{R}: Pyrecoil Adept gets +1/+0 until end of turn.\nWhenever Pyrecoil Adept becomes the target of a spell, it deals 1 damage to target creature or player.",
+      "flavor_text": "\"Let them douse the woods as they wish—the blaze I tend starts in the heart.\"\n—Etti, branchfire shaman",
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "392d361ee241b21f.webp"
+    },
+    {
+      "name": "Halldar, the Pale Charger",
+      "mana_cost": "{1}{W}",
+      "type_line": "Creature — Spirit Knight",
+      "oracle_text": "Intimidate (This creature can't be blocked except by artifact creatures and/or creatures that share a color with it.)",
+      "flavor_text": "\"Never a word. Never a warning. Only the sound of hoofbeats along the crossways, and the screams of the avenged.\"",
+      "power": "2",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "931f0535705f301c.webp"
+    },
+    {
+      "name": "Torrent of Fractures",
+      "mana_cost": "{1}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Return target nonland permanent to its owner's hand. If that permanent is red, draw a card.",
+      "flavor_text": "\"Rivers forget where the ground once was. We must learn to do the same.\"\n—Amilia, Khalni outcast",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "94a1bf1f6d703427.webp"
+    },
+    {
+      "name": "Skirk Dawnrunner",
+      "mana_cost": "{2}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "Haste (This creature can attack and {T} as soon as it comes under your control.)",
+      "flavor_text": "\"If you see the goblins running, keep up—Shiv's sunrise doesn't wait for stragglers.\"\n—Ib Halfheart",
+      "power": "3",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "c40eb2d069ee53c9.webp"
+    },
+    {
+      "name": "Zhalfirin Void",
+      "mana_cost": "",
+      "type_line": "Land",
+      "oracle_text": "When Zhalfirin Void enters the battlefield, scry 1. (Look at the top card of your library. You may put that card on the bottom of your library.)\n{T}: Add {C}.",
+      "flavor_text": "“The wind whispers, ‘come home,’ but I cannot.”\n—Teferi",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [],
+      "card": true,
+      "img": "a19fb6542d05c23c.webp"
+    },
+    {
+      "name": "Defiant Emergence",
+      "mana_cost": "{1}{B}",
+      "type_line": "Instant",
+      "oracle_text": "Target creature gets +2/+0 and gains indestructible until end of turn. If that creature is a Nightmare or Horror, it gains lifelink until end of turn.",
+      "flavor_text": "\"I have stared into the eyes of every terror this house can conjure. Tonight, I blink last.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "fc2c782ab093d61c.webp"
+    },
+    {
+      "name": "Ravager of the Blight",
+      "mana_cost": "{4}{B}",
+      "type_line": "Creature — Horror",
+      "oracle_text": "Whenever Ravager of the Blight deals combat damage to a player, you may have that player discard a card.",
+      "flavor_text": "\"When the blight-creeps come slithering out, even Mercadia's criminals bolt their doors.\"\n—Rishadan watchman's log",
+      "power": "4",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "50cd814c73835bc1.webp"
+    },
+    {
+      "name": "Desperate Stand",
+      "mana_cost": "{R}{W}",
+      "type_line": "Sorcery",
+      "oracle_text": "Strive — Desperate Stand costs {R}{W} more to cast for each target beyond the first.\nAny number of target creatures each get +2/+0 and gain first strike and vigilance until end of turn.",
+      "flavor_text": "At the Akroan gates, hoplites revived the tactics of Kytheon Iora’s infamous irregulars.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "R",
+        "W"
+      ],
+      "card": true,
+      "img": "6e8437414715cc13.webp"
+    },
+    {
+      "name": "Aetherstream Swooper",
+      "mana_cost": "{1}{W}",
+      "type_line": "Creature — Bird",
+      "oracle_text": "Flying",
+      "flavor_text": null,
+      "power": "1",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "236bb0bc0c464ca9.webp"
+    },
+    {
+      "name": "Hostile Realm",
+      "mana_cost": "{2}{R}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant land\nEnchanted land has “{T}: Target creature can’t block this turn.”",
+      "flavor_text": "Lorwyn’s crust explodes with power when the greater elementals are born. The flamekin use the fallout as cover for forays into enemy territory.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "433d5787535ef4e8.webp"
+    },
+    {
+      "name": "Selhoff Occultist",
+      "mana_cost": "{2}{U}",
+      "type_line": "Creature — Human Rogue",
+      "oracle_text": "Whenever Selhoff Occultist or another creature dies, target player puts the top card of his or her library into his or her graveyard.",
+      "flavor_text": "The mist whispers to those who know it to be more than a mundane fog.",
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "460b88ab7a9e6fb0.webp"
+    },
+    {
+      "name": "Brood Birthing",
+      "mana_cost": "{1}{R}",
+      "type_line": "Sorcery",
+      "oracle_text": "If you control an Eldrazi Spawn, put three 0/1 colorless Eldrazi Spawn creature tokens onto the battlefield. They have \"Sacrifice this creature: Add {1} to your mana pool.\" Otherwise, put one of those tokens onto the battlefield.",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "69104df1809afba2.webp"
+    },
+    {
+      "name": "Shell Skulkin",
+      "mana_cost": "{4}",
+      "type_line": "Artifact Creature — Scarecrow",
+      "oracle_text": "{3}: Target blue creature gains shroud until end of turn.",
+      "flavor_text": "Skulkins confer strange benefits on unsuspecting patrons.",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "c70a812828ffe72b.webp"
+    },
+    {
+      "name": "Witch's Umbrage",
+      "mana_cost": "{W/B}",
+      "type_line": "Enchantment — Aura",
+      "oracle_text": "Enchant creature\nEnchanted creature gets +1/+1 and has \"Whenever this creature deals combat damage to a player, that player loses 1 life and you gain 1 life.\"",
+      "flavor_text": "Every thorn, every word—Morna's spite bleeds through all.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B",
+        "W"
+      ],
+      "card": true,
+      "img": "5643565bc72ffd97.webp"
+    },
+    {
+      "name": "Cosmic Outpour",
+      "mana_cost": "{2}{U}",
+      "type_line": "Instant",
+      "oracle_text": "Tap up to two target creatures. Surveil 2. (Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "U"
+      ],
+      "card": true,
+      "img": "7ce6bc04303ae599.webp"
+    },
+    {
+      "name": "Muzzle",
+      "mana_cost": "{1}{W}",
+      "type_line": "Enchant Creature",
+      "oracle_text": "Prevent all damage that would be dealt by enchanted creature.",
+      "flavor_text": "Clenched teeth do not bite.\n—Cho-Arrim saying",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "9bbb8aac81c1814d.webp"
+    },
+    {
+      "name": "Thriving Rhino",
+      "mana_cost": "{2}{G}",
+      "type_line": "Creature — Rhino",
+      "oracle_text": "When Thriving Rhino enters the battlefield, you get {EE} (two energy counters).\nWhenever Thriving Rhino attacks, you may pay {EE}. If you do, put a +1/+1 counter on it.",
+      "flavor_text": "As unpredictable as aether, and just as hard to contain.",
+      "power": "2",
+      "toughness": "3",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "ef66e7933c2ff9cb.webp"
+    }
+  ]
+}
