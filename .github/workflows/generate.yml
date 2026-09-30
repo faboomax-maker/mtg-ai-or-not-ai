@@ -1,8 +1,8 @@
 # Regenerates the card pool directly on GitHub (no local setup needed).
 # Actions tab -> "Générer les cartes" -> Run workflow.
 # Requires the API keys as repository secrets (Settings -> Secrets and variables -> Actions).
-# Optional variables RARITY_WEIGHTS, e.g. "common=55,uncommon=40,rare=4,mythic=1" (the default),
-# and ERA_WEIGHTS, e.g. "old=1,modern=1,current=1" (old frame 1993-2003, modern 2003-2014, M15).
+# The form sets the number of cards, the frame eras (old frame 1993-2003, modern 2003-2014, M15),
+# the rarities, the source of the AI cards' art and the providers.
 name: Générer les cartes
 
 on:
@@ -11,12 +11,27 @@ on:
       count:
         description: "Nombre de cartes de chaque type (vraies / IA)"
         default: "3"
+      eras:
+        description: "Époques des cadres : ancien (1993-2003) / moderne (2003-2014) / actuel"
+        default: "old=1,modern=1,current=1"
+      rarities:
+        description: "Raretés (poids)"
+        default: "common=55,uncommon=40,rare=4,mythic=1"
+      art:
+        description: "Illustrations des cartes IA : real = art de la vraie carte copiée, generate = modèle d'images"
+        type: choice
+        options: [real, generate]
+        default: real
       llm:
-        description: "Fournisseur texte (openai | anthropic)"
-        default: "openai"
+        description: "Fournisseur texte"
+        type: choice
+        options: [openai, anthropic]
+        default: openai
       images:
-        description: "Fournisseur images (fal | replicate | openai | pollinations | placeholder)"
-        default: "fal"
+        description: "Fournisseur images (seulement si illustrations = generate)"
+        type: choice
+        options: [fal, replicate, openai, pollinations, placeholder]
+        default: fal
 
 permissions:
   contents: write
@@ -27,11 +42,12 @@ jobs:
     timeout-minutes: 150            # older frame eras spread the cards over more sets
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
-      RARITY_WEIGHTS: ${{ vars.RARITY_WEIGHTS }}
+      # the form's values (repository variables as a fallback, e.g. for other triggers)
+      RARITY_WEIGHTS: ${{ inputs.rarities || vars.RARITY_WEIGHTS }}
       # frame eras of the cards, e.g. "old=1,modern=1,current=1" (the default: equal thirds)
-      ERA_WEIGHTS: ${{ vars.ERA_WEIGHTS }}
+      ERA_WEIGHTS: ${{ inputs.eras || vars.ERA_WEIGHTS }}
       # AI cards illustrations: real (default: art of the real card they copy) or generate
-      ART_SOURCE: ${{ vars.ART_SOURCE }}
+      ART_SOURCE: ${{ inputs.art || vars.ART_SOURCE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
