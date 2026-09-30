@@ -777,6 +777,34 @@ def power_verdict(llm: str, batch: list[dict], specs: list[dict], pool: list[dic
     return [None] * len(batch)
 
 
+REPAIR_SYSTEM = """You are the lead developer of Magic: The Gathering's Play Design team. Each new card
+below was judged too strong or too weak for its set, rarity and cost; the reason and real cards
+of the set to compare with are given. Fix its power level so it fits among the comparables, by
+the standards of that set's time: change the mana cost, power/toughness, numbers, add a real
+drawback or cost, remove or add one clause - the smallest change that makes it fair. Keep its
+name, colors, rarity, card type, the keywords it uses, its flavor text and what it depicts;
+keep the set's templating and wording exactly, and keep rules text valid.
+Answer with the full JSON array of the fixed cards, same order and same keys, no commentary."""
+
+
+def repair_power(llm: str, cards: list[dict], reasons: list[str], specs: list[dict], pool: list[dict],
+                 set_name: str) -> list[dict]:
+    """Cards judged too strong or too weak are fixed instead of discarded (unchanged on failure)."""
+    items = [{"card": c, "problem": r, "rarity": sp["rarity"], "real_comparables": comparables(
+        {**c, "rarity": sp["rarity"], "mana_value": sp["mana_value"], "colors": sp["colors"]}, pool, 4)}
+        for c, r, sp in zip(cards, reasons, specs)]
+    try:
+        out = parse_array(call_llm(llm, REPAIR_SYSTEM, f"Set: «{set_name}».\n"
+                                   + json.dumps(items, ensure_ascii=False, indent=1)))
+        if len(out) == len(cards) and all(isinstance(o, dict) for o in out):
+            # the name, flavor and art stay the card's own
+            keep = ("name", "flavor_text", "art_description")
+            return [{**o, **{k: c[k] for k in keep if k in c}} for c, o in zip(cards, out)]
+    except (Exception, SystemExit) as e:          # a bonus, never a blocker
+        print(f"  power repair skipped: {e}", file=sys.stderr)
+    return cards
+
+
 CREATIVE_SYSTEM = """You are a senior writer on Magic: The Gathering's Creative team.
 You polish the names and flavor text of new cards so they read exactly like the real
 cards of their set. Good flavor text is concrete and specific to the world: a named
@@ -1001,6 +1029,18 @@ def main() -> None:
         batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_names[code])   # balance pass
         batch = creative_review(args.llm, batch, flavors, brief, set_names[code])        # names, flavor
         verdicts = power_verdict(args.llm, batch, specs[:len(batch)], pool, set_names[code])  # strict check
+        # too strong / too weak: the card is fixed, then checked once more (discarded only if
+        # it is still off)
+        flagged = [i for i, c in enumerate(batch)
+                   if verdicts[i] or power_problem(c, specs[i]["rarity"])]
+        if flagged:
+            reasons = [verdicts[i] or power_problem(batch[i], specs[i]["rarity"]) for i in flagged]
+            fixed = repair_power(args.llm, [batch[i] for i in flagged], reasons,
+                                 [specs[i] for i in flagged], pool, set_names[code])
+            again = power_verdict(args.llm, fixed, [specs[i] for i in flagged], pool, set_names[code])
+            for i, c, v, r in zip(flagged, fixed, again, reasons):
+                print(f"  power fixed {c.get('name')!r} ({r[:80]}) -> {'still ' + v[:60] if v else 'fair'}")
+                batch[i], verdicts[i] = c, v
         for c, spec, src, verdict in zip(batch, specs, sources, verdicts):
             err = validate(c, spec) or verdict
             if not err:
