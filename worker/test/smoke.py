@@ -37,6 +37,9 @@ check("deck upload refused without token", call("/admin/deck", {"mode": "normal"
 for mode in ("normal", "hardcore"):
     s, r = call("/admin/deck", {"mode": mode, "key": key}, ADMIN)
     check(f"deck upload {mode}", s == 200 and r.get("cards") == 40, r)
+check("deck read refused without token", call("/admin/deck?mode=normal")[0] == 401)
+s, r = call("/admin/deck?mode=normal", None, ADMIN)
+check("deck read with token", s == 200 and r.get("key") == key, str(r)[:200])
 
 
 def play(mode, right, pause=0.0):

@@ -5,6 +5,8 @@
 # hardcore: mostly commons from every era), and optionally overrides that mode's eras/rarities.
 # With the game server (repository variable QUIZ_API_URL, see worker/README.md), the answers
 # are sent to it instead of being published with the cards: leaderboards and timer checks.
+# Big requests are split into chunks of 50 + 50 cards made by parallel jobs (up to 6 at a
+# time), then merged into the deck; "ajouter" adds them to the deck instead of replacing it.
 name: Générer les cartes
 
 on:
@@ -16,8 +18,12 @@ on:
         options: [normal, hardcore]
         default: normal
       count:
-        description: "Nombre de cartes de chaque type (vraies / IA)"
-        default: "3"
+        description: "Nombre de cartes de chaque type (vraies / IA), découpé en morceaux de 50"
+        default: "20"
+      append:
+        description: "Ajouter au paquet existant (sinon il est remplacé)"
+        type: boolean
+        default: false
       eras:
         description: "Époques (vide = celles du mode ; ex. old=1,modern=1,current=1)"
         default: ""
@@ -44,9 +50,31 @@ permissions:
   contents: write
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      chunks: ${{ steps.plan.outputs.chunks }}
+      per: ${{ steps.plan.outputs.per }}
+    steps:
+      - id: plan
+        run: |
+          count=${{ inputs.count }}
+          n=$(( (count + 49) / 50 )); [ "$n" -lt 1 ] && n=1
+          per=$(( (count + n - 1) / n ))
+          echo "chunks=$(python3 -c "import json; print(json.dumps(list(range($n))))")" >> "$GITHUB_OUTPUT"
+          echo "per=$per" >> "$GITHUB_OUTPUT"
+          echo "$count cards of each type: $n chunk(s) of $per" >> "$GITHUB_STEP_SUMMARY"
+
   generate:
+    needs: plan
+    name: morceau ${{ matrix.chunk }}
     runs-on: windows-latest          # Magic Set Editor is a Windows program
     timeout-minutes: 150            # older frame eras spread the cards over more sets
+    strategy:
+      fail-fast: false               # a failed chunk doesn't stop the others
+      max-parallel: 6
+      matrix:
+        chunk: ${{ fromJSON(needs.plan.outputs.chunks) }}
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
       # the form's values, else the mode's mix: normal = recent cards (M15 frame) with more rares
@@ -71,7 +99,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           LLM_BASE_URL: ${{ vars.LLM_BASE_URL || secrets.LLM_BASE_URL }}
           SCAN_MODEL: ${{ vars.SCAN_MODEL }}
-        run: python pipeline/fetch_real.py --count ${{ inputs.count }}
+        run: python pipeline/fetch_real.py --count ${{ needs.plan.outputs.per }}
       - name: Cartes IA
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -102,24 +130,57 @@ jobs:
           FAL_GUIDANCE: ${{ vars.FAL_GUIDANCE }}
           FAL_IMAGE_SIZE: ${{ vars.FAL_IMAGE_SIZE }}
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
-        run: python pipeline/generate_fake.py --count ${{ inputs.count }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}
+        run: python pipeline/generate_fake.py --count ${{ needs.plan.outputs.per }} --llm ${{ inputs.llm }} --images ${{ inputs.images }}
       - name: Sauvegarder les images IA (originaux)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: images-ia
+          name: images-ia-${{ matrix.chunk }}
           path: pipeline/work/raw/
+          retention-days: 7
           if-no-files-found: ignore
       - name: Rendu des cartes (Magic Set Editor)
         env:
           MSE_DIR: ${{ github.workspace }}/mse
         run: python pipeline/render_mse.py
+      - name: Préparer le morceau
+        env:
+          QUIZ_ADMIN_TOKEN: ${{ secrets.QUIZ_ADMIN_TOKEN }}     # seals the chunk's answers
+        run: python pipeline/build.py --chunk out/chunk
+      - name: Envoyer le morceau
+        uses: actions/upload-artifact@v4
+        with:
+          name: chunk-${{ matrix.chunk }}
+          path: out/chunk/
+          retention-days: 1          # (artifacts of a public repo can be downloaded)
+
+  publish:
+    needs: [plan, generate]
+    if: ${{ !cancelled() }}          # publish the chunks that succeeded
+    runs-on: ubuntu-latest
+    concurrency: publish-cards       # one deck update at a time (both modes share the site)
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Récupérer les morceaux
+        uses: actions/download-artifact@v4
+        with:
+          pattern: chunk-*
+          path: chunks
       - name: Construire le site
         env:
           # with the game server, the answers stay out of the published deck
           LEADERBOARD: ${{ vars.QUIZ_API_URL != '' && '1' || '' }}
           QUIZ_API_URL: ${{ vars.QUIZ_API_URL }}
-        run: python pipeline/build.py --mode ${{ inputs.mode }}
+          QUIZ_ADMIN_TOKEN: ${{ secrets.QUIZ_ADMIN_TOKEN }}
+        run: |
+          git pull -q origin main        # the latest deck, when adding to it
+          python pipeline/build.py --mode ${{ inputs.mode }} --merge chunks/* ${{ inputs.append && '--append' || '' }}
       - name: Envoyer les réponses au serveur de jeu
         if: vars.QUIZ_API_URL != ''
         env:
@@ -132,6 +193,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add docs
-          git commit -m "Nouveau jeu de cartes ${{ inputs.mode }} (${{ inputs.count }} + ${{ inputs.count }})" || echo "Rien à publier"
+          git commit -m "${{ inputs.append && 'Cartes ajoutées' || 'Nouveau jeu de cartes' }} ${{ inputs.mode }} (${{ inputs.count }} + ${{ inputs.count }} demandées)" || echo "Rien à publier"
           git pull --rebase -q origin main    # the game server commits the leaderboard too
           git push

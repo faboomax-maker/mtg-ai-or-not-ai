@@ -45,6 +45,7 @@ from urllib.parse import quote
 from collections import Counter, defaultdict
 
 from PIL import Image
+import requests
 
 from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_bytes, load_json,
                     normalize_image, save_json, session)
@@ -351,6 +352,27 @@ def check(r, fatal=(400, 401, 403, 404)) -> None:
     raise RuntimeError(msg)
 
 
+def post_llm(s, url: str, **kw):
+    """POST to an LLM API, waiting and retrying when it is busy or rate-limited (429, 5xx):
+    several generation jobs run in parallel and may hit the per-minute limits."""
+    for attempt in range(6):
+        try:
+            r = s.post(url, **kw)
+        except requests.RequestException as e:          # network hiccup: retry too
+            if attempt == 5:
+                raise
+            time.sleep(5 * (attempt + 1)); continue
+        if r.status_code not in (429, 500, 502, 503, 504, 529) or attempt == 5:
+            return r
+        wait = r.headers.get("retry-after") or r.headers.get("x-ratelimit-reset-requests")
+        try:
+            wait = float(str(wait).rstrip("s")) if wait else 0.0
+        except ValueError:
+            wait = 0.0
+        time.sleep(min(90.0, max(wait, 5.0 * 2 ** attempt)))
+    return r
+
+
 def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
              detail: str = "low", model: str | None = None, temperature: float = 1.0,
              timeout: float = 600) -> str:
@@ -362,7 +384,7 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
         key = env("ANTHROPIC_API_KEY") or sys.exit("ANTHROPIC_API_KEY missing")
         content = ([{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}}]
                    if b64 else []) + [{"type": "text", "text": user}]
-        r = s.post("https://api.anthropic.com/v1/messages", timeout=min(timeout, 300), headers={
+        r = post_llm(s, "https://api.anthropic.com/v1/messages", timeout=min(timeout, 300), headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
             json={"model": model or env("LLM_MODEL", "claude-haiku-4-5"), "max_tokens": 6000,
                   "temperature": temperature, "system": system,
@@ -380,7 +402,7 @@ def call_llm(provider: str, system: str, user: str, image: bytes | None = None,
     content = user if not b64 else [
         {"type": "text", "text": user},
         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}", "detail": detail}}]
-    r = s.post(f"{base}/chat/completions", timeout=timeout, headers=headers, json={
+    r = post_llm(s, f"{base}/chat/completions", timeout=timeout, headers=headers, json={
         "model": model, "temperature": temperature,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}]})
     check(r)

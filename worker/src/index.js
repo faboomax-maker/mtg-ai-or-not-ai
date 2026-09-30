@@ -76,9 +76,22 @@ async function deckKey(env, mode) {
   return JSON.parse(row.data);          // {img: {real, set, artist, url, art_from}}
 }
 
-async function uploadDeck(req, env) {
+function requireAdmin(req, env) {
   const auth = req.headers.get("Authorization") || "";
   if (!env.ADMIN_TOKEN || auth !== "Bearer " + env.ADMIN_TOKEN) throw new HttpError(401, "unauthorized");
+}
+
+/** CI: the answers of a mode's deck, to add cards to it. */
+async function readDeck(req, env) {
+  requireAdmin(req, env);
+  const mode = new URL(req.url).searchParams.get("mode");
+  if (!MODES.includes(mode)) throw new HttpError(400, "unknown mode");
+  const row = await env.DB.prepare("SELECT data FROM decks WHERE mode = ?").bind(mode).first();
+  return { mode, key: row ? JSON.parse(row.data) : {} };
+}
+
+async function uploadDeck(req, env) {
+  requireAdmin(req, env);
   const { mode, key } = await body(req);
   if (!MODES.includes(mode) || !key || typeof key !== "object") throw new HttpError(400, "mode and key required");
   await env.DB.prepare("INSERT OR REPLACE INTO decks (mode, data, updated) VALUES (?, ?, ?)")
@@ -241,6 +254,7 @@ export default {
       await ensureSchema(env);
       if (req.method === "GET" && path === "/leaderboard") return json(await leaderboard(env), req, env);
       if (req.method === "GET" && path === "/health") return json({ ok: true }, req, env);
+      if (req.method === "GET" && path === "/admin/deck") return json(await readDeck(req, env), req, env);
       if (req.method === "POST") {
         if (path === "/start") return json(await start(req, env), req, env);
         if (path === "/answer") return json(await answer(req, env), req, env);
