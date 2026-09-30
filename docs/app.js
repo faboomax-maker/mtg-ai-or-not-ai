@@ -110,10 +110,39 @@ function loadBoard(decks) {
 }
 
 /* ---------------------------------------------------------------- screens */
+/* The (joke) promotion and its terms and conditions, unfolded by the "(1)". */
+var CGU = [
+  ["Article 1 – Objet", "La présente opération « Score parfait » (ci-après « l'Opération ») est organisée par l'éditeur du présent quiz (ci-après « l'Organisateur »), personne physique agissant seule, depuis son canapé, sans capital social ni service juridique. L'Opération est gratuite et sans obligation d'achat, ce qui tombe bien."],
+  ["Article 2 – Conditions de participation", "L'Opération est ouverte à toute personne physique disposant d'un écran, de deux pouces et d'un minimum d'amour-propre. Est réputé « gagnant » tout participant obtenant la totalité des bonnes réponses d'une même partie, sans aide extérieure, oracle, voyante ou cousin qui joue depuis Alpha. L'Organisateur se réserve le droit de soupçonner quiconque de tricherie, à tout moment et sans motif."],
+  ["Article 3 – Dotations", "Les lands Beta mis en jeu (ci-après « les Dotations ») sont des biens exclusivement numériques, au sens le plus large, le plus immatériel et, pour tout dire, le plus métaphysique du terme. Ils n'existent que dans l'esprit du gagnant, où ils sont réputés remis dès l'affichage du score parfait. Leur état est « Near Mint » ou meilleur, selon l'imagination de leur détenteur. Aucune Black Lotus n'est mise en jeu, ni réelle, ni imaginaire, par respect pour tout le monde."],
+  ["Article 4 – Remise des Dotations", "Aucune expédition, aucun retrait en magasin et aucun échange ne sera effectué. Les Dotations ne peuvent être ni revendues, ni gradées, ni jouées en tournoi homologué, ni montrées à un ami sans provoquer chez celui-ci une légère inquiétude. Toute tentative de les sortir de sa tête se fait aux risques et périls du gagnant."],
+  ["Article 5 – Valeur", "La valeur commerciale des Dotations est estimée à 0,00 € (zéro euro), TVA non applicable, article 293 B du Code de l'imaginaire. Leur valeur sentimentale est, en revanche, inestimable."],
+  ["Article 6 – Responsabilité", "L'Organisateur décline toute responsabilité en cas de déception, de colère, de message en majuscules, ou de perte de temps consécutive à la lecture intégrale du présent règlement."],
+  ["Article 7 – Données personnelles", "Aucune donnée n'est collectée, hormis le pseudo que tu choisis toi-même d'inscrire au classement. Tu disposes d'un droit d'accès, de rectification et d'oubli, que tu peux exercer en oubliant."],
+  ["Article 8 – Loi applicable et litiges", "Le présent règlement est soumis aux lois de la physique. Tout litige sera réglé à l'amiable, à défaut par un duel au meilleur des trois manches, sideboard autorisé. En cliquant sur « Jouer », le participant reconnaît avoir lu et accepté le présent règlement, ce que personne ne fait jamais."],
+];
+
+function Promo(p) {
+  var s = useState(false), open = s[0], setOpen = s[1];
+  return h("aside", { className: "promo", "aria-label": "Promotion" },
+    h("p", { className: "promo__line" },
+      h(A.Icon, { name: "crown", size: 22 }),
+      h("span", { className: "promo__text body-strong" }, p.children || "Fais un score parfait et gagne des lands Beta !"),
+      h("button", { type: "button", className: "promo__note label", "aria-expanded": open, "aria-controls": "cgu",
+                    "aria-label": "(1) Conditions de l'offre", onClick: function () { setOpen(!open); } }, "(1)")),
+    open ? h("div", { id: "cgu", className: "promo__cgu" },
+      h("p", { className: "promo__cgu-title label" }, "(1) Conditions générales de l'Opération « Score parfait »"),
+      CGU.map(function (a) {
+        return h("p", { key: a[0], className: "caption" }, h("strong", null, a[0] + ". "), a[1]);
+      }),
+      h(A.Button, { variant: "ghost", size: "md", onClick: function () { setOpen(false); } }, "Fermer")) : null);
+}
+
 function Intro(p) {
   var s = useState("normal"), boardMode = s[0], setBoardMode = s[1];
   var normal = p.decks.normal, hard = p.decks.hardcore;
   return h("div", { className: "intro" },
+    h(Promo),
     h("div", null,
       h("p", { className: "ar-eyebrow eyebrow" }, "Quiz Magic"),
       h("h1", { className: "title-xl" }, "IA ou vraie carte ?")),
@@ -337,6 +366,7 @@ function Score(p) {
       onReplay: p.onReplay,
       onShare: function () { A.shareScore(score, p.items.length, location.href).then(s[1]); } }),
     h("p", { className: "total-time caption" }, h(A.Icon, { name: "hourglass", size: 16 }), "Temps total : " + seconds(ms)),
+    score === p.items.length ? h(Promo, null, "Score parfait : tes lands Beta t'attendent !") : null,
     h(SaveScore, { game: p.game, board: p.board, onBoard: p.onBoard }),
     h(Details, { items: p.items }),
     h(A.Button, { variant: "ghost", size: "md", onClick: p.onHome }, "Accueil"));

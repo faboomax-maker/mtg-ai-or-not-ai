@@ -103,6 +103,22 @@ body {
 .verdict-noob__text { margin: 0; color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { .verdict-noob__face { animation: none; } }
 
+/* Promotion banner (a joke: the terms say the prize is imaginary) */
+.promo { background: var(--brass-soft); border: var(--stroke-control) solid var(--brass-ink); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-bevel); padding: var(--space-3) var(--space-4); color: var(--ink); }
+.promo__line { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+.promo__line .ar-icon { flex: none; color: var(--brass-ink); }
+.promo__text { flex: 1; }
+.promo__note { flex: none; min-width: var(--size-touch); min-height: var(--size-touch); margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+  background: none; border: 0; color: var(--brass-ink); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.promo__note:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.promo__cgu { margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--stroke-hair) solid var(--line-soft);
+  display: flex; flex-direction: column; gap: var(--space-2); }
+.promo__cgu p { margin: 0; color: var(--ink-muted); }
+.promo__cgu strong { color: var(--ink); }
+.promo__cgu-title { color: var(--ink) !important; }
+.promo__cgu .ar-btn { align-self: flex-end; }
+
 .legal { margin: 0; color: var(--ink-muted); text-align: center; }
 .legal a { color: var(--brass-ink); }
 .error { margin: 0; color: var(--danger-ink); }
