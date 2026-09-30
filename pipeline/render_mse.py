@@ -61,8 +61,8 @@ SYMBOL_CY = 308 / 523                       # centre of the M15 type bar in MSE 
 # every rarity was printed black.
 OLD_LOOK = {
     "c": (("#1a1718", "#1a1718", "#1a1718"), "#ffffff"),
-    "u": (("#545454", "#e0e0e0", "#545454"), "#ffffff"),
-    "r": (("#5f5428", "#d6c45e", "#5f5428"), "#ffffff"),
+    "u": (("#46505b", "#b3bec8", "#46505b"), "#ffffff"),   # steel grey-blue, as on 1998-2003 scans
+    "r": (("#5c421a", "#b48d40", "#5c421a"), "#ffffff"),   # bronze gold
 }
 OLD_LOOK["m"] = OLD_LOOK["r"]
 # Modern frame (2003-2014): darker metals than today's (steel grey, bronze, deep orange-red),
@@ -88,7 +88,8 @@ NO_SYMBOL = {"lea", "leb", "2ed", "3ed", "4ed", "5ed"}   # Alpha -> Fifth Editio
 FRAMES = {
     "current": {"style": STYLE, "right": SYMBOL_RIGHT, "cy": SYMBOL_CY, "h": SYMBOL_H},
     "modern": {"style": "new", "right": 342 / 375, "cy": (297 + 11) / 523, "h": SYMBOL_H},
-    "old": {"style": "old", "right": 337 / 375, "cy": (290 + 11) / 523, "h": SYMBOL_H},
+    "old": {"style": "old", "right": 0.891,       # measured on 1998-2003 scans (MSE box: 337 / 375)
+              "cy": (290 + 11) / 523, "h": SYMBOL_H * 0.88},   # smaller than M15 ones (scans)
 }
 
 

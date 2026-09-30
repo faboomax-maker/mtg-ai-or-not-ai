@@ -716,13 +716,18 @@ A card is "too strong" if a real set would never print it at that rarity and cos
 example a land making several colors that enters untapped with no drawback plus a bonus
 ability, a common with two strong keywords on above-rate stats (3 mana 3/3 flying and
 deathtouch), removal or card draw clearly cheaper or better than its comparables, or an
-effect with no real cost. "fair" if it fits among the comparables. Commons especially must
-be modest. Answer with a JSON array, one {"verdict": "fair" | "too strong" | "too weak",
-"reason": "..."} per card, same order, no commentary."""
+effect with no real cost. A card is "too weak" if no real set would print it at that cost
+either, because it does clearly less than the weakest comparables: for example a 4-mana
+instant that only taps one creature, a vanilla creature with stats well below the curve, or
+an aura or artifact whose effect is marginal for its cost. Old sets had weaker cards than
+today, so judge against that set's own comparables, not modern standards. "fair" if it
+fits among the comparables. Commons especially must be modest but playable. Answer with a
+JSON array, one {"verdict": "fair" | "too strong" | "too weak", "reason": "..."} per card,
+same order, no commentary."""
 
 
 def power_verdict(llm: str, batch: list[dict], specs: list[dict], pool: list[dict], set_name: str) -> list[str | None]:
-    """Last pass: a strict yes/no on power level; the reason when a card is too strong."""
+    """Last pass: a strict verdict on power level; the reason when a card is too strong or too weak."""
     items = [{"card": {k: c.get(k) for k in ("name", "mana_cost", "type_line", "oracle_text", "power",
                                             "toughness")},
               "rarity": sp["rarity"], "real_comparables": comparables(
@@ -732,8 +737,9 @@ def power_verdict(llm: str, batch: list[dict], specs: list[dict], pool: list[dic
         out = parse_array(call_llm(llm, VERDICT_SYSTEM, f"Set: «{set_name}».\n"
                                    + json.dumps(items, ensure_ascii=False, indent=1), temperature=0))
         if len(out) == len(batch):
-            return [f"too strong: {o.get('reason', '')}" if isinstance(o, dict) and
-                    str(o.get("verdict", "")).lower().startswith("too strong") else None for o in out]
+            verdict = lambda o: str(o.get("verdict", "")).lower() if isinstance(o, dict) else ""
+            return [f"{verdict(o)}: {o.get('reason', '')}" if verdict(o).startswith(("too strong", "too weak"))
+                    else None for o in out]
     except (Exception, SystemExit) as e:          # a bonus, never a blocker
         print(f"  power check skipped: {e}", file=sys.stderr)
     return [None] * len(batch)
