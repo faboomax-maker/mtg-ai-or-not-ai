@@ -32,16 +32,16 @@ def check(name, cond, detail=""):
         failures.append(name)
 
 
-key = {f"card{i:02d}.webp": {"real": i % 2 == 0, "set": "Test Set", "artist": "A. Artist"} for i in range(20)}
+key = {f"card{i:02d}.webp": {"real": i % 2 == 0, "set": "Test Set", "artist": "A. Artist"} for i in range(40)}
 check("deck upload refused without token", call("/admin/deck", {"mode": "normal", "key": key})[0] == 401)
 for mode in ("normal", "hardcore"):
     s, r = call("/admin/deck", {"mode": mode, "key": key}, ADMIN)
-    check(f"deck upload {mode}", s == 200 and r.get("cards") == 20, r)
+    check(f"deck upload {mode}", s == 200 and r.get("cards") == 40, r)
 
 
 def play(mode, right, pause=0.0):
     s, g = call("/start", {"mode": mode})
-    check(f"start {mode}", s == 200 and len(g.get("cards", [])) == 10, g)
+    check(f"start {mode}", s == 200 and len(g.get("cards", [])) == 20, g)
     for i, img in enumerate(g["cards"]):
         truth = "real" if key[img]["real"] else "ai"
         answer = truth if i < right else ("ai" if truth == "real" else "real")
@@ -67,7 +67,7 @@ check("submit", s == 200 and r["entered"] and r["rank"] == 1, r)
 s, r = call("/submit", {"game": g["game"], "name": "Morgane"})
 check("double submit refused", s == 409, r)
 
-g = play("normal", 10)
+g = play("normal", 20)
 s, r = call("/submit", {"game": g["game"], "name": "<script>"})
 check("bad name refused", s == 400, r)
 s, r = call("/submit", {"game": g["game"], "name": "Élise"})

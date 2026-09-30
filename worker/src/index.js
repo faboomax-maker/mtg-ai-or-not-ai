@@ -8,7 +8,7 @@
  * leaderboard file). Vars: GH_REPO ("owner/name"), ALLOWED_ORIGINS (comma-separated).
  */
 
-const ROUND = 10;
+const ROUND = 20;
 const VERDICT_MS = 1200;              // the page shows the verdict this long before the next card
 const GRACE_MS = 2500;                // network and rendering slack on the hardcore timer
 const MODES = ["normal", "hardcore"];

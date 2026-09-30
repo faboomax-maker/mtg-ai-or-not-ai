@@ -7,7 +7,7 @@
 
 var A = window.Artifice, h = React.createElement;
 var useState = React.useState, useRef = React.useRef, useEffect = React.useEffect;
-var ROUND = 10, VERDICT_MS = 1200;
+var ROUND = 20, VERDICT_MS = 1200;
 var DECKS = { normal: "data/cards.json", hardcore: "data/hardcore.json" };
 var MODE_NAME = { normal: "Normal", hardcore: "Hardcore" };
 
@@ -118,7 +118,7 @@ function Intro(p) {
       h("p", { className: "ar-eyebrow eyebrow" }, "Quiz Magic"),
       h("h1", { className: "title-xl" }, "IA ou vraie carte ?")),
     h("p", { className: "flavor" },
-      "Dix cartes. Wizards en a imprimé certaines, une machine a inventé les autres. À toi de trier."),
+      "Vingt cartes. Wizards en a imprimé certaines, une machine a inventé les autres. À toi de trier."),
     h(A.Panel, { title: "Comment on joue", headingLevel: 2 },
       h("ul", { className: "rules body" },
         h("li", null, h("span", { className: "ic-ai" }, h(A.Icon, { name: "arrow-left" })),
@@ -136,13 +136,55 @@ function Intro(p) {
       h(A.Button, { variant: "primary", size: "lg", block: true, disabled: !(normal && normal.cards.length) || p.busy,
                     onClick: function () { p.onStart("normal"); } }, "Jouer"),
       h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "skull", disabled: !(hard && hard.cards.length) || p.busy,
-                    onClick: function () { p.onStart("hardcore"); } }, hard ? "Mode hardcore" : "Mode hardcore (bientôt)"),
+                    onClick: p.onHardcore }, hard ? "Mode hardcore" : "Mode hardcore (bientôt)"),
       p.meta ? h("p", { className: "meta caption" }, p.meta) : null,
       h("p", { className: "legal caption" },
         "Vraies cartes via ", h("a", { href: "https://scryfall.com", target: "_blank", rel: "noopener" }, "Scryfall"),
         ". Contenu de fan non officiel, autorisé par la ",
         h("a", { href: "https://company.wizards.com/fancontentpolicy", target: "_blank", rel: "noopener" }, "Fan Content Policy"),
         ". Non approuvé par Wizards. Des parties des éléments utilisés sont la propriété de Wizards of the Coast. ©Wizards of the Coast LLC.")));
+}
+
+/* Before hardcore: a warning, a (fake) analysis of the player, and its verdict. */
+var SCAN_MS = 2800;
+var SCAN_LINES = ["Mesure de tes réflexes…", "Examen de ta collection…", "Consultation de l'oracle…"];
+
+function Warning(p) {
+  var s1 = useState("ask"), step = s1[0], setStep = s1[1];
+  var s2 = useState(0), pct = s2[0], setPct = s2[1];
+  useEffect(function () {
+    if (step !== "scan") return;
+    var t0 = performance.now();
+    var id = setInterval(function () {
+      var k = Math.min(1, (performance.now() - t0) / SCAN_MS);
+      setPct(k);
+      if (k >= 1) { clearInterval(id); setStep("verdict"); }
+    }, 60);
+    return function () { clearInterval(id); };
+  }, [step]);
+
+  var body;
+  if (step === "ask") body = h(A.Panel, { title: "Mode hardcore", headingLevel: 1 },
+    h("p", { className: "body" }, "Es-tu sûr de vouloir jouer à ce mode ? Il est vraiment dur !"),
+    h("div", { className: "warn__actions" },
+      h(A.Button, { variant: "secondary", size: "lg", onClick: p.onCancel }, "Non"),
+      h(A.Button, { variant: "primary", size: "lg", onClick: function () { setStep("scan"); } }, "Oui")));
+  else if (step === "scan") body = h("div", { className: "scan", role: "status", "aria-live": "polite" },
+    h("p", { className: "scan__title title-xl" }, "Analyse…"),
+    h("div", { className: "scan__track", "aria-hidden": "true" },
+      h("div", { className: "scan__fill", style: { width: Math.round(pct * 100) + "%" } })),
+    h("p", { className: "caption scan__line" }, SCAN_LINES[Math.min(SCAN_LINES.length - 1, Math.floor(pct * SCAN_LINES.length))]));
+  else body = h("div", { className: "verdict-noob" },
+    h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "Smiley énervé", width: 160, height: 160 }),
+    h("p", { className: "body-strong verdict-noob__text", role: "status" }, "Mon analyse montre que tu n'as pas le niveau pour ce mode."),
+    p.error ? h("p", { className: "error caption" }, p.error) : null,
+    h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo }, "TG noob !!!"));
+
+  return h("div", { className: "warn" },
+    h("header", { className: "bar" },
+      h(A.Button, { variant: "secondary", icon: "close", "aria-label": "Retour à l'accueil", onClick: p.onCancel }),
+      h("span"), h("span")),
+    body);
 }
 
 /* The hourglass of a hardcore card: counts down `limit` ms while `running`, then calls onExpire. */
@@ -325,7 +367,7 @@ function App() {
 
   // hardcore: the Charnier theme on the whole page, while playing and on the score screen
   useEffect(function () {
-    var hard = screen !== "intro" && game && game.mode === "hardcore";
+    var hard = screen === "warn" || (screen !== "intro" && game && game.mode === "hardcore");
     if (hard) document.documentElement.setAttribute("data-theme", "charnier");
     else document.documentElement.removeAttribute("data-theme");
     var tc = document.querySelector('meta[name="theme-color"]');
@@ -341,7 +383,9 @@ function App() {
   function home() { setScreen("intro"); loadBoard(decks).then(setBoard); }
 
   return h("div", { className: "app", "data-screen": screen },
-    screen === "intro" ? h(Intro, { onStart: start, decks: decks, meta: meta, error: error, board: board, busy: busy }) :
+    screen === "intro" ? h(Intro, { onStart: start, onHardcore: function () { setError(null); setScreen("warn"); },
+                                    decks: decks, meta: meta, error: error, board: board, busy: busy }) :
+    screen === "warn" ? h(Warning, { onCancel: home, onGo: function () { start("hardcore"); }, busy: busy, error: error }) :
     screen === "round" ? h(Round, { key: round, game: game, onQuit: home,
                                     onError: function (m) { setError(m); setScreen("intro"); },
                                     onEnd: function (r) { setItems(r); setScreen("score"); } }) :
