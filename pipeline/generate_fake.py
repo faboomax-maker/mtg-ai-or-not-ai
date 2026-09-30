@@ -264,7 +264,9 @@ Standard-legal expansions. Rules you always follow:
   rares and mythics have distinctive, build-around designs. No broken or joke cards, no
   references to real-world brands or franchises.
 - Use the keywords/ability words listed in each profile (they are the ones of a real card
-  of this set), exactly as their keyword_rules show: same syntax (costs and numbers such as
+  of this set); those in "keyword_lines" are written as the keyword itself on its own line
+  ("Shadow", "Flying, trample"), never spelled out as a sentence. Use them exactly as their
+  keyword_rules show: same syntax (costs and numbers such as
   "Offspring {2}", "Mobilize 2", "Ward {1}"), same meaning as the reminder text. A keyword is
   never followed by " — " like an ability word. Use only existing mechanics, never invent keywords. Creature types must be
   ones this set actually uses.
@@ -319,7 +321,11 @@ def spec_from(card: dict) -> dict:
     released = card.get("released_at") or ""
     keywords = [k for k in keywords if released >= KEYWORD_SINCE.get(k.lower(), "")
                 and k.lower() in text.lower()]
+    # keywords the real card prints as keyword lines ("Shadow", "Flying, trample"): the AI card
+    # must too, not spell them out in a sentence
+    line_keywords = [k for k in keywords if re.search(rf"(?mi)^(?:[\w' -]+, )*{re.escape(k)}\b", text)]
     spec = {"colors": colors, "type": type_bucket(card["type_line"]), "rarity": card["rarity"],
+            **({"keyword_lines": line_keywords} if line_keywords else {}),
             "mana_value": int(card.get("cmc") or 0), "flavor_text": bool(card.get("flavor_text")),
             "keywords": keywords, "art_focus": art_focus(card["type_line"])}
     if "Land" in card["type_line"] and "Creature" not in card["type_line"]:
@@ -412,6 +418,10 @@ def validate(c: dict, spec: dict) -> str | None:
     missing = [k for k in spec.get("keywords", []) if k.lower() not in c["oracle_text"].lower()]
     if missing:
         return f"missing keyword(s) {missing}"
+    spelled = [k for k in spec.get("keyword_lines", [])
+               if not re.search(rf"(?mi)^(?:[\w' -]+, )*{re.escape(k)}\b", c["oracle_text"])]
+    if spelled:
+        return f"keyword(s) {spelled} not written as a keyword line"
     if "produces_mana" in spec:
         text, types = c["oracle_text"], c["type_line"]
         basic = {"W": "Plains", "U": "Island", "B": "Swamp", "R": "Mountain", "G": "Forest"}
