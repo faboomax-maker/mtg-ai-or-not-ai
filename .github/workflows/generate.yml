@@ -1,22 +1,29 @@
 # Regenerates the card pool directly on GitHub (no local setup needed).
 # Actions tab -> "Générer les cartes" -> Run workflow.
 # Requires the API keys as repository secrets (Settings -> Secrets and variables -> Actions).
-# The form sets the number of cards, the frame eras (old frame 1993-2003, modern 2003-2014, M15),
-# the rarities, the source of the AI cards' art and the providers.
+# The form picks the game mode whose card pool is regenerated (normal: recent cards, more rares;
+# hardcore: mostly commons from every era), and optionally overrides that mode's eras/rarities.
+# With the game server (repository variable QUIZ_API_URL, see worker/README.md), the answers
+# are sent to it instead of being published with the cards: leaderboards and timer checks.
 name: Générer les cartes
 
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "Mode de jeu dont les cartes sont régénérées"
+        type: choice
+        options: [normal, hardcore]
+        default: normal
       count:
         description: "Nombre de cartes de chaque type (vraies / IA)"
         default: "3"
       eras:
-        description: "Époques des cadres : ancien (1993-2003) / moderne (2003-2014) / actuel"
-        default: "old=1,modern=1,current=1"
+        description: "Époques (vide = celles du mode ; ex. old=1,modern=1,current=1)"
+        default: ""
       rarities:
-        description: "Raretés (poids)"
-        default: "common=55,uncommon=40,rare=4,mythic=1"
+        description: "Raretés (vide = celles du mode ; ex. common=55,uncommon=40,rare=4,mythic=1)"
+        default: ""
       art:
         description: "Illustrations des cartes IA : real = art de la vraie carte copiée, generate = modèle d'images"
         type: choice
@@ -42,10 +49,10 @@ jobs:
     timeout-minutes: 150            # older frame eras spread the cards over more sets
     env:
       PYTHONUTF8: "1"                # card names/text contain — ’ etc.
-      # the form's values (repository variables as a fallback, e.g. for other triggers)
-      RARITY_WEIGHTS: ${{ inputs.rarities || vars.RARITY_WEIGHTS }}
-      # frame eras of the cards, e.g. "old=1,modern=1,current=1" (the default: equal thirds)
-      ERA_WEIGHTS: ${{ inputs.eras || vars.ERA_WEIGHTS }}
+      # the form's values, else the mode's mix: normal = recent cards (M15 frame) with more rares
+      # and mythics; hardcore = mostly commons, every era
+      RARITY_WEIGHTS: ${{ inputs.rarities || (inputs.mode == 'hardcore' && 'common=80,uncommon=20,rare=0,mythic=0' || 'common=25,uncommon=35,rare=30,mythic=10') }}
+      ERA_WEIGHTS: ${{ inputs.eras || (inputs.mode == 'hardcore' && 'old=1,modern=1,current=1' || 'old=0,modern=0,current=1') }}
       # AI cards illustrations: real (default: art of the real card they copy) or generate
       ART_SOURCE: ${{ inputs.art || vars.ART_SOURCE }}
     steps:
@@ -108,12 +115,23 @@ jobs:
           MSE_DIR: ${{ github.workspace }}/mse
         run: python pipeline/render_mse.py
       - name: Construire le site
-        run: python pipeline/build.py
+        env:
+          # with the game server, the answers stay out of the published deck
+          LEADERBOARD: ${{ vars.QUIZ_API_URL != '' && '1' || '' }}
+          QUIZ_API_URL: ${{ vars.QUIZ_API_URL }}
+        run: python pipeline/build.py --mode ${{ inputs.mode }}
+      - name: Envoyer les réponses au serveur de jeu
+        if: vars.QUIZ_API_URL != ''
+        env:
+          QUIZ_API_URL: ${{ vars.QUIZ_API_URL }}
+          QUIZ_ADMIN_TOKEN: ${{ secrets.QUIZ_ADMIN_TOKEN }}
+        run: python pipeline/upload_deck.py --mode ${{ inputs.mode }}
       - name: Publier
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add docs
-          git commit -m "Nouveau jeu de cartes (${{ inputs.count }} + ${{ inputs.count }})" || echo "Rien à publier"
+          git commit -m "Nouveau jeu de cartes ${{ inputs.mode }} (${{ inputs.count }} + ${{ inputs.count }})" || echo "Rien à publier"
+          git pull --rebase -q origin main    # the game server commits the leaderboard too
           git push

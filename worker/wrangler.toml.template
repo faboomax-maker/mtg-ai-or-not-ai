@@ -1,0 +1,14 @@
+# Filled in by .github/workflows/deploy-worker.yml (the D1 database id is looked up or created
+# there), so nothing Cloudflare-specific has to be committed.
+name = "mtg-quiz"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+GH_REPO = "__GH_REPO__"
+ALLOWED_ORIGINS = "https://faboomax-maker.github.io,http://localhost:8000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mtg-quiz"
+database_id = "__D1_ID__"

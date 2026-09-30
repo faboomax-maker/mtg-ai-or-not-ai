@@ -40,6 +40,23 @@
   --shadow-lift: 0 8px 12px rgba(29, 21, 16, 0.35), 0 24px 44px rgba(29, 21, 16, 0.35);
   color-scheme: light;
 }
+/* Charnier: the hardcore mode (data-theme="charnier"): black tinted with blood, the main action in blood,
+   the "Vraie" answer keeps its gold (own values, not aliases of brass). */
+:root[data-theme="charnier"], [data-theme="charnier"] {
+  --surface: #0c0505; --surface-raised: #1a0a09; --surface-sunken: #050202;
+  --line: #9c625a; --line-soft: #4a1612; --ink: #eddccf; --ink-muted: #bb978c;
+  --brass: #7e0f0c; --brass-edge: #e5594c; --on-brass: #fbe9df; --brass-ink: #ef6c5e; --brass-soft: #3a0d0b;
+  --blood: #a3140f; --blood-deep: #3d0605;
+  --answer-ai-edge: #9fb0f2; --answer-ai-ink: #a9b8f5; --answer-ai-soft: #161a36;
+  --answer-real: #c8963c; --answer-real-edge: #f0c979; --on-answer-real: #1a110a;
+  --answer-real-ink: #deb265; --answer-real-soft: #33240e;
+  --success-soft: #10240f;
+  --danger: #c4231a; --on-danger: #fff4ee; --danger-ink: #ff7466; --danger-soft: #3a0b09;
+  --focus-ring: #f2c46b; --scrim: rgba(18, 2, 2, 0.8); --card-placeholder: #1f0c0a;
+  --shadow-card: 0 2px 3px rgba(0, 0, 0, 0.85), 0 14px 36px rgba(92, 4, 2, 0.55);
+  --shadow-lift: 0 8px 12px rgba(0, 0, 0, 0.85), 0 26px 52px rgba(110, 6, 3, 0.6);
+  color-scheme: dark;
+}
 
 /* Text styles */
 .title-lg { font-family: var(--font-gothic); font-size: 34px; line-height: 38px; font-weight: 600; }

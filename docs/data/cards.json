@@ -1,6 +1,9 @@
 {
   "generated": "2026-09-30",
+  "mode": "normal",
   "count": 20,
+  "img": "img/normal/",
+  "api": null,
   "cards": [
     {
       "name": "Flameheart Adventurer",

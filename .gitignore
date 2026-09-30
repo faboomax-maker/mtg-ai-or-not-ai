@@ -5,3 +5,9 @@ __pycache__/
 .DS_Store
 *.txt
 mse/
+
+# game server: generated at deploy time
+worker/wrangler.toml
+worker/.dev.vars
+worker/*.log
+worker/.wrangler/

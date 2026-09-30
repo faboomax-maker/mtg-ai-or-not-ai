@@ -221,10 +221,47 @@
 .ar-score__actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: var(--space-3); }
 .ar-score__status { margin: calc(-1 * var(--space-3)) 0 0; min-height: 19px; text-align: center; color: var(--ink-muted); }
 
+/* ───────── Charnier (mode hardcore) : ornements en plus des couleurs ─────────
+   Appliqué quand data-theme="charnier" est posé sur <html> ou sur la racine du jeu.
+   Rien ne change sur les cartes elles-mêmes : l'équité reste entière. */
+[data-theme="charnier"] .ar-panel { border-color: var(--blood); }
+[data-theme="charnier"] .ar-panel--framed { box-shadow: inset 0 0 0 4px var(--surface-raised), inset 0 0 0 5px var(--line-soft), 0 0 0 1px var(--blood-deep); }
+[data-theme="charnier"] .ar-panel--sunken.ar-panel--framed { box-shadow: inset 0 0 0 4px var(--surface-sunken), inset 0 0 0 5px var(--line-soft), 0 0 0 1px var(--blood-deep); }
+[data-theme="charnier"] .ar-panel::before {
+  content: ""; position: absolute; top: 0; left: 18px; right: 18px; height: 22px; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 100%, var(--blood) 3px, transparent 3.5px) 8% 0 / 8px 22px no-repeat,
+    linear-gradient(var(--blood), var(--blood)) 8% 0 / 4px 18px no-repeat,
+    radial-gradient(circle at 50% 100%, var(--blood) 2.5px, transparent 3px) 31% 0 / 6px 12px no-repeat,
+    linear-gradient(var(--blood), var(--blood)) 31% 0 / 3px 9px no-repeat,
+    radial-gradient(circle at 50% 100%, var(--blood) 3.5px, transparent 4px) 74% 0 / 9px 20px no-repeat,
+    linear-gradient(var(--blood), var(--blood)) 74% 0 / 5px 16px no-repeat,
+    radial-gradient(circle at 50% 100%, var(--blood) 2.5px, transparent 3px) 93% 0 / 6px 10px no-repeat,
+    linear-gradient(var(--blood), var(--blood)) 93% 0 / 3px 7px no-repeat;
+}
+[data-theme="charnier"] .ar-panel > * { position: relative; }
+[data-theme="charnier"] .ar-panel__title::after { width: 64px; height: 4px; }
+[data-theme="charnier"] .ar-deck__back { box-shadow: 0 0 0 1px var(--card-edge), inset 0 0 0 7px var(--surface-raised), inset 0 0 0 8px var(--blood), var(--shadow-card); }
+[data-theme="charnier"] .ar-btn--primary { box-shadow: var(--shadow-bevel), 0 0 0 1px var(--blood-deep), 0 4px 14px rgba(120, 8, 4, .45); }
+[data-theme="charnier"] .ar-verdict.is-wrong .ar-verdict__plaque { position: relative; animation: ar-slam 220ms var(--ar-ease-spring), ar-shake 260ms 220ms ease-in-out; }
+[data-theme="charnier"] .ar-verdict.is-wrong .ar-verdict__plaque::after {
+  content: ""; position: absolute; top: 100%; left: 10%; right: 10%; height: 26px; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 100%, var(--danger) 4px, transparent 4.5px) 12% 0 / 10px 26px no-repeat,
+    linear-gradient(var(--danger), var(--danger)) 12% 0 / 6px 22px no-repeat,
+    radial-gradient(circle at 50% 100%, var(--danger) 3px, transparent 3.5px) 46% 0 / 8px 14px no-repeat,
+    linear-gradient(var(--danger), var(--danger)) 46% 0 / 4px 11px no-repeat,
+    radial-gradient(circle at 50% 100%, var(--danger) 3.5px, transparent 4px) 83% 0 / 9px 20px no-repeat,
+    linear-gradient(var(--danger), var(--danger)) 83% 0 / 5px 16px no-repeat;
+}
+[data-theme="charnier"] .ar-recap__mark.is-bad { box-shadow: 0 0 0 2px var(--surface-sunken); }
+@keyframes ar-shake { 20% { transform: translateX(-6px) rotate(-1deg); } 45% { transform: translateX(5px) rotate(1deg); } 70% { transform: translateX(-3px); } }
+
 /* ───────── Mouvement réduit : tout coupe ───────── */
 @media (prefers-reduced-motion: reduce) {
   .ar-btn, .ar-card__img, .ar-swipe, .ar-stamp { transition: none !important; }
-  .ar-card.is-loading, .ar-swipe.is-fresh, .ar-verdict, .ar-verdict__plaque { animation: none !important; }
+  .ar-card.is-loading, .ar-swipe.is-fresh, .ar-verdict, .ar-verdict__plaque,
+  [data-theme="charnier"] .ar-verdict.is-wrong .ar-verdict__plaque { animation: none !important; }
   .ar-stamp--ai, .ar-stamp--ai.is-armed { transform: rotate(12deg); }
   .ar-stamp--real, .ar-stamp--real.is-armed { transform: rotate(-12deg); }
 }
