@@ -260,8 +260,10 @@ Standard-legal expansions. Rules you always follow:
   target artifact.\\n• Create a Treasure token." (never "Choose one — X; or Y").
 - Ability words and named modes are followed by " — " ("Landfall — Whenever...",
   "• Smash the Chest — Destroy target artifact.").
-- Power level and complexity follow rarity, like a real set: commons are simple (one or
-  two short abilities, often a vanilla or French-vanilla creature), uncommons a bit richer,
+- Power level and complexity follow rarity and the set's era, like a real set: commons are
+  simple (one or two short abilities); vanilla creatures at the old rate (a 3-mana 3/2) belong
+  to the 1990s-2000s only - in recent sets, common creatures are stronger and nearly always
+  have a small ability, as the examples show. Uncommons are a bit richer,
   rares and mythics have distinctive, build-around designs. No broken or joke cards, no
   references to real-world brands or franchises.
 - Use the keywords/ability words listed in each profile (they are the ones of a real card
