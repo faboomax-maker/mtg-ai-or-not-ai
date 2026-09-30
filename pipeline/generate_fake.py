@@ -275,6 +275,8 @@ Standard-legal expansions. Rules you always follow:
   sentences ("Whenever this creature attacks, it connives"), never a standalone line like
   keyword abilities (Flying, Ward {2}). Write "Draw a card", never "You draw a card".
 - Modal cards: every mode must be a real choice of similar value for the card's cost.
+- Timing: a sorcery is cast only in its controller's main phase, never during combat, so it
+  never refers to attacking, blocking or unblocked creatures; combat tricks are instants.
 - Lands produce the mana listed in their profile (produces_mana) and use its land_types:
   like the set's real lands (tapped duals, utility lands), never a plain "{T}: Add {C}." land.
 - If the set has color-based factions (guilds, colleges, clans, families...), a multicolor

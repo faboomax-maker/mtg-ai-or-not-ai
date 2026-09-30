@@ -264,11 +264,21 @@ NON_CREATURE_ACTOR = re.compile(
     r"|\b(?:land|artifact|enchantment) fights\b", re.I)
 
 
+# A sorcery is cast in a main phase, outside combat: it can't refer to the current combat.
+DURING_COMBAT = re.compile(r"\b(?:attacking|blocking|unblocked|blocked creatures?|end of combat|during combat|"
+                           r"this combat|combat damage step|declare (?:attackers|blockers))\b", re.I)
+
+
 def rules_problem(text: str, type_line: str) -> str | None:
-    """Rules nonsense the LLM sometimes writes (a land that fights...)."""
+    """Rules nonsense the LLM sometimes writes (a land that fights, a sorcery that returns an
+    unblocked attacking creature...)."""
     m = NON_CREATURE_ACTOR.search(text or "")
     if m:
         return f"only creatures can do that: {m.group(0)!r}"
+    if "Sorcery" in type_line:
+        m = DURING_COMBAT.search(PAREN.sub("", text or ""))
+        if m:
+            return f"a sorcery can't be cast during combat: {m.group(0)!r}"
     return None
 
 
