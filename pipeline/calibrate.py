@@ -45,7 +45,8 @@ def sample(count: int, names: list[str] | None = None, era: str = "current") -> 
     while len(out) < count and tries < count * 6:
         tries += 1
         if todo:
-            r = s.get(f"{API}/cards/named", params={"exact": todo.pop(0)}, timeout=30)
+            name, _, code = todo.pop(0).partition("|")          # "Banishing Stroke|avr": that printing
+            r = s.get(f"{API}/cards/named", params={"exact": name, **({"set": code} if code else {})}, timeout=30)
         else:
             r = s.get(f"{API}/cards/random", params={"q": random.choice(queries)}, timeout=30)
         time.sleep(0.12)

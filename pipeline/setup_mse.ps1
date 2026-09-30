@@ -7,7 +7,7 @@ $paths = @(
   "/magicseteditor.com", "/magicseteditor.exe", "/Magic - Fonts/*",
   "/data/en.mse-locale/", "/data/magic.mse-game/",
   "/data/magic-m15-altered.mse-style/", "/data/magic-m15-mainframe-planeswalker.mse-style/",
-  "/data/magic-old.mse-style/", "/data/magic-new.mse-style/",
+  "/data/magic-old.mse-style/", "/data/magic-new.mse-style/", "/data/magic-new-miracle.mse-style/",
   "/data/magic-blends.mse-include/", "/data/magic-default-image.mse-include/",
   "/data/magic-mainframe-extras.mse-include/", "/data/magic-modules.mse-include/",
   "/data/magic-pride.mse-include/",

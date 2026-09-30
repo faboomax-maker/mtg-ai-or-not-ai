@@ -65,6 +65,14 @@ OLD_LOOK = {
     "r": (("#5f5428", "#d6c45e", "#5f5428"), "#ffffff"),
 }
 OLD_LOOK["m"] = OLD_LOOK["r"]
+# Modern frame (2003-2014): darker metals than today's (steel grey, bronze, deep orange-red),
+# as on Avacyn Restored, Return to Ravnica, Magic 2012 scans; black outline.
+MODERN_LOOK = {
+    "c": RARITY_LOOK["c"],
+    "u": (("#4c545b", "#b7c0c6", "#4c545b"), "#000000"),
+    "r": (("#6b5223", "#c9a152", "#6b5223"), "#000000"),
+    "m": (("#951a0f", "#e0561b", "#951a0f"), "#000000"),
+}
 RARITY_COLORS_SINCE = "1998-06-15"          # Exodus
 
 # Per-set corrections of the set symbol, checked by eye against printed cards:
@@ -202,7 +210,9 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
         out = (f"card:\n\tstylesheet: old\n\thas styling: true\n\tstyling data:\n"
                f"\t\tpt font: {pt_font}\n\t\tcolored rarities: no\n")
     elif frame == "modern":
-        out = "card:\n\tstylesheet: new\n\thas styling: false\n"
+        # miracle cards (Avacyn Restored) have their own frame, with rays at the top
+        style = "new-miracle" if re.search(r"(^|\n)Miracle\b", c.get("oracle_text") or "") else "new"
+        out = f"card:\n\tstylesheet: {style}\n\thas styling: false\n"
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
                f"\t\tfont cap: {size or BODY_SIZE}\n"
@@ -519,11 +529,13 @@ def symbol_images(code: str, font_path: Path, glyph: str | None, dest: Path) -> 
         symbols[r] = img
         # transparent stand-in with the symbol's proportions: MSE reserves that width on the type line
         Image.new("RGBA", (round(100 * w / h), 100), (255, 255, 255, 1)).save(dest / f"{code}{r}.png")
-    for r, (colors, outline) in OLD_LOOK.items():   # old frame colours: "old-c", "old-u"...
-        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        img.paste(Image.new("RGB", (w, h), outline), mask=solid)
-        img.paste(gradient((w, h), colors), mask=fill_mask)
-        symbols[f"old-{r}"] = img
+    # older frames' colours: "old-c", "old-u"... and "modern-u", "modern-r"...
+    for prefix, look in (("old", OLD_LOOK), ("modern", MODERN_LOOK)):
+        for r, (colors, outline) in look.items():
+            img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            img.paste(Image.new("RGB", (w, h), outline), mask=solid)
+            img.paste(gradient((w, h), colors), mask=fill_mask)
+            symbols[f"{prefix}-{r}"] = img
     return symbols
 
 
@@ -760,8 +772,10 @@ def tune_style(base: Path) -> None:
         print("text mana symbols: no extra spacing")
     # Older frames ("Old Main", "New Main"): rules text at size 14 in MSE, smaller on print
     # (compared with scans: calibrate.py --era old/modern)
-    for style, size in (("old", OLD_TEXT_SIZE), ("new", MODERN_TEXT_SIZE)):
+    for style, size in (("old", OLD_TEXT_SIZE), ("new", MODERN_TEXT_SIZE), ("new-miracle", MODERN_TEXT_SIZE)):
         p = base / "data" / f"magic-{style}.mse-style" / "style"
+        if not p.exists():
+            continue
         t = p.read_text(encoding="utf-8-sig")
         block = re.search(r"(?m)^\ttext:\s*\n(?:\t\t.*\n|\s*\n)+", t.replace("\r\n", "\n"))
         if block and "size: 14\n" in block.group(0):
@@ -770,12 +784,15 @@ def tune_style(base: Path) -> None:
             print(f"{style} frame text size -> {size}")
     # Modern frame: name and type line are printed in Matrix Bold; the style asks for "Matrix"
     # (bold weight), a Medium font whose bold is not installed -> the pack's ModMatrix (bold)
-    p = base / "data" / "magic-new.mse-style" / "style"
-    t = p.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
-    new = t.replace("\t\t\tname: Matrix\n", "\t\t\tname: ModMatrix\n")
-    if new != t:
-        p.write_text(new, encoding="utf-8")
-        print("modern frame name/type font -> ModMatrix (bold)")
+    for style in ("new", "new-miracle"):
+        p = base / "data" / f"magic-{style}.mse-style" / "style"
+        if not p.exists():
+            continue
+        t = p.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+        new = t.replace("\t\t\tname: Matrix\n", "\t\t\tname: ModMatrix\n")
+        if new != t:
+            p.write_text(new, encoding="utf-8")
+            print(f"{style} frame name/type font -> ModMatrix (bold)")
     # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
     # planeswalkers use smaller type (measured on scans: ~10)
     pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
@@ -864,6 +881,8 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
                 letter, frame = RARITY_LETTER.get(c["rarity"], "r"), era(c)
                 if frame == "old":                # white outlines; all black before Exodus
                     letter = "old-" + (letter if meta["released_at"] >= RARITY_COLORS_SINCE else "c")
+                elif frame == "modern" and letter != "c":   # darker metals (commons: inverted check kept)
+                    letter = "modern-" + letter
                 box = dict(FRAMES[frame])
                 box["h"] *= SYMBOL_TWEAKS.get(code, {}).get("size", 1)
                 paste_symbol(png, symbols.get(letter, symbols["r"]), box)
