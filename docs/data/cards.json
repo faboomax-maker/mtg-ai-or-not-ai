@@ -3,216 +3,223 @@
   "mode": "normal",
   "count": 20,
   "img": "img/normal/",
-  "api": null,
+  "api": "https://mtg-quiz.faboo-max.workers.dev",
   "cards": [
     {
-      "name": "Flameheart Adventurer",
-      "mana_cost": "{3}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)",
+      "name": "Victory's Mascot",
+      "mana_cost": "{2}{G}",
+      "type_line": "Instant",
+      "oracle_text": "Prevent all combat damage that would be dealt to target creature this turn. Put a +1/+1 counter on it.",
+      "flavor_text": "\"No one lifts spirits like Bouncer. Not even the trophy.\"",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "d0431d01d7c7509e.webp"
+    },
+    {
+      "name": "Seraphina, Cathedral Regent",
+      "mana_cost": "{1}{W}{W}",
+      "type_line": "Creature — Angel Noble",
+      "oracle_text": "Flying, vigilance\nWhenever Seraphina, Cathedral Regent attacks or blocks, you gain 2 life. Then if you control another legendary creature, draw a card.",
+      "flavor_text": "\"Within these hallowed halls, we shelter both the lost and the resolute.\"\n—Seraphina",
+      "power": "2",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "5023a5b59d07a4f1.webp"
+    },
+    {
+      "name": "Thornplate Intimidator",
+      "mana_cost": "{3}{B}",
+      "type_line": "Creature — Rat Rogue",
+      "oracle_text": "Offspring {3} (You may pay an additional {3} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nWhen this creature enters, target opponent loses 3 life unless they sacrifice a nonland permanent or discard a card.",
       "flavor_text": null,
       "power": "4",
       "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "d59cb2902fee3b28.webp",
-      "s": "LAAMolINCOUbgs4ilVYjusDzAbPI8PejLWURgcNigwJ3EE71AkMG/xmF3TqPQHu42KBGhIWmvu9OSAydhkPEWncAH7VHPkytVImNdMYRRPOM5RCuieqW9Al/Ecae"
-    },
-    {
-      "name": "Masked Dreadforger",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human Horror",
-      "oracle_text": "Eerie — Whenever an enchantment you control enters and whenever you fully unlock a Room, this creature gains lifelink until end of turn.",
-      "flavor_text": "In the shadows of her workshop, she forges blades that drink in terror and whisper the fear of their victims.",
-      "power": "3",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "ee96ae3283787935.webp",
-      "s": "cYU1veSlpkSurLCBEusWxWJ5PTiR6Ka06PNKHlRyeq1knWeQ6rz3G66lt80p4UiXL3h6YJPw5+TY70oBGycv/U7OJrbk6cIM76SygkOiGscheCwT1aDp+468GVd6aGOrKu8iuems9lzz"
-    },
-    {
-      "name": "Esper Battlemage",
-      "mana_cost": "{2}{U}",
-      "type_line": "Artifact Creature — Human Wizard",
-      "oracle_text": "{W}, {T}: Prevent the next 2 damage that would be dealt to you this turn.\n{B}, {T}: Target creature gets -1/-1 until end of turn.",
-      "flavor_text": "She can heal the flesh, or exploit its many weaknesses.",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "47e0ec45fc838bc2.webp",
-      "s": "e5KpoKNF6rzvTGadJvt3FOPAy8ZX8PVZ+K41su9j9/Mg8beksEjqqu8adZo3viRCsp+fxiCxo36wjCag8zfs9CKc++e3W6Sk9Rg2gDejJ0WqipCXDqKubPGjK/j/LPW6Y9Gpoe1IpOfgDCTHJqQnU+KI3YUZpLtv/a4gs6M27Phfw7SwsEqtu65Ifco+"
-    },
-    {
-      "name": "Graceful Fanbearer",
-      "mana_cost": "{2}{W}",
-      "type_line": "Creature — Human",
-      "oracle_text": "When Graceful Fanbearer enters the battlefield, you gain 2 life.\nWhenever you gain life, target creature you control gets +1/+1 until end of turn.",
-      "flavor_text": "\"With each gentle flutter of my fans, I weave old traditions into the rhythm of tomorrow.\"",
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "a58a9db6188b792d.webp",
-      "s": "PE1zlMDNDmfHeO6nzePJYG3sWF7cnE0IxWNH155rTal9T0+Uzs8MGZ5w7rjK/8dsb71cWIrPHl6sOAqco2tIqWcubZfOz18yxTKv6d/0kR8p7VJH3JxNCMdvWtuLY1ukZzx0k8XUSS/FYw=="
-    },
-    {
-      "name": "Dwarven Recruiter",
-      "mana_cost": "{2}{R}",
-      "type_line": "Creature — Dwarf",
-      "oracle_text": "When Dwarven Recruiter comes into play, search your library for any number of Dwarf cards and reveal those cards. Shuffle your library, then put them on top of it in any order.",
-      "flavor_text": null,
-      "power": "2",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "419ff2fb375756f3.webp",
-      "s": "BJXe2siwANTjG8CRMu6VANrYyz54XuqG/4Hfmp2kfKhflc3N3bVRmuFVksYUq8dXzNHQPm5e6rzplI7T2P828AvH34WG81GNsRbUhTuum0HG0JB/Iwys5vSc1cbJ5WirG8DNzd+5TMOxCtGWIqvBR9uCymgvIbum7orPjMW8Lu1dyg=="
-    },
-    {
-      "name": "Volrath's Curse",
-      "mana_cost": "{1}{U}",
-      "type_line": "Enchant Creature",
-      "oracle_text": "Enchant creature\nEnchanted creature can't attack or block, and its activated abilities can't be activated. That creature's controller may sacrifice a permanent of their choice for that player to ignore this effect until end of turn.\n{1}{U}: Return this Aura to its owner's hand.",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "U"
-      ],
-      "card": true,
-      "img": "83d32b57af713882.webp",
-      "s": "4OtJsMYygiGmHHwR9CVfmPGXrPJ/A+yxcLaFBvDlu1a761qn0zfTb6RSLkbVaA3f7NKasSFGvMc5+9cW8f27QLvrU6HTLtMhqUd9B+NwGdvunvazKk7hhnSpkUz3/OlVqvkK+tExzGnnHGYXvGoKyPGX56UxTpGWeq6HAOas+Ary60Y="
-    },
-    {
-      "name": "Sanguine Remnant",
-      "mana_cost": "{B}",
-      "type_line": "Instant",
-      "oracle_text": "Target creature gets -1/-1 until end of turn.\nIf a creature you control is put into a graveyard from play this turn, return Sanguine Remnant from your graveyard to your hand.",
-      "flavor_text": null,
-      "power": null,
-      "toughness": null,
       "loyalty": null,
       "rarity": "common",
       "colors": [
         "B"
       ],
       "card": true,
-      "img": "e5ce8f557b2abd72.webp",
-      "s": "+C58vVOOLIoAPMu4dTEc8y/pB3n0g9JCQofEOt6FEArlLE+0U5Bvkgx6iLV0IFmgebhYLfT9kxZ0z+4t1JJRCe8uIvgQg3zEfzzYu2t2CvMvyQpsstaFBnSKwWrH"
+      "img": "8c0b4aafae546b49.webp"
     },
     {
-      "name": "Secluded Steppe",
-      "mana_cost": "",
-      "type_line": "Land",
-      "oracle_text": "Secluded Steppe comes into play tapped.\n{T}: Add {W} to your mana pool.\nCycling {W} ({W}, Discard this card from your hand: Draw a card.)",
+      "name": "Warden of the Grove",
+      "mana_cost": "{2}{G}",
+      "type_line": "Creature — Hydra",
+      "oracle_text": "At the beginning of your end step, put a +1/+1 counter on this creature.\nWhenever another nontoken creature you control enters, it endures X, where X is the number of counters on this creature. (Put X +1/+1 counters on the creature that entered or create an X/X white Spirit creature token.)",
       "flavor_text": null,
+      "power": "2",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "85f7f6e68d0eb970.webp"
+    },
+    {
+      "name": "Stormclad Dragon-Breaker",
+      "mana_cost": "{4}{R}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "Backup 1 (When this creature enters the battlefield, put a +1/+1 counter on target creature. If that's another creature, it gains the following ability until end of turn.)\nDouble strike",
+      "flavor_text": "\"You want my head, beast? Come and take it!\"\n—Talya, defenders' captain",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "a115475e50905b2b.webp"
+    },
+    {
+      "name": "Berrybone Scavenger",
+      "mana_cost": "{2}{B}",
+      "type_line": "Creature — Squirrel Rogue",
+      "oracle_text": "As an additional cost to cast this spell, forage or pay {B}. (To forage, exile three cards from your graveyard or sacrifice a Food.)",
+      "flavor_text": "\"If there's a crumb in the dirt, a Berrybone will find it—before you even know you're hungry.\"",
+      "power": "3",
+      "toughness": "2",
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [
+        "B",
+        "G"
+      ],
+      "card": true,
+      "img": "f98e7e9a7b4869ff.webp"
+    },
+    {
+      "name": "Descent of the Thunderbands",
+      "mana_cost": "{3}{B}",
+      "type_line": "Sorcery",
+      "oracle_text": "Destroy target creature. If that creature had power 4 or greater, its controller discards a card.",
+      "flavor_text": "\"There’s no shelter from Kolaghan’s fury—her talons find you, wherever lightning breaks the night.\"\n—Urtok, Thunderband outrider",
       "power": null,
       "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "B"
+      ],
+      "card": true,
+      "img": "70b0de42bd163c5a.webp"
+    },
+    {
+      "name": "Firesprint Filcher",
+      "mana_cost": "{2}{R}",
+      "type_line": "Creature — Goblin Rogue",
+      "oracle_text": "Haste\nWhen Firesprint Filcher enters the battlefield, if you control another Rogue, it deals 2 damage to any target.\nWhenever Firesprint Filcher attacks, return an artifact you control to its owner's hand.",
+      "flavor_text": null,
+      "power": "3",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "R"
+      ],
+      "card": true,
+      "img": "4d57df4d3beaf605.webp"
+    },
+    {
+      "name": "Blink Dog",
+      "mana_cost": "{2}{W}",
+      "type_line": "Creature — Dog",
+      "oracle_text": "Double strike\nTeleport — {3}{W}: Blink Dog phases out. (Treat it and anything attached to it as though they don't exist until your next turn.)",
+      "flavor_text": "Blink dogs protect the wild places of the world, driving away evil influences.",
+      "power": "1",
+      "toughness": "1",
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "W"
+      ],
+      "card": true,
+      "img": "e2dbe89c1522cb2a.webp"
+    },
+    {
+      "name": "Spoils of Adventure",
+      "mana_cost": "{4}{W}{U}",
+      "type_line": "Instant",
+      "oracle_text": "This spell costs {1} less to cast for each creature in your party. (Your party consists of up to one each of Cleric, Rogue, Warrior, and Wizard.)\nYou gain 3 life and draw three cards.",
+      "flavor_text": "Survival itself is no small reward.",
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "uncommon",
+      "colors": [
+        "U",
+        "W"
+      ],
+      "card": true,
+      "img": "8380bbb5171ea5cb.webp"
+    },
+    {
+      "name": "Sarkhan, Soul Aflame",
+      "mana_cost": "{1}{U}{R}",
+      "type_line": "Legendary Creature — Human Shaman",
+      "oracle_text": "Dragon spells you cast cost {1} less to cast.\nWhenever a Dragon enters the battlefield under your control, you may have Sarkhan, Soul Aflame become a copy of it until end of turn, except its name is Sarkhan, Soul Aflame and it’s legendary in addition to its other types.",
+      "flavor_text": null,
+      "power": "2",
+      "toughness": "4",
+      "loyalty": null,
+      "rarity": "mythic",
+      "colors": [
+        "R",
+        "U"
+      ],
+      "card": true,
+      "img": "c4aa6f79cd5eb783.webp"
+    },
+    {
+      "name": "Shelfclimber Assistant",
+      "mana_cost": "{6}",
+      "type_line": "Artifact Creature — Construct",
+      "oracle_text": "Reach",
+      "flavor_text": "\"The automata keep the rarest tomes dust-free and the students out of the rafters.\"\n—Lemrit, Biblioplex docent",
+      "power": "3",
+      "toughness": "6",
       "loyalty": null,
       "rarity": "common",
       "colors": [],
       "card": true,
-      "img": "86d07d9572e54b73.webp",
-      "s": "+vfTlL3SwJ3yvmk2g1q05IOytXUzBY8Knez1DCSgZ3Wj+YHTvcyWzqG+OXnGVNyjkaOpMnsF5TCX7PYDc+svI/SnzdPmnsDPpr5rMNxZu7WTpbgxaEnBa5Dw9EIypn1lrrrPgvON0JP9uX4gigPwo5T6siNsVd0gzOrtAA60YHTztsTMvc6Lha8="
+      "img": "b9f99077e5c9f701.webp"
     },
     {
-      "name": "Seized from Slumber",
-      "mana_cost": "{4}{W}",
-      "type_line": "Instant",
-      "oracle_text": "This spell costs {3} less to cast if it targets a tapped creature.\nDestroy target creature.",
-      "flavor_text": "Tyson tried to scream for help, but his lungs simply unraveled.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "d996b031e4157959.webp",
-      "s": "7YwFlOMtApXaOLs5rEwlS51kv6PR0syGh2bh8bR/Nwasjj+e9zJFj5Uq6QSmEncGnCPnocmTnLabZv6+4SpnJf/cFp/mIADinymiP+tMJUubc6ej0dLMqoZh+u/hJWob9dwOl+MtTIGZI6RjqgF3DcFluOrEwNbtgXDj5r5uaA7kwRrc8S1Vwpgpu3O8FGg2nW6+84iX06OCfKjh"
-    },
-    {
-      "name": "Sanctum of Tranquil Light",
-      "mana_cost": "{W}",
-      "type_line": "Legendary Enchantment — Shrine",
-      "oracle_text": "{5}{W}: Tap target creature. This ability costs {1} less to activate for each Shrine you control.",
-      "flavor_text": "An untroubled mind\nDwells in perfect harmony\nWith a peaceful heart.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "b7fc0a720ae34be5.webp",
-      "s": "fRGK7HFJYDKKXptHfDYKpKkGRqQz/ocUS/Fxj4RwfDM0A8q4MgliKstYnVtqbgi8+kF46WG/yzlB8DT5uGZ7MSoT2vxiSWAyigiBRm1qWbz1TEHle6fDNkjvOsy4eCdwZ0Gcpn0XcyeZGcZBeHRJ8q8OH+lv89ElRe1l2r55JX9vVJD9L1A2ZfVZhkdreU+7uxNbpHQ="
-    },
-    {
-      "name": "Moonlit Strider",
-      "mana_cost": "{3}{W}",
-      "type_line": "Creature — Spirit",
-      "oracle_text": "Sacrifice Moonlit Strider: Target creature you control gains protection from the color of your choice until end of turn.\nSoulshift 3 (When this is put into a graveyard from play, you may return target Spirit card with converted mana cost 3 or less from your graveyard to your hand.)",
+      "name": "Pilfering Imp",
+      "mana_cost": "{B}",
+      "type_line": "Creature — Imp",
+      "oracle_text": "Flying\n{1}{B}, {T}, Sacrifice Pilfering Imp: Target opponent reveals their hand. You choose a nonland card from it. That player discards that card. Activate this ability only any time you could cast a sorcery.",
       "flavor_text": null,
       "power": "1",
-      "toughness": "4",
-      "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "W"
-      ],
-      "card": true,
-      "img": "3f67cbb8b4f64d65.webp",
-      "s": "cfbMAbs7LmV21jrRIINde2Q3T5k5z0Un6Wd8INMZmrcqu9hEkTZhNjHDP8Vng117diBP0nCbRV+sMUQuwhLIhXy70Eb2dy4qJM5qnmWNFS1jIkiBLMAUBv5qaCDGEManZbmRB7slaHA0zSOLdJlSNHg9Vddqm0oW+GFnJc8O17F+ueEXtSJ+PDOfKdQsjQA="
-    },
-    {
-      "name": "Wraith's Grasp",
-      "mana_cost": "{3}{U}",
-      "type_line": "Instant",
-      "oracle_text": "Tap target creature. It doesn’t untap during its controller's next untap step.",
-      "flavor_text": "\"In the shadow of despair, even the brave can falter.\" \n—Elys, Master of the Veil",
-      "power": null,
-      "toughness": null,
+      "toughness": "1",
       "loyalty": null,
       "rarity": "uncommon",
       "colors": [
-        "U"
+        "B"
       ],
       "card": true,
-      "img": "41a1e3295703f0c5.webp",
-      "s": "bReybPrWHoByXfpc2kUnOO2gelsmUXiDvc22fVIkZQFiF+wpudtOzjtI7xKTAClZo7ZnD0wEKs2X2uheQT1jB3JQrGXymBCacFrpRPZGeXei8SUPJi8x0pHMqHNcM3cFd0GlK+Y="
+      "img": "8931be77415657bb.webp"
     },
     {
-      "name": "Meditative Sage",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Cleric",
-      "oracle_text": "Threshold — Meditative Sage gets an additional +1/+1.",
-      "flavor_text": null,
+      "name": "Resolute Elven Duelist",
+      "mana_cost": "{W}",
+      "type_line": "Creature — Elf Warrior",
+      "oracle_text": "When Resolute Elven Duelist enters the battlefield, if you control another creature, you gain 2 life.",
+      "flavor_text": "\"I stood alone at the Blackthorn Gates and did not falter. What threat do you truly bring?\"\n—Elaris, dawn-chosen",
       "power": "1",
       "toughness": "2",
       "loyalty": null,
@@ -221,125 +228,100 @@
         "W"
       ],
       "card": true,
-      "img": "c4c55eb7691149c6.webp",
-      "s": "a8Uavt9Xp4D9/kboDWQWzs0MvRxgl51hWVAgryaS6DE8x0q6zE/syam6HaRcTVucnQb4LS7A0jFzFnX8d5bjZ0+BGrTTGb+a/9Ve9wpoWc6/GrYBNsjTNzRJ"
+      "img": "802ff484a47ce5aa.webp"
     },
     {
-      "name": "Ichor Shade",
-      "mana_cost": "{2}{B}",
-      "type_line": "Creature — Phyrexian Shade",
-      "oracle_text": "At the beginning of your end step, if an artifact or creature was put into a graveyard from the battlefield this turn, put a +1/+1 counter on Ichor Shade.",
-      "flavor_text": "As oil seeped into their funeral shrouds, Tolvada’s dead rose to join the invaders’ ranks.",
-      "power": "2",
-      "toughness": "3",
+      "name": "Ballroom Brawlers",
+      "mana_cost": "{3}{W}{W}",
+      "type_line": "Creature — Human Warrior",
+      "oracle_text": "Whenever Ballroom Brawlers attacks, Ballroom Brawlers and up to one other target creature you control both gain your choice of first strike or lifelink until end of turn.",
+      "flavor_text": "Don’t try to cut in. They’ll cut back.",
+      "power": "3",
+      "toughness": "5",
       "loyalty": null,
-      "rarity": "common",
-      "colors": [
-        "B"
-      ],
-      "card": true,
-      "img": "66c5f2ea358ee82e.webp",
-      "s": "YMH9QQ0p7k0yE7V+gB3kAWf2Fknbgu/8zps+WcLEzKFvi+oEISSvH3sJoinJEeZCZucLGJWA95GNpzRSisTG4GjDyFYJIqMFa0XrK8dEtk82qUJJida5wdzTch6RyNj4fYLjSEImoxo9BKZ5gR6pTHm8U1rTjaTSx4YvHJHDy+V+3PpQARq/GGcVpG7YULRKNu4="
-    },
-    {
-      "name": "Imperial Oath",
-      "mana_cost": "{5}{W}",
-      "type_line": "Sorcery",
-      "oracle_text": "Create three 2/2 white Samurai creature tokens with vigilance. Scry 3.",
-      "flavor_text": "Those chosen to guard the Imperial Palace are not only unrivaled warriors but also lionhearted champions of the Imperial cause.",
-      "power": null,
-      "toughness": null,
-      "loyalty": null,
-      "rarity": "common",
+      "rarity": "uncommon",
       "colors": [
         "W"
       ],
       "card": true,
-      "img": "6a4f5d5d5eb91c28.webp",
-      "s": "Dr2iWQLdIjVmAB85pLm+/AGBEMsG047P6QqofTGLxblV0bVTDZFEdigVHji4t7L+UIUWnVWA2KayR+NUOZ/M7Bn+oxwm3WluNVZBbOPg7LJQ3kTLVIfY9Ptd7jUjn9b6E/68UE3Sb2JpFww+pbrwux3LVd4TmsH07RWoezzRy+IB9+9JF9xffCkBHy+kqP+uG8YZ"
+      "img": "2c21265c802d4b06.webp"
     },
     {
-      "name": "Fierce Bladewielder",
-      "mana_cost": "{3}{R}{R}",
-      "type_line": "Creature — Human Warrior",
-      "oracle_text": "Double strike\nBackup 1 (When this creature enters the battlefield, put a +1/+1 counter on target creature. If that's another creature, it gains the following ability until end of turn.)",
-      "flavor_text": null,
-      "power": "4",
-      "toughness": "3",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "d14a7fb39e923592.webp",
-      "s": "sjr0IdNLoJXD+WNOGWPScgmi7stJUI+3VD9R98CjpNXpbO4hkmrjzIv2bEdIKt5wSqP/1hgeja85fHD4yfSk3qBqpgnTSevOiL0uAkhnjCZ0t/nQBkiVtTsYRvXa767AujjVL9NL5o2e"
-    },
-    {
-      "name": "Rapacious One",
-      "mana_cost": "{5}{R}",
-      "type_line": "Creature — Eldrazi Drone",
-      "oracle_text": "Trample\nWhenever Rapacious One deals combat damage to a player, put that many 0/1 colorless Eldrazi Spawn creature tokens onto the battlefield. They have \"Sacrifice this creature: Add {1} to your mana pool.\"",
+      "name": "Djeru and Hazoret",
+      "mana_cost": "{2}{R}{R}{W}",
+      "type_line": "Legendary Creature — Human God",
+      "oracle_text": "As long as you have one or fewer cards in hand, Djeru and Hazoret has vigilance and haste.\nWhenever Djeru and Hazoret attacks, look at the top six cards of your library. You may exile a legendary creature card from among them. Put the rest on the bottom of your library in a random order. Until end of turn, you may cast the exiled card without paying its mana cost.",
       "flavor_text": null,
       "power": "5",
       "toughness": "4",
       "loyalty": null,
-      "rarity": "uncommon",
+      "rarity": "rare",
       "colors": [
-        "R"
-      ],
-      "card": true,
-      "img": "0695d93953b4abb8.webp",
-      "s": "+LCb6lBJXKcd0NNfjLalNHjwOHDpHbAA5YWkgemRvuLr98nKXUEM/EfNgwbJuORkf/w/JvEHsnDGl7LO6NffuKPXh+hdQFyxHYbUWIW4vzYp/Tgmo06ofaOFotP/kf/677yK4FwKHfxPwI5Yhv+qJz2nYyCyTfMx5Zm00quY8PO8553iblYR6E/HxBeI6uw0dg=="
-    },
-    {
-      "name": "Origami Artist",
-      "mana_cost": "{1}{W}",
-      "type_line": "Creature — Artificer",
-      "oracle_text": "Whenever you cast an enchantment spell, you may create a 1/1 white Spirit creature token with flying.",
-      "flavor_text": "With each fold, she conjures spirits of hope from the quiet depths of her imagination.",
-      "power": "1",
-      "toughness": "2",
-      "loyalty": null,
-      "rarity": "uncommon",
-      "colors": [
+        "R",
         "W"
       ],
       "card": true,
-      "img": "e26b0a7eec492b9e.webp",
-      "s": "sTX48FXnYlTvgIIGkMAPlMmdEXc0NEkSTMxkrqnbt7m5N+XzFMAhA6aBgh2Chw+UyY8Gd399HRI0iTKOp8zymLpy6+dHqWxO7YeRHrzDUduGzE4jNEsEQHrQPY+g0LulrzfB9FrlNR2nj8EX"
+      "img": "8c1f07c9d2749bb9.webp"
     },
     {
-      "name": "Shadowstalker",
+      "name": "Agonasaur Rex",
+      "mana_cost": "{3}{G}{G}",
+      "type_line": "Creature — Dinosaur",
+      "oracle_text": "Trample\nCycling {2}{G} ({2}{G}, Discard this card: Draw a card.)\nWhen you cycle this card, put two +1/+1 counters on up to one target creature or Vehicle. It gains trample and indestructible until end of turn.",
+      "flavor_text": null,
+      "power": "8",
+      "toughness": "8",
+      "loyalty": null,
+      "rarity": "rare",
+      "colors": [
+        "G"
+      ],
+      "card": true,
+      "img": "8bf934a843e9b65b.webp"
+    },
+    {
+      "name": "Excavated Wall",
       "mana_cost": "{1}",
-      "type_line": "Artifact Creature",
-      "oracle_text": "Shadowstalker cannot block or be blocked except by other creatures with shadow. (This creature can block or be blocked by only creatures with shadow.)",
-      "flavor_text": "\"In the ruins, even silence holds the weight of its prey.\"\n—Lyna, Soltari emissary",
-      "power": "1",
-      "toughness": "1",
+      "type_line": "Artifact Creature — Wall",
+      "oracle_text": "Defender\n{1}, {T}: Mill a card. (Put the top card of your library into your graveyard.)",
+      "flavor_text": "“Don’t be fooled by the quiet. These old stones are trying to talk to you.”\n—Augusta, Lorehold dean",
+      "power": "0",
+      "toughness": "4",
       "loyalty": null,
       "rarity": "common",
       "colors": [],
       "card": true,
-      "img": "6e0c85c0945bcde5.webp",
-      "s": "OmfYnWGCC1pIMlBnovz7EGMQ0IBSoC2zxqVuegWUHV9tZYiZcppAExx2Cyvz2LtcJA2Voxn2YfjzrXAoTMdLHDMx9Z5ygURCUnQTRrTttlwtCtbUI/Zk5/eyIXc="
+      "img": "1d3618974022e19b.webp"
     },
     {
-      "name": "Mistweaver Acolyte",
-      "mana_cost": "{1}{B}",
-      "type_line": "Creature — Human",
-      "oracle_text": "Whenever you sacrifice another creature, Mistweaver Acolyte gets +1/+1 until end of turn.",
-      "flavor_text": "\"In the depths of despair, even the faintest glimmer of strength can guide us through.\"\n—Eldrin, Mistweaver",
-      "power": "1",
-      "toughness": "1",
+      "name": "Duskmist Watchers",
+      "mana_cost": "{1}{U}",
+      "type_line": "Creature — Human Rogue",
+      "oracle_text": "Defender",
+      "flavor_text": "\"We see the shadows that even the city forgets to count.\"\n—Kazak, Duskmist infiltrator",
+      "power": "0",
+      "toughness": "4",
       "loyalty": null,
       "rarity": "common",
       "colors": [
-        "B"
+        "U"
       ],
       "card": true,
-      "img": "7b7f8209b195efbf.webp",
-      "s": "LPc7/+dEe+uwVp+Aeq27SDS0XCT4Khk0gnzpLa+IyzYjvSy6w0Q9o/FKl84l6LUJZLNQI64yAzbyXP0n/cfmfzKnMPbzQ3v9sBKfnn2X8Rp5qhtq+jJ9c7Fh8mjMksFiPqY9uPs="
+      "img": "84ca393a61031fb5.webp"
+    },
+    {
+      "name": "Gilded Wing Effigy",
+      "mana_cost": "{2}",
+      "type_line": "Artifact — Equipment",
+      "oracle_text": "When Gilded Wing Effigy enters the battlefield, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nEquipped creature gets +1/+0.\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
+      "flavor_text": null,
+      "power": null,
+      "toughness": null,
+      "loyalty": null,
+      "rarity": "common",
+      "colors": [],
+      "card": true,
+      "img": "2871e90f275f6384.webp"
     }
   ]
 }
