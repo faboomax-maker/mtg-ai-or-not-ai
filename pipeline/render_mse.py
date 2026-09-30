@@ -115,14 +115,16 @@ def minus_signs(t: str) -> str:
     return re.sub(r"(?<=[\dX]/)-(?=[\dX])", "−", t)
 
 
-def rules_text(text: str | None, marked: bool = False) -> str:
+def rules_text(text: str | None, marked: bool = False, minus: bool = True) -> str:
     """`marked`: the text carries its printed italics as <i>...</i> (read on the scan of a real
-    card), used as is; otherwise ability words are put in italics by rule."""
+    card), used as is; otherwise ability words are put in italics by rule. `minus`: real minus
+    signs ('−1/−1', M15 frame); older frames printed a hyphen ('-1/-1')."""
+    signs = minus_signs if minus else (lambda s: s.replace("−", "-"))
     if marked:
         t = esc((text or "").replace("<i>", "\x01").replace("</i>", "\x02"))
-        t = minus_signs(t).replace("\x01", "<i>").replace("\x02", "</i>")
+        t = signs(t).replace("\x01", "<i>").replace("\x02", "</i>")
     else:
-        t = ABILITY_WORD.sub(_italic_ability_word, minus_signs(esc(text or "")))
+        t = ABILITY_WORD.sub(_italic_ability_word, signs(esc(text or "")))
     t = re.sub(r"\{([A-Z0-9/]+)\}", r"<sym>\1</sym>", _mana_common(t))
     return t.replace("</sym><sym>", "")
 
@@ -176,7 +178,8 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
     # real cards: the text with its italics as read on the scan, when available
     marked = bool(c.get("printed_markup"))
     text = c["printed_markup"] if marked else c.get("oracle_text")
-    fields.update(planeswalker_fields(text, marked) if pw else {"rule text": rules_text(text, marked)})
+    fields.update(planeswalker_fields(text, marked) if pw
+                  else {"rule text": rules_text(text, marked, minus=era(c) == "current")})
     if c.get("flavor_text"):
         # the attribution line ("—Arlinn Kord") follows without a paragraph gap: soft line break
         flavor = esc(c["flavor_text"]).replace("\n", "<soft-line>\n</soft-line>")
@@ -759,6 +762,14 @@ def tune_style(base: Path) -> None:
             new_block = block.group(0).replace("size: 14\n", f"size: {size}\n")
             p.write_text(t.replace("\r\n", "\n").replace(block.group(0), new_block), encoding="utf-8")
             print(f"{style} frame text size -> {size}")
+    # Modern frame: name and type line are printed in Matrix Bold; the style asks for "Matrix"
+    # (bold weight), a Medium font whose bold is not installed -> the pack's ModMatrix (bold)
+    p = base / "data" / "magic-new.mse-style" / "style"
+    t = p.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+    new = t.replace("\t\t\tname: Matrix\n", "\t\t\tname: ModMatrix\n")
+    if new != t:
+        p.write_text(new, encoding="utf-8")
+        print("modern frame name/type font -> ModMatrix (bold)")
     # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
     # planeswalkers use smaller type (measured on scans: ~10)
     pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
