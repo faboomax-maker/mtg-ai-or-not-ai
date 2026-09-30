@@ -741,8 +741,11 @@ def dev_review(llm: str, batch: list[dict], specs: list[dict], pool: list[dict],
     return batch
 
 
-VERDICT_SYSTEM = """You are a strict Magic: The Gathering Play Design lead doing a final power
-check before print. For each new card, compare it with the real cards of the same set given
+VERDICT_SYSTEM = """You are a Magic: The Gathering Play Design lead doing a final power check
+before print, looking only for clear outliers: most designs are fine, and a card that is a bit
+above or below its comparables, as real cards often are, is "fair". A vanilla or single-keyword
+creature within one point of power/toughness of the set's curve is "fair" (a 3-mana 3/2, a
+2-mana 2/1, a 5-mana 5/3 are normal). When in doubt, answer "fair". For each new card, compare it with the real cards of the same set given
 with it (same rarity, type, mana value) and judge it by the standards of that set's time.
 A card is "too strong" if a real set would never print it at that rarity and cost: for
 example a land making several colors that enters untapped with no drawback plus a bonus
@@ -753,7 +756,7 @@ either, because it does clearly less than the weakest comparables: for example a
 instant that only taps one creature, a vanilla creature with stats well below the curve, or
 an aura or artifact whose effect is marginal for its cost. Old sets had weaker cards than
 today, so judge against that set's own comparables, not modern standards. "fair" if it
-fits among the comparables. Commons especially must be modest but playable. Answer with a
+fits among the comparables or near them. Answer with a
 JSON array, one {"verdict": "fair" | "too strong" | "too weak", "reason": "..."} per card,
 same order, no commentary."""
 
@@ -797,9 +800,15 @@ def repair_power(llm: str, cards: list[dict], reasons: list[str], specs: list[di
         out = parse_array(call_llm(llm, REPAIR_SYSTEM, f"Set: «{set_name}».\n"
                                    + json.dumps(items, ensure_ascii=False, indent=1)))
         if len(out) == len(cards) and all(isinstance(o, dict) for o in out):
-            # the name, flavor and art stay the card's own
-            keep = ("name", "flavor_text", "art_description")
-            return [{**o, **{k: c[k] for k in keep if k in c}} for c, o in zip(cards, out)]
+            fixed = []
+            for c, o in zip(cards, out):
+                o = o.get("card") if isinstance(o.get("card"), dict) else o   # (answer shaped like the request)
+                # over the original: a key the answer leaves out keeps its value; the name,
+                # flavor and art stay the card's own
+                keep = ("name", "flavor_text", "art_description")
+                fixed.append({**c, **{k: v for k, v in o.items() if k in c or k in ("power", "toughness", "loyalty")},
+                              **{k: c[k] for k in keep if k in c}})
+            return fixed
     except (Exception, SystemExit) as e:          # a bonus, never a blocker
         print(f"  power repair skipped: {e}", file=sys.stderr)
     return cards
