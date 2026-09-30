@@ -9,7 +9,7 @@ var A = window.Artifice, h = React.createElement;
 var useState = React.useState, useRef = React.useRef, useEffect = React.useEffect;
 var ROUND = 20, VERDICT_MS = 1200;
 var DECKS = { normal: "data/cards.json", hardcore: "data/hardcore.json" };
-var MODE_NAME = { normal: "Normal", hardcore: "Hardcore" };
+var MODE_NAME = { normal: "Facile", hardcore: "Hardcore" };   // (internal id of the easy mode: "normal")
 
 /* ------------------------------------------------------------------ data */
 function unseal(card) {
@@ -165,7 +165,7 @@ function Intro(p) {
     h("div", { className: "push" },
       p.error ? h("p", { className: "error caption" }, p.error) : null,
       h(A.Button, { variant: "primary", size: "lg", block: true, disabled: !(normal && normal.cards.length) || p.busy,
-                    onClick: function () { p.onStart("normal"); } }, "Jouer"),
+                    onClick: function () { p.onStart("normal"); } }, "Mode facile"),
       h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "skull", disabled: !(hard && hard.cards.length) || p.busy,
                     onClick: p.onHardcore }, hard ? "Mode hardcore" : "Mode hardcore (bientôt)"),
       p.meta ? h("p", { className: "meta caption" }, p.meta) : null,
@@ -218,8 +218,10 @@ function Warning(p) {
       h(A.Icon, { name: "hourglass", size: 22 }),
       h("span", { className: "noob-wait__n title-sm" }, wait)) :
     h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo },
-      h("span", { className: "verdict-noob__label" }, "TG noob !!!",
-        h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "", width: 32, height: 32 }))));
+      h("span", { className: "verdict-noob__label" }, "TG noob !!!!",
+        h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "", width: 32, height: 32 }),
+        "j'ai le niveau !")),
+    h(A.Button, { variant: "secondary", size: "lg", block: true, disabled: p.busy, onClick: p.onEasy }, "Passer en mode facile"));
 
   return h("div", { className: "warn" },
     h("header", { className: "bar" },
@@ -428,7 +430,8 @@ function App() {
   return h("div", { className: "app", "data-screen": screen },
     screen === "intro" ? h(Intro, { onStart: start, onHardcore: function () { setError(null); setScreen("warn"); },
                                     decks: decks, meta: meta, error: error, board: board, busy: busy }) :
-    screen === "warn" ? h(Warning, { onCancel: home, onGo: function () { start("hardcore"); }, busy: busy, error: error }) :
+    screen === "warn" ? h(Warning, { onCancel: home, onGo: function () { start("hardcore"); },
+                                     onEasy: function () { start("normal"); }, busy: busy, error: error }) :
     screen === "round" ? h(Round, { key: round, game: game, onQuit: home,
                                     onError: function (m) { setError(m); setScreen("intro"); },
                                     onEnd: function (r) { setItems(r); setScreen("score"); } }) :
