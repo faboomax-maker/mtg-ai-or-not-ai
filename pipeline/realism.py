@@ -269,6 +269,51 @@ DURING_COMBAT = re.compile(r"\b(?:attacking|blocking|unblocked|blocked creatures
                            r"this combat|combat damage step|declare (?:attackers|blockers))\b", re.I)
 
 
+KEYWORD_LINE = re.compile(r"(?m)^((?:flying|deathtouch|first strike|double strike|haste|hexproof|"
+                          r"indestructible|lifelink|menace|reach|trample|vigilance|defender|flash)"
+                          r"(?:, (?:flying|deathtouch|first strike|double strike|haste|hexproof|indestructible|"
+                          r"lifelink|menace|reach|trample|vigilance|defender|flash))*)\s*$", re.I)
+
+
+def redundant_grant(text: str, name: str) -> str | None:
+    """A creature that already has a keyword and 'gains' it ('Flying ... it gains flying')."""
+    plain = PAREN.sub("", text or "")
+    has = {k.strip().lower() for m in KEYWORD_LINE.finditer(plain) for k in m.group(1).split(",")}
+    who = r"(?:it|this creature" + (rf"|{re.escape(name)}" if name else "") + ")"
+    for kw in has:
+        if re.search(rf"\b{who} (?:gains?|has) (?:[a-z ,]*\b)?{kw}\b", plain, re.I):
+            return f"gains {kw}, which it already has"
+    return None
+
+
+def power_problem(c: dict, rarity: str) -> str | None:
+    """Clear power-level outliers, compared with what real sets print."""
+    text, tl = PAREN.sub("", c.get("oracle_text") or ""), c.get("type_line") or ""
+    if "Land" in tl and "Creature" not in tl:
+        colors = set(re.findall(r"\{([WUBRG])\}", " ".join(re.findall(r"[Aa]dd [^.\n]*", text))))
+        if "any color" in text or "any one color" in text:
+            colors |= set("WUBRG")
+        drawback = re.search(r"tapped|damage to you|pay \d+ life|lose \d+ life|unless|if you control|"
+                             r"only to cast|Sacrifice (?:a|two|an) |return a land|depletion|storage", text, re.I)
+        if len(colors) >= 2 and not drawback:
+            return f"a land making {len(colors)} colors with no drawback (real ones enter tapped, hurt, or have a condition)"
+        if len(colors) >= 3 and rarity == "common" and len(text.split("\n")) > 1:
+            return "a three-color common land with an extra ability"
+    if "Creature" in tl and c.get("power") and c.get("toughness"):
+        try:
+            p, t = int(c["power"]), int(c["toughness"])
+        except ValueError:
+            return None
+        mv = sum(int(x) if x.isdigit() else (0 if x in "XY" else 1)
+                 for x in re.findall(r"\{([^}]+)\}", c.get("mana_cost") or ""))
+        evasive = re.search(r"\b(flying|trample|deathtouch|lifelink|first strike|double strike|menace|hexproof)\b",
+                            text, re.I)
+        limit = 2 * mv + (1 if evasive else 2) + (1 if rarity in ("rare", "mythic") else 0)
+        if mv and p + t > limit:
+            return f"{p}/{t} for mana value {mv} is far above real creatures"
+    return None
+
+
 def rules_problem(text: str, type_line: str) -> str | None:
     """Rules nonsense the LLM sometimes writes (a land that fights, a sorcery that returns an
     unblocked attacking creature...)."""

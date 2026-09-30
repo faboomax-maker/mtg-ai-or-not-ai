@@ -200,10 +200,13 @@ def scan_agrees(scan: dict, card: dict) -> str | None:
     # cards of the 1990s were often reworded since ("If Elvish Spirit Guide is in your hand, you
     # may remove it from the game..." -> "Exile this card from your hand: ..."): a looser match
     # is enough, the symbols and numbers still have to be the same
-    old = (card.get("released_at") or "") < "2003-07-28"
-    if not same_card_text(_plain(rules), known, card["name"], 0.5 if old else 0.9):
+    released = card.get("released_at") or ""
+    old, very_old = released < "2003-07-28", released < "1997-01-01"
+    # (1994: "damage ... is reduced to 0" is "prevent that damage" today: numbers differ too)
+    if not same_card_text(_plain(rules), known, card["name"], 0.3 if very_old else 0.5 if old else 0.9):
         return "rules text differs"
-    if _tokens(rules) != _tokens(known):
+    symbols = lambda toks: [t for t in toks if t.startswith("{")]
+    if (symbols(_tokens(rules)) != symbols(_tokens(known))) if very_old else (_tokens(rules) != _tokens(known)):
         return "symbols/numbers differ"
     if not old and len([l for l in rules.split("\n") if l.strip()]) != len([l for l in known.split("\n") if l.strip()]):
         return "line count differs"
@@ -272,7 +275,8 @@ def with_printed_text(s, card: dict) -> dict:
     printed, ptype = gatherer_symbols(entry.get("text")), entry.get("type")
     # (older printings were reworded more by Oracle updates: "As Body Double comes into play, you
     # may choose..." -> "You may have this creature enter as a copy...")
-    threshold = 0.45 if (card.get("released_at") or "") < "2010-01-01" else 0.6
+    released = card.get("released_at") or ""
+    threshold = 0.3 if released < "1997-01-01" else 0.45 if released < "2010-01-01" else 0.6
     if printed and card.get("oracle_text") and not same_card_text(printed, card["oracle_text"], card["name"], threshold):
         printed = ptype = None                            # wrong card in MTGJSON: keep Oracle
     if printed and printed != card.get("oracle_text"):

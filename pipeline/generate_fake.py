@@ -51,7 +51,7 @@ from common import (MANA_RE, WORK, WORK_IMG, WORK_SETS, ensure_dirs, env, fetch_
 
 WORK_RAW = WORK / "raw"                      # original full-resolution AI images, for reuse
 from fetch_real import API, BASE_QUERY, FIELDS, keep, parse_weights, with_printed_text
-from realism import (KEYWORD_SINCE, add_missing_reminders, anachronism, art_focus, art_problem, artist_name, color_group,
+from realism import (KEYWORD_SINCE, add_missing_reminders, anachronism, power_problem, redundant_grant, art_focus, art_problem, artist_name, color_group,
                      fix_reminders, fix_templating, fix_type_line, fix_wording, misused_keywords,
                      fix_cost_order, flavor_fits, join_follow_ups, name_problem, old_frame_text, name_words, number_in_group, reminder_texts, rules_problem,
                      subtype_color_problem, printed_type_line,
@@ -709,6 +709,36 @@ def dev_review(llm: str, batch: list[dict], specs: list[dict], pool: list[dict],
     return batch
 
 
+VERDICT_SYSTEM = """You are a strict Magic: The Gathering Play Design lead doing a final power
+check before print. For each new card, compare it with the real cards of the same set given
+with it (same rarity, type, mana value) and judge it by the standards of that set's time.
+A card is "too strong" if a real set would never print it at that rarity and cost: for
+example a land making several colors that enters untapped with no drawback plus a bonus
+ability, a common with two strong keywords on above-rate stats (3 mana 3/3 flying and
+deathtouch), removal or card draw clearly cheaper or better than its comparables, or an
+effect with no real cost. "fair" if it fits among the comparables. Commons especially must
+be modest. Answer with a JSON array, one {"verdict": "fair" | "too strong" | "too weak",
+"reason": "..."} per card, same order, no commentary."""
+
+
+def power_verdict(llm: str, batch: list[dict], specs: list[dict], pool: list[dict], set_name: str) -> list[str | None]:
+    """Last pass: a strict yes/no on power level; the reason when a card is too strong."""
+    items = [{"card": {k: c.get(k) for k in ("name", "mana_cost", "type_line", "oracle_text", "power",
+                                            "toughness")},
+              "rarity": sp["rarity"], "real_comparables": comparables(
+                  {**c, "rarity": sp["rarity"], "mana_value": sp["mana_value"], "colors": sp["colors"]}, pool, 4)}
+             for c, sp in zip(batch, specs)]
+    try:
+        out = parse_array(call_llm(llm, VERDICT_SYSTEM, f"Set: «{set_name}».\n"
+                                   + json.dumps(items, ensure_ascii=False, indent=1), temperature=0))
+        if len(out) == len(batch):
+            return [f"too strong: {o.get('reason', '')}" if isinstance(o, dict) and
+                    str(o.get("verdict", "")).lower().startswith("too strong") else None for o in out]
+    except (Exception, SystemExit) as e:          # a bonus, never a blocker
+        print(f"  power check skipped: {e}", file=sys.stderr)
+    return [None] * len(batch)
+
+
 CREATIVE_SYSTEM = """You are a senior writer on Magic: The Gathering's Creative team.
 You polish the names and flavor text of new cards so they read exactly like the real
 cards of their set. Good flavor text is concrete and specific to the world: a named
@@ -932,8 +962,9 @@ def main() -> None:
         batch = [c for c in batch if isinstance(c, dict)][:len(specs)]
         batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_names[code])   # balance pass
         batch = creative_review(args.llm, batch, flavors, brief, set_names[code])        # names, flavor
-        for c, spec, src in zip(batch, specs, sources):
-            err = validate(c, spec)
+        verdicts = power_verdict(args.llm, batch, specs[:len(batch)], pool, set_names[code])  # strict check
+        for c, spec, src, verdict in zip(batch, specs, sources, verdicts):
+            err = validate(c, spec) or verdict
             if not err:
                 c["oracle_text"] = fix_templating(c["oracle_text"], meta["released_at"])
                 c["type_line"] = printed_type_line(fix_type_line(c["type_line"], c["oracle_text"]), meta["released_at"])
@@ -942,6 +973,8 @@ def main() -> None:
                        else f"too simple for a {spec['rarity']}" if (meta["released_at"] >= "2003-07-28"   # (old rares were often simple)
                                                                      and too_simple(c["oracle_text"], spec["rarity"], c["type_line"], spec["colors"]))
                        else rules_problem(c["oracle_text"], c["type_line"])
+                       or redundant_grant(c["oracle_text"], c["name"])
+                       or power_problem(c, spec["rarity"])
                        or anachronism(c["oracle_text"], meta["released_at"])
                        or subtype_color_problem(c["type_line"], spec["colors"], pool)
                        or name_problem(c["name"], used_name_words)

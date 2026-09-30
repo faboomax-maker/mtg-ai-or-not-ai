@@ -179,7 +179,7 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
         "notes": c["id"] + tag,              # used as the export file name
         "name": esc(c["name"]),
         # old frame: "Illus. Carl Critchlow" (the modern and M15 frames draw a brush instead)
-        "illustrator": ("Illus. " if era(c) == "old" and c.get("artist") else "") + esc(c.get("artist") or ""),
+        "illustrator": artist_line(c, meta),
         # the thin line between rules and flavor text is printed since Dominaria (April 2018)
         "separator": "flavor bar" if meta["released_at"] >= FLAVOR_BAR_SINCE else "none",
         "custom card number": TRACK.join(card_number(c, meta)),
@@ -210,8 +210,17 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
     elif frame == "old":
         # P/T in MPlantin before Mirage (October 1996), MPlantin-Bold after
         pt_font = "MPlantin" if meta["released_at"] < "1996-10-08" else "MPlantin-Bold"
+        released = meta["released_at"]
         out = (f"card:\n\tstylesheet: old\n\thas styling: true\n\tstyling data:\n"
-               f"\t\tpt font: {pt_font}\n\t\tcolored rarities: no\n")
+               f"\t\tpt font: {pt_font}\n\t\tcolored rarities: no\n"
+               # artist and copyright at the left until Stronghold, centred from Exodus (scans)
+               f"\t\tleft align artist: {'yes' if released < RARITY_COLORS_SINCE else 'no'}\n"
+               # Revised -> Weatherlight: a single paragraph without flavor was centred
+               # (Spell Blast, Silhouette, Twiddle); Alpha-Antiquities and later sets: never
+               f"\t\tcenter text: {'always' if centred_text(c, released) else 'never'}\n"
+               # white-bordered sets print the copyright in black (see tune_style)
+               f"\t\tcopyright black: {'yes' if c.get('border_color') == 'white' else 'no'}\n"
+               + (f"\t\tfont cap: {size}\n" if size else ""))   # pre-Tempest sizes (see size_steps)
     elif frame == "modern":
         # miracle cards (Avacyn Restored) have their own frame, with rays at the top
         style = "new-miracle" if re.search(r"(^|\n)Miracle\b", c.get("oracle_text") or "") else "new"
@@ -245,9 +254,35 @@ def card_number(c: dict, meta: dict) -> str:
     return f"{n.zfill(3)}/{str(size).zfill(3)}" if size else n.zfill(3)
 
 
+def centred_text(c: dict, released: str) -> bool:
+    """Before Tempest, a short single paragraph without flavor text (up to ~4 lines: Spell
+    Blast, Twiddle, Silhouette) was printed centred; longer ones at the left (Portent, Unsummon)."""
+    text = (c.get("oracle_text") or "").strip()
+    return bool(released < EARLY_UNTIL and text and "\n" not in text and len(text) <= 110
+                and not c.get("flavor_text"))
+
+
+def artist_line(c: dict, meta: dict) -> str:
+    """Old frame: "Illus. Artist"; before Fallen Empires the copyright was in that line
+    ("Illus. © Douglas Schuler", Legends and The Dark: "Illus. © 1994 Harold McNeill")."""
+    artist = esc(c.get("artist") or "")
+    if era(c) != "old" or not artist:
+        return artist
+    released = meta["released_at"]
+    if released < "1994-06-01":
+        return f"Illus. © {artist}"
+    if released < "1994-11-01":
+        return f"Illus. © {released[:4]} {artist}"
+    return f"Illus. {artist}"
+
+
 def copyright_line(released: str) -> str:
     """The copyright as printed in the set's era."""
     y = released[:4]
+    if released < "1994-11-01":                      # Alpha -> The Dark: in the artist line
+        return ""
+    if released < "1997-10-14":                      # Fallen Empires -> Weatherlight (scans)
+        return f"© {y} Wizards of the Coast, Inc. All rights reserved."
     if released < "1998-01-01":
         return f"© {y} Wizards of the Coast, Inc."
     if released < "2009-01-01":
@@ -353,13 +388,23 @@ FIT_BANDS = {
     # text box 328-470 of 523 (bottom .899), P/T box from y 466 (.891), x 284-344 (.757-.917);
     # printed text runs down to ~.895, and over the P/T box's columns to just above it
     "modern": {"low": (.09, .72, .90, .8965, .899), "pt": (.77, .90, .887, .890)},
+    # old frame: text box 318-461 of 523 (bottom .881), the P/T box is below it
+    "old": {"low": (.13, .87, .87, .871, .879), "pt": (0, 0, 0, 0)},
 }
+
+
+# Old frame before Tempest (1997): rules text printed much larger (Spell Blast, Twiddle,
+# Silhouette), shrunk only as much as the text needs.
+EARLY_STEPS = [16.0, 15.2, 14.4, 13.6, 12.8, 12.2, 11.6, 11.0]
+EARLY_UNTIL = "1997-10-14"
 
 
 def size_steps(c: dict) -> list[float]:
     """Candidate text sizes of a card ([]: a single render at the style's size)."""
     if "Planeswalker" in c["type_line"]:
         return []
+    if era(c) == "old":
+        return EARLY_STEPS if (c.get("released_at") or "") < EARLY_UNTIL else []
     return {"current": SIZE_STEPS, "modern": MODERN_STEPS}.get(era(c), [])
 
 
@@ -801,6 +846,18 @@ def tune_style(base: Path) -> None:
     if "horizontal space: 2\n" in t.replace("\r\n", "\n"):
         sym.write_text(re.sub(r"(?m)^horizontal space: 2\s*$", "horizontal space: 0", t), encoding="utf-8")
         print("text mana symbols: no extra spacing")
+    # Old frame: white-bordered sets (Revised, 4th-7th Edition) print the copyright line in
+    # black on the border; the style colours it like the frame text -> a "copyright black" option
+    p = base / "data" / "magic-old.mse-style" / "style"
+    t = p.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+    if "name: copyright black" not in t:
+        new = t.replace("styling field:\n", "styling field:\n\ttype: boolean\n\tname: copyright black\n"
+                        "\tinitial: no\nstyling field:\n", 1)
+        new = re.sub(r"(\tcopyright line:\n(?:\t\t.*\n)*?\t\t\tcolor: )\{ font_color\(card\.card_color\) \}",
+                     r"\g<1>{ if styling.copyright_black then rgb(0,0,0) else font_color(card.card_color) }", new)
+        if new.count("copyright_black") == 1:
+            p.write_text(new, encoding="utf-8")
+            print("old frame: black copyright option")
     # Older frames ("Old Main", "New Main"): rules text at size 14 in MSE, smaller on print
     # (compared with scans: calibrate.py --era old/modern)
     for style, size in (("old", OLD_TEXT_SIZE), ("new", MODERN_TEXT_SIZE), ("new-miracle", MODERN_TEXT_SIZE)):
@@ -815,7 +872,7 @@ def tune_style(base: Path) -> None:
             print(f"{style} frame text size -> {size}")
     # Modern frame: name and type line are printed in Matrix Bold; the style asks for "Matrix"
     # (bold weight), a Medium font whose bold is not installed -> the pack's ModMatrix (bold)
-    for style in ("new", "new-miracle"):
+    for style, default in (("new", MODERN_TEXT_SIZE), ("new-miracle", MODERN_TEXT_SIZE), ("old", OLD_TEXT_SIZE)):
         p = base / "data" / f"magic-{style}.mse-style" / "style"
         if not p.exists():
             continue
@@ -825,8 +882,8 @@ def tune_style(base: Path) -> None:
         if "name: font cap" not in new:
             block = re.search(r"(?m)^\ttext:\s*\n(?:\t\t.*\n|\s*\n)+", new)
             if block:
-                cap = f'size: {{if styling.font_cap != "" then to_number(styling.font_cap) else {MODERN_TEXT_SIZE}}}\n'
-                new = new.replace(block.group(0), block.group(0).replace(f"size: {MODERN_TEXT_SIZE}\n", cap))
+                cap = f'size: {{if styling.font_cap != "" then to_number(styling.font_cap) else {default}}}\n'
+                new = new.replace(block.group(0), block.group(0).replace(f"size: {default}\n", cap))
             new = new.replace("styling field:\n", "styling field:\n\ttype: text\n\tname: font cap\n"
                               "\tdescription: Rules text size (quiz).\nstyling field:\n", 1)
         if new != t:
