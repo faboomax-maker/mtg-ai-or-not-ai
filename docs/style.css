@@ -98,7 +98,8 @@ body {
 .scan__fill { height: 100%; background: var(--brass); box-shadow: inset 0 -1px 0 var(--brass-edge); }
 .scan__line { margin: 0; color: var(--ink-muted); }
 .verdict-noob { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-5); text-align: center; }
-.verdict-noob__face { width: 160px; height: 160px; animation: ar-shake 420ms ease-in-out 3; }
+.verdict-noob__label { display: inline-flex; align-items: center; gap: var(--space-2); }
+.verdict-noob__face { width: 32px; height: 32px; animation: ar-shake 420ms ease-in-out 3; }
 .verdict-noob__text { margin: 0; color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { .verdict-noob__face { animation: none; } }
 

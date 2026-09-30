@@ -175,10 +175,11 @@ function Warning(p) {
       h("div", { className: "scan__fill", style: { width: Math.round(pct * 100) + "%" } })),
     h("p", { className: "caption scan__line" }, SCAN_LINES[Math.min(SCAN_LINES.length - 1, Math.floor(pct * SCAN_LINES.length))]));
   else body = h("div", { className: "verdict-noob" },
-    h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "Smiley énervé", width: 160, height: 160 }),
     h("p", { className: "body-strong verdict-noob__text", role: "status" }, "Mon analyse montre que tu n'as pas le niveau pour ce mode."),
     p.error ? h("p", { className: "error caption" }, p.error) : null,
-    h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo }, "TG noob !!!"));
+    h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo },
+      h("span", { className: "verdict-noob__label" }, "TG noob !!!",
+        h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "", width: 32, height: 32 }))));
 
   return h("div", { className: "warn" },
     h("header", { className: "bar" },
