@@ -256,9 +256,10 @@ function Round(p) {
                          results: res.map(function (r) { return r.ok; }) }),
     g.limits ? h(Timer, { key: i, limit: g.limits[i], running: !verdict && !waiting && answered.current < i,
                           onExpire: function () { onAnswer("timeout", cards[i], i); } }) : null,
-    // the next card waits under the current one (first card of the stack), seen while swiping
+    // the next card waits under the current one (first card of the stack), seen while swiping;
+    // not in hardcore: it would be readable during the verdict, before its timer starts
     h("main", { className: "play",
-                style: { "--next-card": cards[i + 1] ? 'url("' + cards[i + 1].src + '")' : "none" } },
+                style: { "--next-card": cards[i + 1] && !g.limits ? 'url("' + cards[i + 1].src + '")' : "none" } },
       h(A.SwipeDeck, { cards: cards, current: i, locked: !!verdict || waiting, onAnswer: onAnswer, cardWidth: width,
                        overlay: overlay, hint: g.limits ? null : undefined })));
 }
