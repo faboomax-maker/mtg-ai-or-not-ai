@@ -79,6 +79,7 @@ RARITY_COLORS_SINCE = "1998-06-15"          # Exodus
 # "stroke" multiplies the outline width, "size" the symbol height.
 SYMBOL_TWEAKS = {
     "mat": {"stroke": 0.7, "size": 1.1},     # March of the Machine: The Aftermath
+    "one": {"stroke": 0.6},                  # Phyrexia: All Will Be One (thin lines)
 }
 NO_SYMBOL = {"lea", "leb", "2ed", "3ed", "4ed", "5ed"}   # Alpha -> Fifth Edition: no set symbol
 
@@ -134,6 +135,8 @@ def rules_text(text: str | None, marked: bool = False, minus: bool = True) -> st
     card), used as is; otherwise ability words are put in italics by rule. `minus`: real minus
     signs ('−1/−1', M15 frame); older frames printed a hyphen ('-1/-1')."""
     signs = minus_signs if minus else (lambda s: s.replace("−", "-"))
+    # stray returns in some sources, sometimes written out as "\r"
+    text = (text or "").replace("\r\n", "\n").replace("\r", "").replace("\\r", "")
     if marked:
         t = esc((text or "").replace("<i>", "\x01").replace("</i>", "\x02"))
         t = signs(t).replace("\x01", "<i>").replace("\x02", "</i>")
@@ -212,7 +215,8 @@ def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size:
     elif frame == "modern":
         # miracle cards (Avacyn Restored) have their own frame, with rays at the top
         style = "new-miracle" if re.search(r"(^|\n)Miracle\b", c.get("oracle_text") or "") else "new"
-        out = f"card:\n\tstylesheet: {style}\n\thas styling: false\n"
+        out = (f"card:\n\tstylesheet: {style}\n\thas styling: true\n\tstyling data:\n"
+               f"\t\tfont cap: {size or MODERN_TEXT_SIZE}\n")   # (see tune_style)
     else:   # text size chosen per card, like Wizards does (see text_size)
         out = (f"card:\n\thas styling: true\n\tstyling data:\n"
                f"\t\tfont cap: {size or BODY_SIZE}\n"
@@ -320,10 +324,11 @@ def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for i, (c, art) in enumerate(cards, 1):
             z.writestr(f"image{i}", art_bytes(art, "Planeswalker" in c["type_line"]))
-            if "Planeswalker" in c["type_line"] or era(c) != "current":   # (older frames: MSE's own fit)
+            steps = size_steps(c)
+            if not steps:                          # planeswalkers, old frame: MSE's own fit
                 text += card_block(c, f"image{i}", meta, rarity_grow)
             else:
-                for k, size in enumerate(SIZE_STEPS):
+                for k, size in enumerate(steps):
                     text += card_block(c, f"image{i}", meta, rarity_grow, f"{size:g}", f"__{k}")
         z.writestr("set", text)
 
@@ -333,6 +338,29 @@ def write_set(code: str, cards: list[tuple[dict, Path]], dest: Path, rarity_grow
 # whose text stays in the box (and above the P/T box) is kept.
 # Calibrated on scans (calibrate.py): the largest printed size gives the line pitch of 13.9.
 SIZE_STEPS = [13.9, 13.5, 13.1, 12.7, 12.3, 11.9, 11.5, 11.1, 10.7, 10.3]
+
+
+# Modern frame (2003-2014): same idea; its text box runs down behind the P/T box (MSE lets
+# long texts collide with it, as on Gristle Grinner).
+MODERN_STEPS = [13.2, 12.8, 12.4, 12.0, 11.6, 11.2, 10.8, 10.4, 10.0]
+
+# Where text must not be, per frame (fractions of the card):
+# "low": (x from, x to beside the P/T box, x to without P/T, y from, y to) above the box bottom;
+# "pt": (x from, x to, y from, y to) just above the P/T box outline.
+FIT_BANDS = {
+    # printed text (descenders included) runs down to ~.915; P/T outline at .891 (calibrate.py)
+    "current": {"low": (.09, .70, .90, .917, .921), "pt": (.74, .88, .886, .8905), "stamp": (.36, .64)},
+    # text box 328-470 of 523 (bottom .899), P/T box from y 466 (.891), x 284-344 (.757-.917);
+    # printed text runs down to ~.895, and over the P/T box's columns to just above it
+    "modern": {"low": (.09, .72, .90, .8965, .899), "pt": (.77, .90, .887, .890)},
+}
+
+
+def size_steps(c: dict) -> list[float]:
+    """Candidate text sizes of a card ([]: a single render at the style's size)."""
+    if "Planeswalker" in c["type_line"]:
+        return []
+    return {"current": SIZE_STEPS, "modern": MODERN_STEPS}.get(era(c), [])
 
 
 def _text_rows(img: Image.Image, x0: float, x1: float, y0: float, y1: float) -> list[int]:
@@ -346,23 +374,26 @@ def _text_rows(img: Image.Image, x0: float, x1: float, y0: float, y1: float) -> 
 def pick_size(out_dir: Path, card: dict) -> bool:
     """Keep the largest candidate size whose text stays clear of the box bottom and of
     the P/T box; rename it <id>.png and delete the other candidates."""
-    cands = [out_dir / f"{card['id']}__{k}.png" for k in range(len(SIZE_STEPS))]
+    cands = [out_dir / f"{card['id']}__{k}.png" for k in range(len(size_steps(card)))]
     cands = [p for p in cands if p.exists()]
     if not cands:
         return False
     pt = card.get("power") not in (None, "") or card.get("toughness") not in (None, "")
+    bands = FIT_BANDS[era(card)]
     best = cands[-1]
     for p in cands:
         img = Image.open(p)
         W, H = img.size
-        # below the text: 4% band above the box's bottom border; for creatures the band
-        # above the P/T box, over its columns
-        # printed text (descenders included) runs down to ~.915 (calibrate.py)
-        low = _text_rows(img, .09, .70 if pt else .90, .917, .921)        # border at .9235
-        # a line may run over the P/T box's columns down to just above its outline (.891; the
-        # descenders of such a line end ~.885, as on scans: calibrate.py); ink in the last few
-        # rows above the outline means a line running into the box
-        pt_low = _text_rows(img, .74, .88, .886, .8905) if pt else []
+        # below the text: a band just above the box's bottom border (left of the P/T box for
+        # creatures), and a band just above the P/T box, over its columns
+        x0, x_pt, x_all, y0, y1 = bands["low"]
+        x1 = x_pt if pt else x_all
+        if "stamp" in bands:                     # rares/mythics: the holofoil stamp, bottom centre
+            s0, s1 = bands["stamp"]
+            low = _text_rows(img, x0, s0, y0, y1) + (_text_rows(img, s1, x1, y0, y1) if x1 > s1 else [])
+        else:
+            low = _text_rows(img, x0, x1, y0, y1)
+        pt_low = _text_rows(img, *bands["pt"]) if pt else []
         img.close()
         if env("DEBUG_SIZES"):
             print(f"  {card['name']} {p.stem}: low rows {low[:3]} pt rows {pt_low[:3]} (H={H})")
@@ -790,9 +821,17 @@ def tune_style(base: Path) -> None:
             continue
         t = p.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
         new = t.replace("\t\t\tname: Matrix\n", "\t\t\tname: ModMatrix\n")
+        # rules text size chosen per card (pick_size), like the M15 style's "font cap"
+        if "name: font cap" not in new:
+            block = re.search(r"(?m)^\ttext:\s*\n(?:\t\t.*\n|\s*\n)+", new)
+            if block:
+                cap = f'size: {{if styling.font_cap != "" then to_number(styling.font_cap) else {MODERN_TEXT_SIZE}}}\n'
+                new = new.replace(block.group(0), block.group(0).replace(f"size: {MODERN_TEXT_SIZE}\n", cap))
+            new = new.replace("styling field:\n", "styling field:\n\ttype: text\n\tname: font cap\n"
+                              "\tdescription: Rules text size (quiz).\nstyling field:\n", 1)
         if new != t:
             p.write_text(new, encoding="utf-8")
-            print(f"{style} frame name/type font -> ModMatrix (bold)")
+            print(f"{style} frame: bold Matrix name/type, text size per card")
     # Planeswalker abilities: the template sets 14 (13.8 with four abilities); printed
     # planeswalkers use smaller type (measured on scans: ~10)
     pw = base / "data" / f"magic-{STYLE_PW}.mse-style" / "style"
@@ -870,7 +909,7 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
         if log:
             print(log[-2000:])
         for c, _ in todo:                        # keep the largest text size that fits
-            if "Planeswalker" not in c["type_line"] and era(c) == "current":
+            if size_steps(c):
                 pick_size(out_dir, c)
         missing = [c["name"] for c, _ in todo if not (out_dir / f"{c['id']}.png").exists()]
         failed += missing
