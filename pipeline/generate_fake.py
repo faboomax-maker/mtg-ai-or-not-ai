@@ -743,9 +743,13 @@ def dev_review(llm: str, batch: list[dict], specs: list[dict], pool: list[dict],
 
 VERDICT_SYSTEM = """You are a Magic: The Gathering Play Design lead doing a final power check
 before print, looking only for clear outliers: most designs are fine, and a card that is a bit
-above or below its comparables, as real cards often are, is "fair". A vanilla or single-keyword
-creature within one point of power/toughness of the set's curve is "fair" (a 3-mana 3/2, a
-2-mana 2/1, a 5-mana 5/3 are normal). When in doubt, answer "fair". For each new card, compare it with the real cards of the same set given
+above or below its comparables, as real cards often are, is "fair". The set's year (given with
+its name) sets the bar, and its real comparables show it: in the 1990s and 2000s, vanilla
+creatures were common and a 3-mana 3/2 or a 2-mana 2/1 with no ability was normal; in recent
+sets (about 2015 on, even more since 2020) creatures are stronger and almost every common
+creature has an ability, so a vanilla creature at the old rate (a 3-mana 3/2, a 5-mana 5/3 with
+nothing else) is "too weak" there, unless its comparables are just as plain. When in doubt,
+answer "fair". For each new card, compare it with the real cards of the same set given
 with it (same rarity, type, mana value) and judge it by the standards of that set's time.
 A card is "too strong" if a real set would never print it at that rarity and cost: for
 example a land making several colors that enters untapped with no drawback plus a bonus
@@ -783,8 +787,10 @@ def power_verdict(llm: str, batch: list[dict], specs: list[dict], pool: list[dic
 REPAIR_SYSTEM = """You are the lead developer of Magic: The Gathering's Play Design team. Each new card
 below was judged too strong or too weak for its set, rarity and cost; the reason and real cards
 of the set to compare with are given. Fix its power level so it fits among the comparables, by
-the standards of that set's time: change the mana cost, power/toughness, numbers, add a real
-drawback or cost, remove or add one clause - the smallest change that makes it fair. Keep its
+the standards of that set's time (its year is given with its name): change the mana cost,
+power/toughness, numbers, add a real drawback or cost, remove or add one clause (a too weak
+creature of a recent set usually gets a small ability in the set's style) - the smallest
+change that makes it fair. Keep its
 name, colors, rarity, card type, the keywords it uses, its flavor text and what it depicts;
 keep the set's templating and wording exactly, and keep rules text valid.
 Answer with the full JSON array of the fixed cards, same order and same keys, no commentary."""
@@ -1035,9 +1041,10 @@ def main() -> None:
             fails += 1; print("LLM error:", e, file=sys.stderr); annotate("warning", f"LLM error: {e}")
             time.sleep(3); continue
         batch = [c for c in batch if isinstance(c, dict)][:len(specs)]
-        batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_names[code])   # balance pass
+        set_year = f"{set_names[code]} ({meta['released_at'][:4]})"      # the power bar depends on the era
+        batch = dev_review(args.llm, batch, specs[:len(batch)], pool, set_year)   # balance pass
         batch = creative_review(args.llm, batch, flavors, brief, set_names[code])        # names, flavor
-        verdicts = power_verdict(args.llm, batch, specs[:len(batch)], pool, set_names[code])  # strict check
+        verdicts = power_verdict(args.llm, batch, specs[:len(batch)], pool, set_year)  # strict check
         # too strong / too weak: the card is fixed, then checked once more (discarded only if
         # it is still off)
         flagged = [i for i, c in enumerate(batch)
@@ -1045,8 +1052,8 @@ def main() -> None:
         if flagged:
             reasons = [verdicts[i] or power_problem(batch[i], specs[i]["rarity"]) for i in flagged]
             fixed = repair_power(args.llm, [batch[i] for i in flagged], reasons,
-                                 [specs[i] for i in flagged], pool, set_names[code])
-            again = power_verdict(args.llm, fixed, [specs[i] for i in flagged], pool, set_names[code])
+                                 [specs[i] for i in flagged], pool, set_year)
+            again = power_verdict(args.llm, fixed, [specs[i] for i in flagged], pool, set_year)
             for i, c, v, r in zip(flagged, fixed, again, reasons):
                 print(f"  power fixed {c.get('name')!r} ({r[:80]}) -> {'still ' + v[:60] if v else 'fair'}")
                 batch[i], verdicts[i] = c, v
