@@ -54,8 +54,10 @@ Get-ChildItem (Join-Path $Dir "Magic - Fonts") -Recurse -File |
   Where-Object { $_.Extension -in ".ttf", ".otf" } |
   ForEach-Object {
     $f = $_
+    $dest = Join-Path $fontDir $f.Name
+    # the pack also ships copies of Windows' own fonts (Times, Calibri, Arial...): keep those
+    if (Test-Path $dest) { return }
     try {
-      $dest = Join-Path $fontDir $f.Name
       Copy-Item $f.FullName $dest -Force
       $val = if ($admin) { $f.Name } else { $dest }
       New-ItemProperty $reg -Name "$($f.BaseName) (TrueType)" -Value $val -Force | Out-Null
