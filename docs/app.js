@@ -177,12 +177,18 @@ function Intro(p) {
 }
 
 /* Before hardcore: a warning, a (fake) analysis of the player, and its verdict. */
-var SCAN_MS = 2800;
+var SCAN_MS = 2800, NOOB_WAIT = 3;       // the "TG noob !!!" button shows up after 3 s
 var SCAN_LINES = ["Mesure de tes réflexes…", "Examen de ta collection…", "Consultation de l'oracle…"];
 
 function Warning(p) {
   var s1 = useState("ask"), step = s1[0], setStep = s1[1];
   var s2 = useState(0), pct = s2[0], setPct = s2[1];
+  var s3 = useState(NOOB_WAIT), wait = s3[0], setWait = s3[1];
+  useEffect(function () {                 // countdown before the button
+    if (step !== "verdict" || wait <= 0) return;
+    var id = setTimeout(function () { setWait(wait - 1); }, 1000);
+    return function () { clearTimeout(id); };
+  }, [step, wait]);
   useEffect(function () {
     if (step !== "scan") return;
     var t0 = performance.now();
@@ -208,6 +214,9 @@ function Warning(p) {
   else body = h("div", { className: "verdict-noob" },
     h("p", { className: "body-strong verdict-noob__text", role: "status" }, "Mon analyse montre que tu n'as pas le niveau pour ce mode."),
     p.error ? h("p", { className: "error caption" }, p.error) : null,
+    wait > 0 ? h("div", { className: "noob-wait", role: "timer", "aria-label": "Encore " + wait + " seconde" + (wait > 1 ? "s" : "") },
+      h(A.Icon, { name: "hourglass", size: 22 }),
+      h("span", { className: "noob-wait__n title-sm" }, wait)) :
     h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo },
       h("span", { className: "verdict-noob__label" }, "TG noob !!!",
         h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "", width: 32, height: 32 }))));

@@ -101,6 +101,10 @@ body {
 .verdict-noob__label { display: inline-flex; align-items: center; gap: var(--space-2); }
 .verdict-noob__face { width: 32px; height: 32px; animation: ar-shake 420ms ease-in-out 3; }
 .verdict-noob__text { margin: 0; color: var(--ink); }
+/* countdown in the button's place (same height: nothing moves when the button appears) */
+.noob-wait { align-self: stretch; height: var(--size-answer); display: flex; align-items: center; justify-content: center;
+  gap: var(--space-2); color: var(--ink-muted); border: var(--stroke-control) dashed var(--line); border-radius: var(--radius-md); }
+.noob-wait__n { color: var(--brass-ink); font-variant-numeric: lining-nums tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .verdict-noob__face { animation: none; } }
 
 /* Promotion banner (a joke: the terms say the prize is imaginary) */
