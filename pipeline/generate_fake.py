@@ -349,9 +349,19 @@ def check(r, fatal=(400, 401, 403, 404)) -> None:
     if r.ok:
         return
     msg = f"HTTP {r.status_code} from {r.url}: {r.text[:500]}"
+    if out_of_credit(r):                        # stop the whole job at once, clearly
+        annotate("error", "Plus de crédit chez le fournisseur d'IA (quota épuisé) : recharge le compte, puis relance.")
+        sys.exit(f"Out of credit at the AI provider -> {msg}")
     if r.status_code in fatal:                  # bad key / model / URL: retrying won't help
         sys.exit(f"API config error -> {msg}")
     raise RuntimeError(msg)
+
+
+def out_of_credit(r) -> bool:
+    """429 also means "no credit left" (OpenAI insufficient_quota, Anthropic billing): waiting
+    won't help, unlike a per-minute rate limit."""
+    return r.status_code in (400, 402, 429) and bool(re.search(
+        r"insufficient_quota|exceeded your current quota|billing|credit balance", r.text or "", re.I))
 
 
 def post_llm(s, url: str, **kw):
@@ -364,7 +374,7 @@ def post_llm(s, url: str, **kw):
             if attempt == 5:
                 raise
             time.sleep(5 * (attempt + 1)); continue
-        if r.status_code not in (429, 500, 502, 503, 504, 529) or attempt == 5:
+        if r.status_code not in (429, 500, 502, 503, 504, 529) or attempt == 5 or out_of_credit(r):
             return r
         wait = r.headers.get("retry-after") or r.headers.get("x-ratelimit-reset-requests")
         try:

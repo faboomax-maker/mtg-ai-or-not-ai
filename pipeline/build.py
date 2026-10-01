@@ -141,7 +141,7 @@ def existing_deck(mode: str) -> tuple[list[dict], dict]:
     return cards, key
 
 
-def merge(mode: str, chunks: list[Path], append: bool) -> None:
+def merge(mode: str, chunks: list[Path], append: bool, expected: int = 0, force: bool = False) -> None:
     img_dir = DOCS / "img" / mode
     old_cards, key = existing_deck(mode) if append else ([], {})
     names = {c["name"].lower() for c in old_cards}
@@ -175,6 +175,14 @@ def merge(mode: str, chunks: list[Path], append: bool) -> None:
     added = kept_real[:k] + kept_ai[:k]
     if not added and not old_cards:
         sys.exit("no cards to publish")
+    if not append and expected and k < expected / 2 and not force:
+        # most chunks failed: never replace a deck with a much smaller one
+        current = load_json(DOCS / "data" / DECK_FILE[mode], {}).get("count", 0)
+        if current > 2 * k:
+            print(f"::error::Only {k} + {k} cards of the {expected} + {expected} requested: the {mode} deck "
+                  f"({current} cards) is kept. Look at the failed chunks, then run again, or add these "
+                  f"cards with « Ajouter au paquet existant ».")
+            sys.exit(1)
 
     if not append:
         shutil.rmtree(img_dir, ignore_errors=True)
@@ -211,12 +219,14 @@ def main() -> None:
     ap.add_argument("--chunk", type=Path, help="write this job's cards to a chunk folder")
     ap.add_argument("--merge", type=Path, nargs="+", help="chunk folders to put in the deck")
     ap.add_argument("--append", action="store_true", help="add to the mode's deck instead of replacing it")
+    ap.add_argument("--expected", type=int, default=0, help="cards of each type requested (safety check)")
+    ap.add_argument("--force", action="store_true", help="replace the deck even with far fewer cards")
     ap.add_argument("--no-balance", action="store_true")
     args = ap.parse_args()
     if args.chunk:
         make_chunk(args.chunk, not args.no_balance)
     elif args.merge:
-        merge(args.mode, args.merge, args.append)
+        merge(args.mode, args.merge, args.append, args.expected, args.force)
     else:                                                  # one job: straight into the deck
         tmp = Path(tempfile.mkdtemp())
         make_chunk(tmp / "chunk", not args.no_balance)

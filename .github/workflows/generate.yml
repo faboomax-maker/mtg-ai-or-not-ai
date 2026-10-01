@@ -180,7 +180,7 @@ jobs:
           QUIZ_ADMIN_TOKEN: ${{ secrets.QUIZ_ADMIN_TOKEN }}
         run: |
           git pull -q origin main        # the latest deck, when adding to it
-          python pipeline/build.py --mode ${{ inputs.mode }} --merge chunks/* ${{ inputs.append && '--append' || '' }}
+          python pipeline/build.py --mode ${{ inputs.mode }} --merge chunks/* --expected ${{ inputs.count }} ${{ inputs.append && '--append' || '' }}
       - name: Envoyer les réponses au serveur de jeu
         if: vars.QUIZ_API_URL != ''
         env:

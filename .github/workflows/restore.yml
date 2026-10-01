@@ -1,0 +1,51 @@
+# Puts back the cards of an earlier « Générer les cartes » run (its chunks are kept one day),
+# added to the mode's current deck. Used after a failed run replaced a deck.
+name: Restaurer des cartes
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode du paquet à compléter"
+        type: choice
+        options: [hardcore, normal]
+        default: hardcore
+      run:
+        description: "Run à reprendre (ID ou lien ; vide = trouvé automatiquement)"
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    concurrency: publish-cards
+    env:
+      PYTHONUTF8: "1"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      LEADERBOARD: ${{ vars.QUIZ_API_URL != '' && '1' || '' }}
+      QUIZ_API_URL: ${{ vars.QUIZ_API_URL }}
+      QUIZ_ADMIN_TOKEN: ${{ secrets.QUIZ_ADMIN_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Récupérer les morceaux
+        run: python pipeline/restore_chunks.py --out chunks --run "${{ inputs.run }}"
+      - name: Ajouter au paquet
+        run: python pipeline/build.py --mode ${{ inputs.mode }} --merge chunks/chunk-* --append
+      - name: Envoyer les réponses au serveur de jeu
+        if: vars.QUIZ_API_URL != ''
+        run: python pipeline/upload_deck.py --mode ${{ inputs.mode }}
+      - name: Publier
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Cartes restaurées (${{ inputs.mode }})" || echo "Rien à publier"
+          git pull --rebase -q origin main
+          git push
