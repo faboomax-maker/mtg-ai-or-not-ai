@@ -38,6 +38,6 @@ leaderboard shows "Le classement ouvre bientôt".
 | `GET /leaderboard` | `{normal: [...], hardcore: [...]}` |
 | `POST /admin/deck {mode, key}` | CI only (`Authorization: Bearer QUIZ_ADMIN_TOKEN`) |
 
-Scores are computed on the server: correct answers, then total answering time (the verdict's
+Scores are computed on the server: correct answers, then total answering time (the
 first 0.3 s of the verdict between cards are not counted). A hardcore answer later than the card's limit + 2.5 s counts
 as wrong. Test: `python worker/test/smoke.py <url> <admin token>` (run in CI against `wrangler dev`).
