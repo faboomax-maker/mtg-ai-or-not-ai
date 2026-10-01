@@ -9,7 +9,7 @@
  */
 
 const ROUND = 20;
-const VERDICT_MS = 1200;              // the page shows the verdict this long before the next card
+const VERDICT_MS = 300;               // the page shows the verdict at least this long before the next card
 const GRACE_MS = 2500;                // network and rendering slack on the hardcore timer
 const MODES = ["normal", "hardcore"];
 const TOP = 10;
@@ -70,10 +70,18 @@ async function ipHash(req) {
 }
 
 /* ----------------------------------------------------------------- decks */
-async function deckKey(env, mode) {
+// decks kept in memory (one query and one JSON parse less per answer); re-read after a minute,
+// or at once when a card is missing (a new deck was uploaded meanwhile)
+const deckCache = new Map();
+
+async function deckKey(env, mode, img) {
+  const hit = deckCache.get(mode);
+  if (hit && Date.now() - hit.at < 60000 && (!img || hit.key[img])) return hit.key;
   const row = await env.DB.prepare("SELECT data FROM decks WHERE mode = ?").bind(mode).first();
   if (!row) throw new HttpError(404, "no deck for this mode yet");
-  return JSON.parse(row.data);          // {img: {real, set, artist, url, art_from}}
+  const key = JSON.parse(row.data);     // {img: {real, set, artist, url, art_from}}
+  deckCache.set(mode, { key, at: Date.now() });
+  return key;
 }
 
 function requireAdmin(req, env) {
@@ -96,6 +104,7 @@ async function uploadDeck(req, env) {
   if (!MODES.includes(mode) || !key || typeof key !== "object") throw new HttpError(400, "mode and key required");
   await env.DB.prepare("INSERT OR REPLACE INTO decks (mode, data, updated) VALUES (?, ?, ?)")
     .bind(mode, JSON.stringify(key), new Date().toISOString()).run();
+  deckCache.delete(mode);
   return { ok: true, mode, cards: Object.keys(key).length };
 }
 
@@ -143,7 +152,7 @@ async function answer(req, env) {
   const now = Date.now();
   const shown = i === 0 ? g.created : g.answers[i - 1].t + VERDICT_MS;
   const elapsed = Math.max(0, now - shown);
-  const secret = (await deckKey(env, g.mode))[g.cards[i]];
+  const secret = (await deckKey(env, g.mode, g.cards[i]))[g.cards[i]];
   if (!secret) throw new HttpError(410, "this deck was replaced, start a new game");
   const truth = secret.real ? "real" : "ai";
   const late = g.mode === "hardcore" && elapsed > limitMs(i, g.cards.length) + GRACE_MS;

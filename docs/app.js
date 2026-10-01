@@ -7,7 +7,7 @@
 
 var A = window.Artifice, h = React.createElement;
 var useState = React.useState, useRef = React.useRef, useEffect = React.useEffect;
-var ROUND = 20, VERDICT_MS = 1200;
+var ROUND = 20, VERDICT_MS = 800, MIN_VERDICT_MS = 300;   // a tap skips the verdict after 300 ms (as the server counts)
 var DECKS = { normal: "data/cards.json", hardcore: "data/hardcore.json" };
 var MODE_NAME = { normal: "Facile", hardcore: "Hardcore" };   // (internal id of the easy mode: "normal")
 
@@ -259,7 +259,12 @@ function Round(p) {
   var s3 = useState(null), verdict = s3[0], setVerdict = s3[1];
   var s4 = useState(cardWidth(!!g.limits)), width = s4[0], setWidth = s4[1];
   var s5 = useState(false), waiting = s5[0], setWaiting = s5[1];
-  var t = useRef(null), shownAt = useRef(performance.now()), answered = useRef(-1);
+  var t = useRef(null), shownAt = useRef(performance.now()), answered = useRef(-1), skip = useRef(null);
+  useEffect(function () {                     // keyboard: Enter, space or an arrow skips the verdict
+    function onKey(e) { if (skip.current && /^(Enter| |ArrowLeft|ArrowRight)$/.test(e.key)) skip.current(); }
+    window.addEventListener("keydown", onKey);
+    return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
   useEffect(function () {
     function onResize() { setWidth(cardWidth(!!g.limits)); }
     window.addEventListener("resize", onResize);
@@ -278,14 +283,20 @@ function Round(p) {
                                ok: j.ok, timeout: j.timeout, ms: ms, card: card.data, secret: j.secret }]);
       setRes(next);
       setVerdict({ correct: j.ok, truth: j.truth, src: card.src, index: idx + 1, total: cards.length, timeout: j.timeout });
-      t.current = setTimeout(function () {
+      var shown = performance.now(), done = false;
+      function advance() {
+        if (done) return;
+        done = true; clearTimeout(t.current); skip.current = null;
         setVerdict(null);
         if (idx + 1 >= cards.length) p.onEnd(next); else setI(idx + 1);
-      }, VERDICT_MS);
+      }
+      // a tap (or a key) on the verdict moves on at once, after a short minimum
+      skip.current = function () { if (performance.now() - shown >= MIN_VERDICT_MS) advance(); };
+      t.current = setTimeout(advance, VERDICT_MS);
     }).catch(function (e) { p.onError("Le serveur de jeu ne répond pas : " + e.message); });
   }
 
-  var overlay = verdict ? h("div", { className: "verdict-wrap" },
+  var overlay = verdict ? h("div", { className: "verdict-wrap", onClick: function () { if (skip.current) skip.current(); } },
     verdict.timeout ? h("p", { className: "timeout label" }, h(A.Icon, { name: "hourglass", size: 18 }), "Temps écoulé") : null,
     h(A.Verdict, verdict)) : null;
 

@@ -5,6 +5,10 @@ main = "src/index.js"
 compatibility_date = "2025-01-01"
 workers_dev = true                  # served at https://mtg-quiz.<subdomain>.workers.dev
 
+# runs the worker next to its D1 database (several queries per answer): much faster answers
+[placement]
+mode = "smart"
+
 [vars]
 GH_REPO = "__GH_REPO__"
 ALLOWED_ORIGINS = "https://faboomax-maker.github.io,http://localhost:8000"
