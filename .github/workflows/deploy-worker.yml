@@ -38,12 +38,31 @@ jobs:
             echo "::error::Cloudflare refused to list D1 databases: the API token needs the permission 'Account > D1 > Edit' for this account, and CLOUDFLARE_ACCOUNT_ID must be that account's id (worker/README.md, step 2)"
             exit 1
           fi
-          id=$(jq -r '.[] | select(.name=="mtg-quiz") | .uuid' d1.json)
-          if [ -z "$id" ]; then
-            npx --yes wrangler@4 d1 create mtg-quiz
-            id=$(npx --yes wrangler@4 d1 list --json | jq -r '.[] | select(.name=="mtg-quiz") | .uuid')
+          uuid() { jq -r --arg n "$1" '.[] | select(.name==$n) | .uuid' d1.json; }
+          conf() {   # wrangler.toml for database $1 (name) / $2 (id)
+            sed -e "s/__D1_NAME__/$1/" -e "s/__D1_ID__/$2/" -e "s#__GH_REPO__#${{ github.repository }}#" wrangler.toml.template > wrangler.toml
+          }
+          # the database lives in Western Europe, next to the players (every answer queries it)
+          eu=$(uuid mtg-quiz-eu)
+          if [ -z "$eu" ]; then
+            npx --yes wrangler@4 d1 create mtg-quiz-eu --location weur
+            npx --yes wrangler@4 d1 list --json > d1.json
+            eu=$(uuid mtg-quiz-eu)
           fi
-          sed -e "s/__D1_ID__/$id/" -e "s#__GH_REPO__#${{ github.repository }}#" wrangler.toml.template > wrangler.toml
+          conf mtg-quiz-eu "$eu"
+          # one-time move of decks, leaderboards and games from the first database (kept as is),
+          # done again as long as the new one has no deck (e.g. if a previous move failed)
+          decks=$(npx --yes wrangler@4 d1 execute mtg-quiz-eu --remote --json \
+                   --command "SELECT COUNT(*) AS n FROM decks" 2>/dev/null | jq -r '.[0].results[0].n' || true)
+          old=$(uuid mtg-quiz)
+          if [ -n "$old" ] && { [ -z "$decks" ] || [ "$decks" = "null" ] || [ "$decks" = "0" ]; }; then
+            conf mtg-quiz "$old"
+            npx --yes wrangler@4 d1 export mtg-quiz --remote --output dump.sql
+            conf mtg-quiz-eu "$eu"
+            npx --yes wrangler@4 d1 execute mtg-quiz-eu --remote --command "DROP TABLE IF EXISTS decks; DROP TABLE IF EXISTS games; DROP TABLE IF EXISTS scores" --yes
+            npx --yes wrangler@4 d1 execute mtg-quiz-eu --remote --file dump.sql --yes
+            echo "::notice::D1 database moved to Western Europe (mtg-quiz -> mtg-quiz-eu)"
+          fi
       - name: Déployer
         if: steps.check.outputs.ready == 'yes'
         working-directory: worker
