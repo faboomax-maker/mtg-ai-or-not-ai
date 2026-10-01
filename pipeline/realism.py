@@ -411,9 +411,26 @@ def _self_name(name: str, type_line: str) -> str:
     return name.split(",")[0] if "Legendary" in type_line else name
 
 
+def is_spell(type_line: str) -> bool:
+    return bool(re.search(r"\b(Instant|Sorcery|Interrupt)\b", type_line or ""))
+
+
+def spell_self_name(text: str, name: str, type_line: str) -> str:
+    """Instants and sorceries are not permanents, and in every era they deal damage, gain life
+    etc. under their own name ("Shock deals 2 damage"), never "this permanent" / "this spell"."""
+    if not is_spell(type_line):
+        return text
+    parts = re.split(r"(\([^()]*\))", text)       # reminder text keeps its own wording
+    for i in range(0, len(parts), 2):
+        p = re.sub(r"\b[Tt]his (?:permanent|card|instant|sorcery)\b", name, parts[i])
+        parts[i] = re.sub(r"\b[Tt]his spell(?= (?:deals|gains|gets|has|does|causes))", name, p)
+    return "".join(parts)
+
+
 def fix_wording(text: str, name: str, type_line: str, old: bool | None) -> str:
     """Put 'enters (the battlefield)' and self-references in the set's era wording
     (outside reminder text, which keeps its own printed wording)."""
+    text = spell_self_name(text, name, type_line)
     if old is None:
         return text
     parts = re.split(r"(\([^()]*\))", text)
@@ -426,7 +443,7 @@ def fix_wording(text: str, name: str, type_line: str, old: bool | None) -> str:
             p = re.sub(rf"\b[Tt]his {kind}\b", _self_name(name, type_line), p)
         else:
             p = p.replace("enters the battlefield", "enters")
-            if "Legendary" not in type_line:     # since 2024: "this creature", not the card name
+            if "Legendary" not in type_line and not is_spell(type_line):   # since 2024: "this creature"
                 n = re.escape(name)
                 p = re.sub(rf"(^|\n|[.!?] |• |— ){n}\b", rf"\g<1>This {kind}", p)
                 p = re.sub(rf"\b{n}\b", f"this {kind}", p)
