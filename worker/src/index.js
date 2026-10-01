@@ -16,7 +16,7 @@ const TOP = 10;
 
 /** Hardcore time limit of card i (0-based): from FIRST_MS for the first card down to LAST_MS for
  *  the last (the page uses the same values, docs/app.js). */
-const FIRST_MS = 8000, LAST_MS = 4000;
+const FIRST_MS = 6000, LAST_MS = 6000;   // the same time for every card
 function limitMs(i, n) {
   return Math.round(FIRST_MS - (FIRST_MS - LAST_MS) * i / Math.max(1, n - 1));
 }

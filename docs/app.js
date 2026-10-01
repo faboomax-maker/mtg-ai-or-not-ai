@@ -38,7 +38,7 @@ function post(api, path, data) {
 
 /** Hardcore time limit of card i (0-based): from FIRST_MS for the first card down to LAST_MS for
     the last (the server uses the same values, worker/src/index.js). */
-var FIRST_MS = 8000, LAST_MS = 4000;
+var FIRST_MS = 6000, LAST_MS = 6000;      // the same time for every card
 function limitMs(i, n) { return Math.round(FIRST_MS - (FIRST_MS - LAST_MS) * i / Math.max(1, n - 1)); }
 
 /** A game: the cards, and how an answer is judged (server or sealed deck). */
@@ -159,7 +159,7 @@ function Intro(p) {
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "swipe" })),
           h("span", null, "Glisse, touche les boutons ou utilise les flèches.")),
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "hourglass" })),
-          h("span", null, h("strong", null, "Hardcore : "), "des cartes communes de toutes les époques, et un sablier qui fond de 8 à 4 secondes.")))),
+          h("span", null, h("strong", null, "Hardcore : "), "des cartes communes de toutes les époques, et un sablier de 6 secondes par carte.")))),
     h(A.Panel, { title: "Classement", headingLevel: 2 },
       h(Leaderboard, { board: p.board, mode: boardMode, onMode: setBoardMode, switchable: true })),
     h("div", { className: "push" },

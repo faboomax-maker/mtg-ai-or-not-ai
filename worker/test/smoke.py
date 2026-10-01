@@ -78,8 +78,8 @@ check("better score ranks first", s == 200 and r["rank"] == 1 and r["leaderboard
 
 # hardcore: an answer after card 1's 10 s + grace counts as wrong even if right
 s, g = call("/start", {"mode": "hardcore"})
-check("hardcore limits", g.get("limits", [None])[0] == 8000 and g["limits"][-1] == 4000, g.get("limits"))
-time.sleep(11)
+check("hardcore limits", g.get("limits", [None])[0] == 6000 and g["limits"][-1] == 6000, g.get("limits"))
+time.sleep(9)
 img = g["cards"][0]
 s, r = call("/answer", {"game": g["game"], "index": 0, "answer": "real" if key[img]["real"] else "ai"})
 check("late hardcore answer counts as wrong", s == 200 and r["correct"] is False and r["timeout"] is True, r)
