@@ -20,7 +20,7 @@ import json
 
 from common import DOCS, session
 
-BULK = "https://api.scryfall.com/bulk-data/oracle-cards"
+BULK = "https://api.scryfall.com/bulk-data"          # list of the bulk files; we take type "oracle_cards"
 
 SKIP_SET_TYPES = {"token", "memorabilia", "funny", "art_series", "minigame", "alchemy", "vanguard",
                   "treasure_chest", "planechase", "archenemy"}
@@ -48,7 +48,11 @@ def main() -> None:
     s = session()
     meta = s.get(BULK, timeout=60)
     meta.raise_for_status()
-    url = meta.json()["download_uri"]
+    files = meta.json().get("data") or []
+    url = next((f.get("download_uri") for f in files if f.get("type") == "oracle_cards"), None)
+    if not url:
+        raise SystemExit("Fichier « oracle_cards » introuvable dans la liste Scryfall : "
+                         + (", ".join(str(f.get("type")) for f in files) or meta.text[:300]))
     print("Téléchargement", url)
     r = s.get(url, timeout=600)
     r.raise_for_status()
