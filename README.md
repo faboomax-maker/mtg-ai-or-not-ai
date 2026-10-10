@@ -4,7 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
-| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Trois difficultés (prix plus proches, cartes moins connues), record par mode. |
+| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Quatre difficultés à débloquer (prix plus proches, cartes moins connues), record par mode. |
 | **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
 
@@ -20,15 +20,16 @@ Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors prés
 
 ### Prix de « Plus cher ou moins cher ? »
 
-`docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque lundi ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
+`docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque nuit (vers 6 h, heure de Paris) ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
 
-Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`) :
+Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`). Chaque mode se débloque en faisant une série de 5 dans le précédent (`UNLOCK`) :
 
 | Mode | Cartes | Écart de prix |
 |---|---|---|
 | Facile | les 2 500 plus jouées en Commander | ×3 à ×30 |
 | Moyen | les 12 000 plus jouées | ×1,6 à ×3 |
-| Difficile | hors des 3 000 plus jouées, ou non classées | ×1,15 à ×1,6 |
+| Hardcore | hors des 3 000 plus jouées, ou non classées | ×1,6 à ×3 |
+| Impossible | hors des 3 000 plus jouées, ou non classées | ×1,15 à ×1,6 |
 
 ## IA ou vraie carte ?
 
@@ -132,7 +133,7 @@ docs/                 site statique publié par GitHub Pages
     ia-ou-vraie/      game.js, style.css : le quiz « IA ou vraie carte ? »
     guildes/          data.js (questions, barème, guildes), game.js, style.css
     plus-cher/        game.js, style.css : « Plus cher ou moins cher ? »
-  data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque semaine)
+  data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque jour)
   data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
   img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/

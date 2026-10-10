@@ -1,6 +1,6 @@
 /* Plus cher ou moins cher ? — a card and its price, then a second card: is it worth more or less?
    Chain right answers; one mistake ends the run. Prices: docs/data/prix.json, made by
-   pipeline/fetch_prices.py (Scryfall's Cardmarket trend price, refreshed every week).
+   pipeline/fetch_prices.py (Scryfall's Cardmarket trend price, refreshed every day).
    Registered in window.MTG.games; the hub (app.js) mounts it with { onExit }. */
 (function () {
 "use strict";
@@ -11,16 +11,24 @@ var REVEAL_MS = 650, NEXT_MS = 1100;            // price count-up, then the next
 var BEST_KEY = "plus-cher-best-";
 
 /* Difficulty: which cards (EDHREC rank: 1 = the most played in Commander, 0 = unranked) and how far
-   apart the two prices are (ratio between the dearer and the cheaper, and a minimum gap in cents). */
+   apart the two prices are (ratio between the dearer and the cheaper, and a minimum gap in cents).
+   Each mode is unlocked by a streak of UNLOCK in the one before it. */
+var UNLOCK = 5;
+var obscure = function (c) { return c.r === 0 || c.r > 3000; };
 var MODES = {
-  facile:    { name: "Facile", desc: "Des cartes connues, des prix bien différents.",
-               pool: function (c) { return c.r > 0 && c.r <= 2500; }, ratio: [3, 30], gap: 50 },
-  moyen:     { name: "Moyen", desc: "Des cartes moins jouées, des prix plus proches.",
-               pool: function (c) { return c.r > 0 && c.r <= 12000; }, ratio: [1.6, 3], gap: 30 },
-  difficile: { name: "Difficile", desc: "Des cartes obscures, des prix au coude à coude.",
-               pool: function (c) { return c.r === 0 || c.r > 3000; }, ratio: [1.15, 1.6], gap: 20, icon: "skull" },
+  facile:     { name: "Facile", desc: "Des cartes connues, des prix bien différents.",
+                pool: function (c) { return c.r > 0 && c.r <= 2500; }, ratio: [3, 30], gap: 50 },
+  moyen:      { name: "Moyen", desc: "Des cartes moins jouées, des prix plus proches.",
+                pool: function (c) { return c.r > 0 && c.r <= 12000; }, ratio: [1.6, 3], gap: 30 },
+  hardcore:   { name: "Hardcore", desc: "Des cartes obscures que personne ne joue.",
+                pool: obscure, ratio: [1.6, 3], gap: 30, icon: "skull", dark: true },
+  impossible: { name: "Impossible", desc: "Des cartes obscures, des prix au coude à coude.",
+                pool: obscure, ratio: [1.15, 1.6], gap: 20, icon: "candle", dark: true },
 };
-var ORDER = ["facile", "moyen", "difficile"];
+var ORDER = ["facile", "moyen", "hardcore", "impossible"];
+/** The mode before m (whose streak unlocks it), or null for the first one. */
+function prevMode(m) { var i = ORDER.indexOf(m); return i > 0 ? ORDER[i - 1] : null; }
+function unlocked(m) { var p = prevMode(m); return !p || getBest(p) >= UNLOCK; }
 
 /* ------------------------------------------------------------------ data */
 var dataPromise = null;
@@ -116,13 +124,16 @@ function Intro(p) {
       h("h1", { className: "title-xl" }, "Plus cher ou moins cher ?")),
     h("p", { className: "flavor" }, "Une carte et son prix. La suivante vaut-elle plus, ou moins ? Enchaîne sans te tromper."),
     h("div", { className: "pc-modes", role: "group", "aria-label": "Difficulté" }, ORDER.map(function (m) {
-      var best = getBest(m), md = MODES[m];
-      return h("button", { key: m, type: "button", className: "pc-mode", disabled: !p.data, onClick: function () { p.onStart(m); } },
+      var best = getBest(m), md = MODES[m], open = unlocked(m), before = prevMode(m);
+      return h("button", { key: m, type: "button", className: "pc-mode" + (open ? "" : " is-locked"),
+                           disabled: !p.data || !open, onClick: function () { p.onStart(m); } },
         h("span", { className: "pc-mode__head" },
           md.icon ? h(A.Icon, { name: md.icon, size: 20 }) : null,
           h("span", { className: "title-sm" }, md.name)),
         h("span", { className: "pc-mode__desc caption" }, md.desc),
-        h("span", { className: "pc-mode__best label" }, best ? "Record : " + best : "Pas encore de record"));
+        h("span", { className: "pc-mode__best label" },
+          !open ? "Verrouillé · fais " + UNLOCK + " d'affilée en " + MODES[before].name :
+          best ? "Record : " + best : "Pas encore de record"));
     })),
     h("div", { className: "push" },
       p.error ? h("p", { className: "error caption" }, p.error) :
@@ -224,7 +235,9 @@ function Over(p) {
       h("p", { id: "pc-score", className: "pc-score__n" }, o.streak),
       h("p", { className: "body" }, o.streak > 1 ? "bonnes réponses d'affilée" : "bonne réponse"),
       p.record ? h(A.Badge, { tone: "success", icon: "crown" }, "Nouveau record !") :
-        h("p", { className: "caption pc-score__best" }, p.best ? "Record : " + p.best : "Pas encore de record")),
+        h("p", { className: "caption pc-score__best" }, p.best ? "Record : " + p.best : "Pas encore de record"),
+      p.unlocked ? h("p", { className: "pc-unlock body-strong", role: "status" },
+        h(A.Icon, { name: MODES[p.unlocked].icon || "crown", size: 20 }), "Mode " + MODES[p.unlocked].name + " débloqué !") : null),
     o.finished ? null : h(A.Panel, { title: "La carte qui t'a eu", headingLevel: 2 },
       h("div", { className: "pc-recap" },
         [o.a, o.b].map(function (c, i) {
@@ -235,7 +248,9 @@ function Over(p) {
       h("p", { className: "caption pc-recap__text" },
         o.b.n + " vaut " + euros(o.b.c) + ", " + (o.b.c > o.a.c ? "plus" : "moins") + " que " + o.a.n + " (" + euros(o.a.c) + ").")),
     h("div", { className: "pc-actions" },
-      h(A.Button, { variant: "primary", size: "lg", block: true, icon: "replay", onClick: p.onReplay }, "Rejouer"),
+      p.unlocked ? h(A.Button, { variant: "primary", size: "lg", block: true, icon: MODES[p.unlocked].icon || "arrow-right",
+                                 onClick: function () { p.onNext(p.unlocked); } }, "Essayer le mode " + MODES[p.unlocked].name) : null,
+      h(A.Button, { variant: p.unlocked ? "secondary" : "primary", size: "lg", block: true, icon: "replay", onClick: p.onReplay }, "Rejouer"),
       h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "share",
                     onClick: function () { share(p.mode, o.streak).then(setStatus); } }, "Partager mon score"),
       status === "copied" ? h("p", { className: "caption meta", role: "status" }, "Copié, il n'y a plus qu'à coller.") :
@@ -251,15 +266,15 @@ function Game(p) {
   var s4 = useState("facile"), mode = s4[0], setMode = s4[1];
   var s5 = useState(null), over = s5[0], setOver = s5[1];
   var s6 = useState(0), run = s6[0], setRun = s6[1];
-  var s7 = useState({ best: 0, record: false }), best = s7[0], setBestState = s7[1];
+  var s7 = useState({ best: 0, record: false, unlocked: null }), best = s7[0], setBestState = s7[1];
 
   useEffect(function () {
     loadData().then(setData).catch(function () { setError("Les prix ne sont pas encore disponibles. Reviens un peu plus tard."); });
   }, []);
   useEffect(function () { window.scrollTo(0, 0); }, [screen]);
-  // Difficile: the dark Charnier theme, like the hardcore mode of « IA ou vraie carte ? »
+  // Hardcore and Impossible: the dark Charnier theme, like the hardcore mode of « IA ou vraie carte ? »
   useEffect(function () {
-    var dark = screen !== "intro" && mode === "difficile";
+    var dark = screen !== "intro" && !!MODES[mode].dark;
     if (dark) document.documentElement.setAttribute("data-theme", "charnier");
     else document.documentElement.removeAttribute("data-theme");
   }, [screen, mode]);
@@ -272,14 +287,17 @@ function Game(p) {
   function end(o) {
     var prev = getBest(mode), record = o.streak > prev;
     if (record) setBest(mode, o.streak);
-    setBestState({ best: Math.max(prev, o.streak), record: record && o.streak > 0 });
+    var next = ORDER[ORDER.indexOf(mode) + 1];
+    setBestState({ best: Math.max(prev, o.streak), record: record && o.streak > 0,
+                   unlocked: next && prev < UNLOCK && o.streak >= UNLOCK ? next : null });
     setOver(o); setScreen("over");
   }
 
   var body;
   if (screen === "intro") body = h(Intro, { data: data, error: error, onStart: start, onExit: p.onExit });
   else if (screen === "play") body = h(Play, { key: run, data: data, mode: mode, onOver: end, onQuit: function () { setScreen("intro"); } });
-  else body = h(Over, { over: over, mode: mode, best: best.best, record: best.record,
+  else body = h(Over, { over: over, mode: mode, best: best.best, record: best.record, unlocked: best.unlocked,
+                        onNext: function (m) { start(m); },
                         onReplay: function () { start(mode); }, onHome: function () { setScreen("intro"); } });
   return h("div", { className: "app pc", "data-screen": screen }, body);
 }
@@ -289,7 +307,7 @@ window.MTG.games.push({
   title: "Plus cher ou moins cher ?",
   pitch: "Une carte, son prix. La suivante vaut-elle plus ou moins ? Enchaîne les bonnes réponses.",
   icon: "crown",
-  details: "3 difficultés · prix mis à jour chaque semaine",
+  details: "4 difficultés à débloquer · prix mis à jour chaque jour",
   isNew: true,
   order: 3,
   component: Game,

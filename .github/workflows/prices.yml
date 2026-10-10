@@ -1,10 +1,10 @@
 # Prices for the game « Plus cher ou moins cher ? » (docs/data/prix.json), from Scryfall's free
-# bulk data. Runs every Monday morning, or by hand: Actions tab -> « Mettre à jour les prix » -> Run workflow.
+# bulk data. Runs every day at 04:13 UTC (Scryfall refreshes its files every evening), or by hand: Actions tab -> « Mettre à jour les prix » -> Run workflow.
 name: Mettre à jour les prix
 
 on:
   schedule:
-    - cron: "13 4 * * 1"
+    - cron: "13 4 * * *"
   workflow_dispatch:
 
 permissions:
