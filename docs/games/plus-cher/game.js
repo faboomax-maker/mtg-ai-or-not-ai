@@ -281,40 +281,6 @@ function Over(p) {
       h(A.Button, { variant: "ghost", size: "md", onClick: p.onHome }, "Changer de difficulté")));
 }
 
-/* Before Impossible: a (fake) appraisal of the player's collection, like the hardcore warning
-   of « IA ou vraie carte ? ». */
-var APPRAISE_MS = 2800;
-var APPRAISE_LINES = ["Inventaire de ton binder…", "Comptage des bulks…", "Conversion en euros…"];
-function Appraisal(p) {
-  var s1 = useState(0), pct = s1[0], setPct = s1[1];
-  var done = pct >= 1;
-  useEffect(function () {
-    var t0 = performance.now();
-    var id = setInterval(function () {
-      var k = Math.min(1, (performance.now() - t0) / APPRAISE_MS);
-      setPct(k);
-      if (k >= 1) clearInterval(id);
-    }, 60);
-    return function () { clearInterval(id); };
-  }, []);
-  return h("div", { className: "pc-appraise" },
-    h("header", { className: "bar" },
-      h(A.Button, { variant: "secondary", icon: "close", "aria-label": "Retour au choix de la difficulté", onClick: p.onCancel }),
-      h("span"), h("span")),
-    !done ? h("div", { className: "pc-scan", role: "status", "aria-live": "polite" },
-      h("p", { className: "pc-scan__title title-xl" }, "Estimation…"),
-      h("div", { className: "pc-scan__track", "aria-hidden": "true" },
-        h("div", { className: "pc-scan__fill", style: { width: Math.round(pct * 100) + "%" } })),
-      h("p", { className: "caption pc-scan__line" }, APPRAISE_LINES[Math.min(APPRAISE_LINES.length - 1, Math.floor(pct * APPRAISE_LINES.length))])) :
-    h("div", { className: "pc-scan" },
-      h("p", { className: "caption pc-scan__line" }, "Valeur estimée de ta collection"),
-      h("p", { className: "pc-scan__value", role: "status" }, "12,40 €"),
-      h("p", { className: "body pc-scan__detail" }, "dont 11 € de sleeves."),
-      h("div", { className: "pc-actions" },
-        h(A.Button, { variant: "primary", size: "lg", block: true, icon: "candle", onClick: p.onGo }, "Je suis riche dans mon cœur"),
-        h(A.Button, { variant: "secondary", size: "lg", block: true, onClick: p.onEasy }, "Retour au mode facile"))));
-}
-
 /* ------------------------------------------------------------------ game */
 function Game(p) {
   var s1 = useState("intro"), screen = s1[0], setScreen = s1[1];
@@ -337,11 +303,9 @@ function Game(p) {
   }, [screen, mode]);
   useEffect(function () { return function () { document.documentElement.removeAttribute("data-theme"); }; }, []);
 
-  function start(m, appraised) {
+  function start(m) {
     if (!data || !freshPair(data.pools[m], m, {})) { setError("Pas assez de cartes pour ce mode."); return; }
-    setMode(m);
-    if (m === "impossible" && !appraised) { setScreen("appraise"); return; }
-    setRun(run + 1); setScreen("play");
+    setMode(m); setRun(run + 1); setScreen("play");
   }
   function end(o) {
     var prev = getBest(mode), record = o.streak > prev;
@@ -354,9 +318,6 @@ function Game(p) {
 
   var body;
   if (screen === "intro") body = h(Intro, { data: data, error: error, onStart: start, onExit: p.onExit });
-  else if (screen === "appraise") body = h(Appraisal, { onGo: function () { start("impossible", true); },
-                                                    onEasy: function () { start("facile"); },
-                                                    onCancel: function () { setScreen("intro"); } });
   else if (screen === "play") body = h(Play, { key: run, data: data, mode: mode, onOver: end, onQuit: function () { setScreen("intro"); } });
   else body = h(Over, { over: over, mode: mode, best: best.best, record: best.record, unlocked: best.unlocked,
                         onNext: function (m) { start(m); },

@@ -80,15 +80,5 @@
 .pc-actions { display: flex; flex-direction: column; gap: var(--space-3); }
 .pc-unlock { display: inline-flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3) !important; color: var(--brass-ink); }
 
-/* Jokes: verdict of the streak, appraisal before Impossible */
+/* Joke: verdict of the streak */
 .pc-quip { margin-top: var(--space-2) !important; color: var(--ink); max-width: 30ch; }
-.pc-appraise { flex: 1; display: flex; flex-direction: column; }
-.pc-scan { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-4); text-align: center; }
-.pc-scan p { margin: 0; }
-.pc-scan__title { color: var(--ink); }
-.pc-scan__track { height: 14px; border-radius: var(--radius-sm); background: var(--surface-sunken);
-  box-shadow: var(--shadow-inset); border: var(--stroke-hair) solid var(--line); overflow: hidden; }
-.pc-scan__fill { height: 100%; background: var(--brass); box-shadow: inset 0 -1px 0 var(--brass-edge); }
-.pc-scan__line { color: var(--ink-muted); }
-.pc-scan__value { font: 700 64px/1 var(--font-display); color: var(--brass-ink); font-variant-numeric: lining-nums; }
-.pc-scan__detail { color: var(--ink); margin-bottom: var(--space-5) !important; }
