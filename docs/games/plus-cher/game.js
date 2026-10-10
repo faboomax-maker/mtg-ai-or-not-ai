@@ -30,6 +30,28 @@ var ORDER = ["facile", "moyen", "hardcore", "impossible"];
 function prevMode(m) { var i = ORDER.indexOf(m); return i > 0 ? ORDER[i - 1] : null; }
 function unlocked(m) { var p = prevMode(m); return !p || getBest(p) >= UNLOCK; }
 
+/* ------------------------------------------------------------------ jokes */
+function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+var HITS = ["Flair de trader.", "Le marché, c'est toi.", "Hype détectée.", "Bien vu !", "Tu sens la spéculation."];
+var MISSES = ["Ton binder pleure.", "Spéculation ratée.", "Tu as acheté au plus haut.", "Raté !", "Cardmarket rigole."];
+/** The line under the cards once b's price is shown: a special case, or a random reaction. */
+function reaction(a, b, ok) {
+  var ratio = Math.max(a.c, b.c) / Math.min(a.c, b.c);
+  if (!ok && ratio >= 10) return "Tu viens d'échanger un Ragavan contre un Shock.";
+  if (b.c < 20) return "Bulk. Elle finira dans une boîte à chaussures.";
+  if (b.c >= 5000) return "Double sleeve, toploader, coffre-fort.";
+  return pick(ok ? HITS : MISSES);
+}
+/** The verdict on a final streak. */
+function quip(n) {
+  return n === 0 ? "Même un bot de draft aurait fait mieux." :
+         n <= 2 ? "Tu achètes tes cartes au poids, avoue." :
+         n <= 5 ? "Ton binder est fier de toi. Un peu." :
+         n <= 9 ? "Tu regardes Cardmarket aux toilettes, c'est ça ?" :
+         n <= 19 ? "Arrête de spéculer et va jouer." :
+                   "Tu bosses chez Cardmarket ou tu es juste malade ?";
+}
+
 /* ------------------------------------------------------------------ data */
 var dataPromise = null;
 function loadData() {
@@ -178,7 +200,7 @@ function Play(p) {
   function answer(guess) {
     if (result) return;
     var ok = guess === (b.c > a.c ? "more" : "less");
-    setResult({ ok: ok, guess: guess });
+    setResult({ ok: ok, guess: guess, msg: reaction(a, b, ok) });
     t.current = setTimeout(function () {
       if (!ok) { p.onOver({ streak: streak, a: a, b: b, guess: guess }); return; }
       setStreak(streak + 1);
@@ -211,12 +233,12 @@ function Play(p) {
                       className: result && result.guess === "more" ? "is-picked" : null,
                       onClick: function () { answer("more"); } }, "Plus cher")),
       h("p", { className: "pc-verdict label", role: "status" },
-        result ? (result.ok ? "Bien vu !" : "Raté !") : " ")));
+        result ? result.msg : " ")));
 }
 
 function share(mode, n) {
-  var text = "J'ai enchaîné " + n + " bonne" + (n > 1 ? "s" : "") + " réponse" + (n > 1 ? "s" : "") +
-    " en mode " + MODES[mode].name + " sur « Plus cher ou moins cher ? ». Tu fais mieux ?";
+  var text = "J'ai fait " + n + " d'affilée en mode " + MODES[mode].name + " sur « Plus cher ou moins cher ? ». " +
+    "Mes cartes, elles, ont perdu 40 % depuis que je les ai achetées. Tu fais mieux ?";
   var url = location.href.split("#")[0] + "#plus-cher";
   if (navigator.share) return navigator.share({ title: "Plus cher ou moins cher ?", text: text, url: url })
     .then(function () { return "shared"; }, function () { return null; });
@@ -234,6 +256,7 @@ function Over(p) {
       h("p", { className: "ar-eyebrow eyebrow" }, o.finished ? "Plus aucune carte à comparer !" : "Série terminée · " + MODES[p.mode].name),
       h("p", { id: "pc-score", className: "pc-score__n" }, o.streak),
       h("p", { className: "body" }, o.streak > 1 ? "bonnes réponses d'affilée" : "bonne réponse"),
+      h("p", { className: "flavor pc-quip" }, quip(o.streak)),
       p.record ? h(A.Badge, { tone: "success", icon: "crown" }, "Nouveau record !") :
         h("p", { className: "caption pc-score__best" }, p.best ? "Record : " + p.best : "Pas encore de record"),
       p.unlocked ? h("p", { className: "pc-unlock body-strong", role: "status" },
