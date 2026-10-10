@@ -161,6 +161,15 @@ function shuffle(a) {
   return a;
 }
 
+/* The guild's personality profile(s): with two, the one of the stronger guild color, both on a tie. */
+var PROFILE_URL = function (t) { return "https://www.16personalities.com/fr/la-personnalite-" + t.toLowerCase(); };
+function profiles(guild, scores) {
+  var t = guild.types;
+  if (typeof t === "string") return [t];
+  var cs = Object.keys(t).sort(function (a, b) { return scores[b] - scores[a]; });
+  return scores[cs[0]] === scores[cs[1]] ? [t[cs[0]], t[cs[1]]] : [t[cs[0]]];
+}
+
 function share(guild) {
   var text = "Je suis " + guild.name + " ! " + guild.text + " Et toi, quelle guilde de Ravnica es-tu ?";
   var url = location.href.split("#")[0] + "#guildes";
@@ -178,14 +187,17 @@ function Result(p) {
     h("header", { className: "bar" },
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Tous les jeux", onClick: p.onExit }),
       h("span"), h("span")),
-    h("section", { className: "gq-hero", "aria-labelledby": "gq-guild" },
+    h(A.Panel, { as: "section", className: "gq-hero", "aria-labelledby": "gq-guild" },
       h("div", { className: "gq-hero__emblem" }, h(Emblem, { guild: g, pair: r.pair })),
       h("p", { className: "ar-eyebrow eyebrow" }, "Ta guilde"),
       h("h1", { id: "gq-guild", className: "title-xl" }, g.name),
       h("p", { className: "gq-chips" }, h(Chip, { color: r.pair[0] }), h("span", { "aria-hidden": "true" }, "+"), h(Chip, { color: r.pair[1] })),
       h("p", { className: "flavor gq-hero__text" }, g.text)),
-    h(A.Panel, { title: "Ton profil de personnalité", headingLevel: 2 },
-      h("p", { className: "gq-types" }, g.types.map(function (t) { return h(A.Badge, { key: t, tone: "neutral", icon: false }, t); }))),
+    h("p", { className: "gq-profile body" }, "Ton profil de personnalité : ",
+      profiles(g, p.scores).map(function (t, i) {
+        return h(React.Fragment, { key: t }, i ? " ou " : null,
+          h("a", { href: PROFILE_URL(t), target: "_blank", rel: "noopener", className: "gq-profile__link label" }, t));
+      })),
     h("div", { className: "gq-actions" },
       h(A.Button, { variant: "primary", size: "lg", block: true, icon: "share",
                     onClick: function () { share(g).then(setStatus); } }, "Partager ma guilde"),
@@ -229,7 +241,7 @@ function Game(p) {
                                                    onQuit: function () { setScreen("intro"); } });
   else if (outcome.ask) body = h(Tiebreak, { key: "tb" + picks.length, step: picks.length, colors: outcome.ask, onBack: back, onQuit: function () { setScreen("intro"); },
                                             onPick: function (c) { setPicks(picks.concat([c])); } });
-  else body = h(Result, { result: outcome, onReplay: start, onExit: p.onExit });
+  else body = h(Result, { result: outcome, scores: scores, onReplay: start, onExit: p.onExit });
   return h("div", { className: "app gq", "data-screen": screen }, body);
 }
 
