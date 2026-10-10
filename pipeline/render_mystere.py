@@ -1,12 +1,13 @@
 """Render the cards of the day of « Carte mystère » with Magic Set Editor (same M15 frame as the quiz).
 
-For each scheduled card (docs/data/mystere.json, from yesterday on) not rendered yet, two images:
+For today's and tomorrow's cards (docs/data/mystere.json) when not rendered yet, two images:
   - blank : the frame, the blurred art, the set symbol and the bottom line, but no name, cost,
             type line, rules text nor P/T. The game lays the hidden text over it, at the M15
             positions (docs/games/mystere/style.css, .my-mse);
   - full  : the real card, shown when the game is over.
 They go to docs/img/mystere/<random>.webp, and their names into the (sealed) card of the day.
-Images of days that left the schedule are deleted.
+Day after day this renders one card (tomorrow's), ready before its Paris midnight; today's is
+rendered too if missing (first run, or a day the workflow did not run). Images of past days are deleted.
 
 Needs Magic Set Editor (Windows): see render_mse.py. Usage: python pipeline/render_mystere.py
 """
@@ -26,6 +27,7 @@ from render_mse import render
 DATA = DOCS / "data" / "mystere.json"
 IMG = DOCS / "img" / "mystere"
 TMP = WORK / "mystere"
+AHEAD = 1                                    # render up to tomorrow's card
 BLUR = 22                                    # art blur of the blank card (px on the 640 px art)
 
 
@@ -53,7 +55,8 @@ def main() -> None:
     IMG.mkdir(parents=True, exist_ok=True)
     TMP.mkdir(parents=True, exist_ok=True)
     s = session()
-    since = (mystere.paris_today() - dt.timedelta(days=1)).isoformat()
+    today = mystere.paris_today()
+    since, until = (today - dt.timedelta(days=1)).isoformat(), (today + dt.timedelta(days=AHEAD)).isoformat()
     keep, done = set(), 0
 
     for date, blob in sorted(data["days"].items()):
@@ -62,7 +65,9 @@ def main() -> None:
         if imgs and all((IMG / f).exists() for f in imgs.values()):
             keep.update(imgs.values())
             continue
-        if date < since:
+        if not (today.isoformat() <= date <= until):     # only today's and tomorrow's cards
+            if date >= since and imgs:                    # yesterday's: kept (late players)
+                keep.update(imgs.values())
             continue
         print(f"{date}: {card['n']}")
         art = TMP / f"art-{card['id']}.jpg"
