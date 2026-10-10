@@ -19,6 +19,8 @@
 .pc-mode:active:not(:disabled) { transform: translateY(1px); box-shadow: var(--shadow-inset); }
 .pc-mode:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .pc-mode:disabled { opacity: .5; cursor: default; }
+.pc-mode.is-locked { border-style: dashed; filter: grayscale(1); }
+.pc-mode.is-locked .pc-mode__best { color: var(--ink-muted); }
 .pc-mode__head { display: flex; align-items: center; gap: var(--space-2); color: var(--ink); }
 .pc-mode__head .ar-icon { color: var(--danger-ink); }
 .pc-mode__desc { color: var(--ink-muted); }
@@ -76,3 +78,4 @@
 .pc-recap__price.is-wrong { color: var(--danger-ink); }
 .pc-recap__text { margin: var(--space-3) 0 0; color: var(--ink-muted); }
 .pc-actions { display: flex; flex-direction: column; gap: var(--space-3); }
+.pc-unlock { display: inline-flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3) !important; color: var(--brass-ink); }
