@@ -36,12 +36,12 @@ function lastGuild() { try { return localStorage.getItem(LAST_KEY); } catch (e) 
 
 /* ------------------------------------------------------------------ emblem */
 /* The result's crest: a shield split between the guild's two colors, with its initial.
-   If an image exists at games/guildes/img/<id>.svg (azorius.svg, dimir.svg…), or at the path in the
+   If an image exists at games/guildes/img/<id>.webp (azorius.webp, dimir.webp…), or at the path in the
    guild's `symbol` field in data.js, it is shown instead; otherwise this original crest is drawn. */
 function Emblem(p) {
   var g = p.guild, a = C[p.pair[0]], b = C[p.pair[1]], id = "em-" + g.id;
   var s = useState(false), missing = s[0], setMissing = s[1];
-  var src = g.symbol || "games/guildes/img/" + g.id + ".svg";
+  var src = g.symbol || "games/guildes/img/" + g.id + ".webp";
   if (!missing) return h("img", { className: "emblem emblem--img", src: src, alt: "Symbole " + g.name, width: 168, height: 168,
                                   onError: function () { setMissing(true); } });
   var shield = "M80 8 L146 30 V82 C146 124 116 150 80 164 C44 150 14 124 14 82 V30 Z";
