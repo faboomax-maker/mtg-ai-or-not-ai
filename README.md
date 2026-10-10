@@ -23,6 +23,8 @@ Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors prés
 
 `docs/data/mystere.json` est un programme {date (heure de Paris) : carte} de la veille à 3 semaines, écrit par `pipeline/mystere.py` pendant le même workflow quotidien que les prix. Une date déjà programmée garde sa carte, et une carte déjà sortie ne revient pas avant que toutes les autres soient passées. Cartes possibles : simple face, parmi les 1 500 plus jouées en Commander, sans symboles exotiques (hybrides, phyrexians…). Les cartes sont légèrement scellées dans le fichier pour ne pas se lire d'un coup d'œil.
 
+Juste après, le workflow Windows **« Rendre les cartes mystère »** (`.github/workflows/mystere.yml`, lancé automatiquement à la fin de la mise à jour des prix, ou à la main) rend chaque carte programmée avec Magic Set Editor, au cadre M15 du quiz : une version **vide** (cadre, illustration floutée, symbole d'extension, sans nom, coût, type, texte ni F/E) et la version **complète**, dans `docs/img/mystere/` (`pipeline/render_mystere.py`). Pendant la partie, le jeu pose le texte caché sur la version vide, aux emplacements du cadre (boîtes `.my-box--*` dans `docs/games/mystere/style.css` ; ajouter `?boxes` à l'adresse du site pour les voir) ; à la fin, il affiche la vraie carte. Une carte que MSE n'a pas pu rendre garde le cadre HTML du jeu.
+
 ### Prix de « Plus cher ou moins cher ? »
 
 `docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque nuit (vers 6 h, heure de Paris) ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
@@ -160,6 +162,7 @@ pipeline/
   build.py            4. fusion, mélange, export vers docs/
   fetch_prices.py     prix Scryfall pour « Plus cher ou moins cher ? » (+ cartes du jour)
   mystere.py          cartes du jour de « Carte mystère »
+  render_mystere.py   rendu MSE des cartes du jour (version vide + complète)
   demo.py             jeu de démo hors ligne
   common.py  placeholder.py
 .github/workflows/generate.yml   génération à la demande sur GitHub

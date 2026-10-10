@@ -7,6 +7,7 @@
 "use strict";
 var A = window.Artifice, h = React.createElement;
 var useState = React.useState, useEffect = React.useEffect, useRef = React.useRef, useMemo = React.useMemo;
+var useLayoutEffect = React.useLayoutEffect;
 var DATA_URL = "data/mystere.json", NAMES_URL = "data/prix.json";
 var TRIES = 13;
 var SAVE_KEY = "mystere-", STATS_KEY = "mystere-stats";
@@ -132,20 +133,76 @@ function ManaImg(p) {
 
 /** A line of card text with the unguessed letters, digits and symbols hidden. Words never break. */
 function Masked(p) {
-  var toks = tokens(p.text == null ? "" : String(p.text)), out = [], word = [], key = 0;
+  var toks = tokens(p.text == null ? "" : String(p.text)), out = [], word = [], key = 0, paren = 0;
   function flush() { if (word.length) { out.push(h("span", { key: key++, className: "my-word" }, word)); word = []; } }
   toks.forEach(function (t) {
     if (t.s) { word.push(h(Sym, { key: key++, s: t.s, hidden: !p.all && !p.known[symKey(t.s)] })); return; }
     if (t.c === "\n") { flush(); out.push(h("br", { key: key++ })); return; }
     if (t.c === " ") { flush(); out.push(" "); return; }
-    if (t.k && !p.all && !p.known[t.k]) word.push(h("span", { key: key++, className: "my-slot", "aria-label": "lettre cachée" }));
-    else word.push(h("span", { key: key++, className: t.k ? "my-ch is-found" : "my-ch" }, t.c));
+    if (t.c === "(") paren++;
+    var it = p.italic && paren > 0 ? " is-it" : "";        // reminder text, in italics as printed
+    if (t.c === ")") paren = Math.max(0, paren - 1);
+    if (t.k && !p.all && !p.known[t.k]) word.push(h("span", { key: key++, className: "my-slot" + it, "aria-label": "lettre cachée" }));
+    else word.push(h("span", { key: key++, className: (t.k ? "my-ch is-found" : "my-ch") + it }, t.c));
   });
   flush();
   return h(p.as || "span", { className: p.className }, out);
 }
 
+/* The Magic Set Editor version (pipeline/render_mystere.py): the blank M15 card (frame, blurred art)
+   with the hidden text laid over it at the frame's places; the real card once the game is over.
+   Add ?boxes to the address to see the text boxes (to adjust them in style.css). */
+var SHOW_BOXES = /[?&]boxes\b/.test(location.search);
+
+/** Shrinks the font of an element (in container width units) until its content fits its box. */
+function useFit(ref, deps, max, min, oneLine) {
+  useLayoutEffect(function () {
+    var el = ref.current;
+    if (!el) return;
+    var size = max;
+    el.style.fontSize = size + "cqw";
+    for (var i = 0; i < 40 && size > min; i++) {
+      var over = oneLine ? el.scrollWidth > el.clientWidth + 1 : el.scrollHeight > el.clientHeight + 1;
+      if (!over) break;
+      size = Math.max(min, size - 0.1);
+      el.style.fontSize = size + "cqw";
+    }
+  }, deps);
+}
+
+function Box(p) {
+  var ref = useRef(null);
+  useFit(ref, [p.sig, p.width], p.max, p.min, p.oneLine);
+  return h("div", { ref: ref, className: "my-box my-box--" + p.kind + (SHOW_BOXES ? " is-debug" : "") },
+    h(Masked, { className: "my-box__in", text: p.text, known: p.known, all: false, italic: p.kind === "text" }));
+}
+
+function MseCard(p) {
+  var c = p.card, known = p.known, done = p.reveal;
+  var sig = Object.keys(known).sort().join("");            // re-fit the text when letters appear
+  var s = useState(0), width = s[0], setWidth = s[1];
+  var root = useRef(null);
+  useEffect(function () {                     // re-fit on resize
+    function onResize() { setWidth(root.current ? root.current.clientWidth : 0); }
+    onResize(); window.addEventListener("resize", onResize);
+    return function () { window.removeEventListener("resize", onResize); };
+  }, []);
+  var pt = c.p != null && c.h != null ? c.p + "/" + c.h : null;
+  var size = c.size || [750, 1046];
+  return h("article", { ref: root, className: "my-mse" + (done ? " is-revealed" : "") + (pt ? " has-pt" : ""), "aria-label": "Carte mystère",
+                        style: { aspectRatio: size[0] + " / " + size[1] } },
+    h("img", { className: "my-mse__img", src: "img/mystere/" + c.img.b, alt: "" }),
+    h("img", { className: "my-mse__img my-mse__full", src: "img/mystere/" + c.img.f, alt: done ? c.n : "", loading: done ? "eager" : "lazy" }),
+    done ? null : h(React.Fragment, null,
+      h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 4.5, min: 2.6, oneLine: true }),
+      c.m ? h(Box, { kind: "cost", text: c.m, known: known, sig: sig, width: width, max: 4.8, min: 3.4, oneLine: true }) : null,
+      h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.2, min: 2.6, oneLine: true }),
+      h(Box, { kind: "text", text: c.o, known: known, sig: sig, width: width, max: 4.0, min: 2.3 }),
+      pt ? h(Box, { kind: "pt", text: pt, known: known, sig: sig, width: width, max: 4.4, min: 3, oneLine: true }) : null));
+}
+
 function CardView(p) {
+  if (p.card.img) return h(MseCard, p);
   var c = p.card, known = p.known, all = p.reveal;
   var art = "https://cards.scryfall.io/art_crop/front/" + c.id[0] + "/" + c.id[1] + "/" + c.id + ".jpg";
   var stats = c.p != null && c.h != null ? c.p + "/" + c.h : c.l != null ? String(c.l) : null;
@@ -155,7 +212,7 @@ function CardView(p) {
       h(Masked, { className: "my-card__cost", text: c.m, known: known, all: all })),
     h("div", { className: "my-card__art" }, h("img", { src: art, alt: all ? "Illustration de " + c.n : "", loading: "eager" })),
     h(Masked, { as: "p", className: "my-card__type", text: c.t, known: known, all: all }),
-    h(Masked, { as: "p", className: "my-card__text", text: c.o, known: known, all: all }),
+    h(Masked, { as: "p", className: "my-card__text", text: c.o, known: known, all: all, italic: true }),
     stats ? h(Masked, { className: "my-card__pt", text: stats, known: known, all: all }) : null);
 }
 

@@ -102,3 +102,29 @@
 .my-link { color: var(--brass-ink); }
 .my-next { color: var(--ink-muted); margin-top: var(--space-2) !important; }
 .my-next strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Magic Set Editor version: the blank M15 card with the hidden text over it. Boxes in % of the card,
+   measured on the quiz's MSE renders (750 x 1046); fonts in % of the card width (cqw). */
+.my-mse { position: relative; width: 100%; container-type: inline-size; border-radius: 4.5% / 3.2%; overflow: hidden;
+  background: var(--card-placeholder); box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card); }
+.my-mse__img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.my-mse__full { opacity: 0; transition: opacity 700ms ease-out; }
+.my-mse.is-revealed .my-mse__full { opacity: 1; }
+.my-box { position: absolute; display: flex; align-items: center; overflow: hidden; color: #111;
+  font-family: var(--font-text); line-height: 1.2; }
+.my-box__in { display: block; width: 100%; }
+.my-box--name { left: 8.6%; top: 5.5%; width: 62%; height: 4.4%; font-weight: 700; white-space: nowrap; }
+.my-box--cost { right: 6.3%; top: 5.5%; height: 4.5%; max-width: 30%; justify-content: flex-end; white-space: nowrap; }
+.my-box--cost .my-box__in { width: auto; }
+.my-box--type { left: 8.6%; top: 56.9%; width: 68%; height: 4.2%; font-weight: 700; white-space: nowrap; }
+.my-box--text { left: 9.2%; top: 65%; width: 81.6%; height: 26%; }
+.my-mse.has-pt .my-box--text { height: 23.8%; }
+.my-box--pt { left: 76.4%; top: 89.4%; width: 15.6%; height: 5.2%; justify-content: center; font-weight: 700;
+  background: #e6dccb; border: 2px solid #2b2420; border-radius: 1.6cqw / 1.6cqw; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.my-box--pt .my-box__in { width: auto; }
+.my-box .my-slot { border-bottom-color: rgba(17, 17, 17, .65); background: rgba(17, 17, 17, .08); }
+.my-box .my-ch.is-found { color: #111; }
+.my-box .my-sym { width: 1.12em; height: 1.12em; font-size: 1em; vertical-align: -0.18em; }
+.my-box .my-sym--text, .my-box .my-sym--tap, .my-box .my-sym.is-hidden { font-size: .72em; width: 1.55em; height: 1.55em; }
+.my-box.is-debug { outline: 1px dashed #e0245e; background: rgba(224, 36, 94, .08); }
+.my-ch.is-it { font-style: italic; }

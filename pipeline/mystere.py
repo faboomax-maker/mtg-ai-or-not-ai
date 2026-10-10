@@ -36,7 +36,8 @@ def candidate(c: dict) -> bool:
         return False
     if not (0 < (c.get("edhrec_rank") or 0) <= MAX_RANK):
         return False
-    if "Basic Land" in (c.get("type_line") or "") or c.get("set_type") in {"token", "funny", "memorabilia"}:
+    if any(w in (c.get("type_line") or "") for w in ("Basic Land", "Planeswalker", "Battle")) \
+            or c.get("set_type") in {"token", "funny", "memorabilia"}:
         return False
     text = (c.get("mana_cost") or "") + (c.get("oracle_text") or "")
     if not all(ALLOWED_SYMBOLS.match(s) for s in SYMBOL.findall(text)):
@@ -49,7 +50,10 @@ def candidate(c: dict) -> bool:
 def payload(c: dict) -> dict:
     return {"n": c["name"], "m": c.get("mana_cost") or "", "t": c.get("type_line") or "",
             "o": c.get("oracle_text") or "", "p": c.get("power"), "h": c.get("toughness"),
-            "l": c.get("loyalty"), "id": c["id"], "s": c.get("set", ""), "cn": c.get("collector_number", "")}
+            "l": c.get("loyalty"), "id": c["id"], "s": c.get("set", ""), "cn": c.get("collector_number", ""),
+            # for the Magic Set Editor render (pipeline/render_mystere.py)
+            "r": c.get("rarity") or "common", "a": c.get("artist") or "", "d": c.get("released_at") or "",
+            "ft": c.get("flavor_text") or ""}
 
 
 def seal(card: dict, date: str) -> str:
