@@ -132,3 +132,9 @@ body:has(.pc.is-flip-out), body:has(.pc.is-flip-in) { overflow-x: hidden; }
   @keyframes pc-fade { from { opacity: 0; } }
   @keyframes pc-grow { from { transform: scale(.85); } }
 }
+
+/* « Trop facile ? Passer au mode … », once the next mode is unlocked during a run */
+.pc-skip { align-self: center; color: var(--brass-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .pc-skip { animation: pc-fade 240ms ease-out; }
+}
