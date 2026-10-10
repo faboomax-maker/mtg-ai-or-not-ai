@@ -54,23 +54,32 @@ def strings(x):
 
 
 def download_url(s, entry: dict) -> str:
-    """The file's address in a bulk-data entry: download_uri, or any link to a .json(.gz) file,
+    """The file's address in a bulk-data entry: download_uri / jsonl_download_uri, or any link to a
+    .json or .jsonl file (gzipped or not),
     or else the entry's own page (uri), fetched in full."""
-    for key in ("download_uri", "download_url", "url"):
+    for key in ("download_uri", "jsonl_download_uri", "download_url", "url"):
         if isinstance(entry.get(key), str) and entry[key].startswith("http"):
             return entry[key]
     for v in strings(entry):
-        if v.startswith("http") and re.search(r"\.json(\.gz)?(\?|$)", v):
+        if v.startswith("http") and re.search(r"\.jsonl?(\.gz)?(\?|$)", v):
             return v
     if isinstance(entry.get("uri"), str):
         full = s.get(entry["uri"], timeout=60)
         full.raise_for_status()
         detail = full.json()
-        for key in ("download_uri", "download_url"):
+        for key in ("download_uri", "jsonl_download_uri", "download_url"):
             if isinstance(detail.get(key), str):
                 return detail[key]
     raise SystemExit("Pas de lien de téléchargement pour « oracle_cards ». Champs reçus : "
                      + json.dumps(entry, ensure_ascii=False)[:600])
+
+
+def parse_cards(raw: bytes) -> list[dict]:
+    """A JSON array of cards, or JSON Lines (one card per line, Scryfall's format since 2026)."""
+    text = raw.decode("utf-8").lstrip()
+    if text.startswith("["):
+        return json.loads(text)
+    return [json.loads(line) for line in text.splitlines() if line.strip()]
 
 
 def main() -> None:
@@ -94,7 +103,7 @@ def main() -> None:
     raw = r.content
     if raw[:2] == b"\x1f\x8b":                            # gzipped file served as is
         raw = gzip.decompress(raw)
-    cards = json.loads(raw)
+    cards = parse_cards(raw)
 
     rows = []
     for c in cards:
