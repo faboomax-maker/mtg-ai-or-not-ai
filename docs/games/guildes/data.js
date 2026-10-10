@@ -127,15 +127,15 @@ window.MTG.guildesData = {
   // types: the personality profile; for two profiles, the one of the guild's stronger color
   // (both, joined by « ou », when the two colors are equal).
   GUILDS: {
-    WU: { id: "azorius",  name: "Azorius",  text: "Tu crois que de bons systèmes font un monde meilleur. Loyal à la loi, logique, tu lis vraiment les conditions générales.", types: { U: "ISTJ", W: "ESTJ" } },
-    UB: { id: "dimir",    name: "Dimir",    text: "Discret, malin, toujours trois coups d'avance. Tu en sais plus que tu n'en dis.", types: { U: "INTJ", B: "ISTP" } },
-    BR: { id: "rakdos",   name: "Rakdos",   text: "Tu vis pour l'intensité et tu ne t'excuses jamais d'en vouloir plus.", types: "ESFP" },
-    RG: { id: "gruul",    name: "Gruul",    text: "Sauvage et sincère. Tu fais confiance à ton instinct plutôt qu'aux règles, et tu détestes qu'on te dompte.", types: { R: "ESTP", G: "ENFP" } },
-    WG: { id: "selesnya", name: "Selesnya", text: "L'harmonie et la communauté avant tout. Avec toi, les gens se sentent chez eux.", types: { G: "ISFJ", W: "ESFJ" } },
-    WB: { id: "orzhov",   name: "Orzhov",   text: "Tu sais que l'ordre et le pouvoir vont de pair, et tu sais te servir des deux.", types: "ENTJ" },
-    UR: { id: "izzet",    name: "Izzet",    text: "Curieux, chaotique, brillant. Tes idées explosent parfois, et c'est ça le plus drôle.", types: { R: "ENTP", U: "INTP" } },
-    BG: { id: "golgari",  name: "Golgari",  text: "Patient et pragmatique. Tout naît et tout disparaît, et tu prospères dans ce cycle.", types: "ISFP" },
-    WR: { id: "boros",    name: "Boros",    text: "Passionné de justice. Quand quelque chose ne va pas, tu es le premier à agir.", types: "ENFJ" },
-    UG: { id: "simic",    name: "Simic",    text: "Tu aimes la croissance et le progrès, toujours à te demander comment les choses pourraient évoluer.", types: { U: "INFJ", G: "INFP" } },
+    WU: { id: "azorius",  name: "Azorius",  text: "Tu crois que de bons systèmes font un monde meilleur. Loyal à la loi, logique, en gros t'es boring as fuck.", types: { U: "ISTJ", W: "ESTJ" } },
+    UB: { id: "dimir",    name: "Dimir",    text: "Discret, malin, toujours trois coups d'avance. Tu en sais plus que tu n'en dis. Coquin, va.", types: { U: "INTJ", B: "ISTP" } },
+    BR: { id: "rakdos",   name: "Rakdos",   text: "Tu vis pour l'intensité et tu ne t'excuses jamais d'en vouloir plus. ONE LIFE, AM I RIGHT?", types: "ESFP" },
+    RG: { id: "gruul",    name: "Gruul",    text: "Sauvage et sincère. Tu fais confiance à ton instinct plutôt qu'aux règles, et tu détestes qu'on te dompte. Esprit Gigachad.", types: { R: "ESTP", G: "ENFP" } },
+    WG: { id: "selesnya", name: "Selesnya", text: "L'harmonie et la communauté avant tout. Avec toi, les gens se sentent chez eux. Tranquille man, t'aurais pas une roulée à dépanne? Peace!", types: { G: "ISFJ", W: "ESFJ" } },
+    WB: { id: "orzhov",   name: "Orzhov",   text: "Tu sais que l'ordre et le pouvoir vont de pair, et tu sais te servir des deux. Un grindset t'as peur.", types: "ENTJ" },
+    UR: { id: "izzet",    name: "Izzet",    text: "Curieux, chaotique, brillant. Tes idées explosent parfois, et c'est ça le plus drôle. Une sorte de fou du bus mais en + smart.", types: { R: "ENTP", U: "INTP" } },
+    BG: { id: "golgari",  name: "Golgari",  text: "Patient et pragmatique. Tout naît et tout disparaît, et tu prospères dans ce cycle. Te self-mill c'est carrément un loisir à ce stade.", types: "ISFP" },
+    WR: { id: "boros",    name: "Boros",    text: "Passionné de justice. Quand quelque chose ne va pas, tu es le premier à agir. Gaab te first pack first pick.", types: "ENFJ" },
+    UG: { id: "simic",    name: "Simic",    text: "Tu aimes la croissance et le progrès, toujours à te demander comment les choses pourraient évoluer. Mi-requin, mi-pieuvre, 100% gay.", types: { U: "INFJ", G: "INFP" } },
   },
 };
