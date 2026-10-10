@@ -82,3 +82,29 @@
 
 /* Joke: verdict of the streak */
 .pc-quip { margin-top: var(--space-2) !important; color: var(--ink); max-width: 30ch; }
+
+/* Switch between « Plus cher » and « Plus populaire »: a dashed card-like button */
+.pc-switch {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-3);
+  width: 100%; box-sizing: border-box; text-align: left; cursor: pointer; font: inherit; color: var(--brass-ink);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--brass-soft); border: var(--stroke-control) dashed var(--brass-ink);
+  transition: transform 120ms ease-out, background 120ms ease-out;
+}
+.pc-switch:hover { background: var(--surface-raised); }
+.pc-switch:active { transform: translateY(1px); }
+.pc-switch:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.pc-switch__text { display: flex; flex-direction: column; gap: 2px; }
+.pc-switch__label { color: var(--ink); }
+.pc-switch__hint { color: var(--brass-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .pc-switch .ar-icon { animation: pc-wiggle 2.6s ease-in-out infinite; }
+  @keyframes pc-wiggle { 0%, 80%, 100% { transform: none; } 85% { transform: rotate(-12deg); } 92% { transform: rotate(12deg); } }
+}
+
+/* The screen flips over when switching: a half turn out, the content swaps, a half turn in */
+.pc.is-flip-out { animation: pc-flip-out 300ms ease-in forwards; backface-visibility: hidden; }
+.pc.is-flip-in  { animation: pc-flip-in 300ms ease-out both; backface-visibility: hidden; }
+@keyframes pc-flip-out { from { transform: perspective(1400px) rotateY(0); } to { transform: perspective(1400px) rotateY(90deg); } }
+@keyframes pc-flip-in  { from { transform: perspective(1400px) rotateY(-90deg); } to { transform: perspective(1400px) rotateY(0); } }
+body:has(.pc.is-flip-out), body:has(.pc.is-flip-in) { overflow-x: hidden; }
