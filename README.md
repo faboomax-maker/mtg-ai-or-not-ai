@@ -4,7 +4,8 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
-| **Quelle guilde es-tu ?** (nouveau) | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
+| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Trois difficultés (prix plus proches, cartes moins connues), record par mode. |
+| **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
 
 Chaque jeu a son lien direct : `https://<toi>.github.io/<depot>/#guildes`, `…/#ia-ou-vraie`.
@@ -16,6 +17,18 @@ Chaque jeu a son lien direct : `https://<toi>.github.io/<depot>/#guildes`, `…/
 3. Ajoute ses `<script>` et `<link>` dans `docs/index.html`, après `app.js`.
 
 Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors présenté en premier.
+
+### Prix de « Plus cher ou moins cher ? »
+
+`docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque lundi ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
+
+Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`) :
+
+| Mode | Cartes | Écart de prix |
+|---|---|---|
+| Facile | les 2 500 plus jouées en Commander | ×3 à ×30 |
+| Moyen | les 12 000 plus jouées | ×1,6 à ×3 |
+| Difficile | hors des 3 000 plus jouées, ou non classées | ×1,15 à ×1,6 |
 
 ## IA ou vraie carte ?
 
@@ -118,6 +131,8 @@ docs/                 site statique publié par GitHub Pages
   games/
     ia-ou-vraie/      game.js, style.css : le quiz « IA ou vraie carte ? »
     guildes/          data.js (questions, barème, guildes), game.js, style.css
+    plus-cher/        game.js, style.css : « Plus cher ou moins cher ? »
+  data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque semaine)
   data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
   img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/
@@ -126,6 +141,7 @@ pipeline/
   render_mse.py       3. rendu des cartes avec Magic Set Editor (cadre M15, symboles Keyrune)
   setup_mse.ps1       installe MSE (Full Magic Pack, templates M15) et ses polices
   build.py            4. fusion, mélange, export vers docs/
+  fetch_prices.py     prix Scryfall pour « Plus cher ou moins cher ? »
   demo.py             jeu de démo hors ligne
   common.py  placeholder.py
 .github/workflows/generate.yml   génération à la demande sur GitHub
