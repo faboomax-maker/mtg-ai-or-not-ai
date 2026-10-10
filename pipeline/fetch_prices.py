@@ -1,4 +1,5 @@
 """Prices for the game « Plus cher ou moins cher ? » - one line per card, from Scryfall's free bulk data.
+Also writes the cards of the day of « Carte mystère » (pipeline/mystere.py -> docs/data/mystere.json).
 
 Usage:
     python pipeline/fetch_prices.py                  # -> docs/data/prix.json
@@ -20,6 +21,7 @@ import gzip
 import json
 import re
 
+import mystere
 from common import DOCS, session
 
 BULK = "https://api.scryfall.com/bulk-data"          # list of the bulk files; we take type "oracle_cards"
@@ -117,6 +119,12 @@ def main() -> None:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     ranked = sum(1 for x in rows if x[3])
     print(f"{len(rows)} cartes avec un prix (dont {ranked} classées par EDHREC) -> {args.out}")
+
+    # « Carte mystère »: the cards of the day come from the same Scryfall file
+    try:
+        mystere.build(cards, DOCS / "data" / "mystere.json")
+    except Exception as e:                            # the prices are published anyway
+        print("Carte mystère : échec de la mise à jour :", e)
 
 
 if __name__ == "__main__":
