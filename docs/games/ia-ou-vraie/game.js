@@ -172,6 +172,11 @@ function Intro(p) {
                     onClick: function () { p.onStart("normal"); } }, "Mode facile"),
       h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "skull", disabled: !(hard && hard.cards.length) || p.busy,
                     onClick: p.onHardcore }, hard ? "Mode hardcore" : "Mode hardcore (bientôt)"),
+      // a teaser: this mode does not exist (yet)
+      h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "candle", disabled: true, className: "locked",
+                    "aria-label": "Mode impossible, pas encore débloqué" },
+        h("span", { className: "locked__label" }, "Mode impossible",
+          h("span", { className: "locked__hint caption" }, "Pas encore débloqué"))),
       p.meta ? h("p", { className: "meta caption" }, p.meta) : null,
       h("p", { className: "legal caption" },
         "Vraies cartes via ", h("a", { href: "https://scryfall.com", target: "_blank", rel: "noopener" }, "Scryfall"),
