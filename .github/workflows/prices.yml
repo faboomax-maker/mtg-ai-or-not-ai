@@ -1,4 +1,5 @@
-# Prices for the game « Plus cher ou moins cher ? » (docs/data/prix.json), from Scryfall's free
+# Prices for the game « Plus cher ou moins cher ? » (docs/data/prix.json) and the cards of the day of
+# « Carte mystère » (docs/data/mystere.json), from Scryfall's free
 # bulk data. Runs every day at 04:13 UTC (Scryfall refreshes its files every evening), or by hand: Actions tab -> « Mettre à jour les prix » -> Run workflow.
 name: Mettre à jour les prix
 
@@ -26,7 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/prix.json
+          git add docs/data/prix.json docs/data/mystere.json
           git commit -m "Prix des cartes du $(date +%F)" || { echo "Rien à publier"; exit 0; }
           git pull --rebase -q origin main
           git push

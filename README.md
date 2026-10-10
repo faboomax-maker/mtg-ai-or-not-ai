@@ -4,6 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
+| **Carte mystère** (nouveau) | `docs/games/mystere/` | Une carte par jour, cachée lettre par lettre (façon Spellify) : lettres, chiffres et symboles de mana se révèlent partout sur la carte ; 13 essais pour trouver son nom. Statistiques et série, partage du résultat. |
 | **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Variante **Plus ou moins populaire ?** (classement EDHREC), accessible par un bouton en bas de l'accueil du jeu. Quatre difficultés à débloquer par variante, record par mode. |
 | **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
@@ -17,6 +18,12 @@ Chaque jeu a son lien direct : `https://<toi>.github.io/<depot>/#guildes`, `…/
 3. Ajoute ses `<script>` et `<link>` dans `docs/index.html`, après `app.js`.
 
 Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors présenté en premier.
+
+### Cartes de « Carte mystère »
+
+`docs/data/mystere.json` est un programme {date (heure de Paris) : carte} de la veille à 3 semaines, écrit par `pipeline/mystere.py` pendant le même workflow quotidien que les prix. Une date déjà programmée garde sa carte, et une carte déjà sortie ne revient pas avant que toutes les autres soient passées. Cartes possibles : simple face, parmi les 1 500 plus jouées en Commander, sans symboles exotiques (hybrides, phyrexians…). Les cartes sont légèrement scellées dans le fichier pour ne pas se lire d'un coup d'œil.
+
+Juste après, le workflow Windows **« Rendre les cartes mystère »** (`.github/workflows/mystere.yml`, lancé automatiquement à la fin de la mise à jour des prix, ou à la main) rend chaque carte programmée avec Magic Set Editor, au cadre M15 du quiz : une version **vide** (cadre, illustration floutée, symbole d'extension, sans nom, coût, type, texte ni F/E) et la version **complète**, dans `docs/img/mystere/` (`pipeline/render_mystere.py`). Pendant la partie, le jeu pose le texte caché sur la version vide, aux emplacements du cadre (boîtes `.my-box--*` dans `docs/games/mystere/style.css` ; ajouter `?boxes` à l'adresse du site pour les voir) ; à la fin, il affiche la vraie carte. Une carte que MSE n'a pas pu rendre garde le cadre HTML du jeu.
 
 ### Prix de « Plus cher ou moins cher ? »
 
@@ -142,7 +149,9 @@ docs/                 site statique publié par GitHub Pages
     ia-ou-vraie/      game.js, style.css : le quiz « IA ou vraie carte ? »
     guildes/          data.js (questions, barème, guildes), game.js, style.css
     plus-cher/        game.js, style.css : « Plus cher ou moins cher ? »
+    mystere/          game.js, style.css : « Carte mystère »
   data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque jour)
+  data/mystere.json   cartes du jour de « Carte mystère » (pipeline/mystere.py, chaque jour)
   data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
   img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/
@@ -151,7 +160,9 @@ pipeline/
   render_mse.py       3. rendu des cartes avec Magic Set Editor (cadre M15, symboles Keyrune)
   setup_mse.ps1       installe MSE (Full Magic Pack, templates M15) et ses polices
   build.py            4. fusion, mélange, export vers docs/
-  fetch_prices.py     prix Scryfall pour « Plus cher ou moins cher ? »
+  fetch_prices.py     prix Scryfall pour « Plus cher ou moins cher ? » (+ cartes du jour)
+  mystere.py          cartes du jour de « Carte mystère »
+  render_mystere.py   rendu MSE des cartes du jour (version vide + complète)
   demo.py             jeu de démo hors ligne
   common.py  placeholder.py
 .github/workflows/generate.yml   génération à la demande sur GitHub

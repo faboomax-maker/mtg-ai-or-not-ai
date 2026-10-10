@@ -1,0 +1,47 @@
+# Renders the cards of the day of « Carte mystère » with Magic Set Editor (Windows), right after the
+# daily price update has scheduled them, or by hand: Actions tab -> « Rendre les cartes mystère ».
+# Writes docs/img/mystere/*.webp and the image names into docs/data/mystere.json.
+name: Rendre les cartes mystère
+
+on:
+  workflow_run:
+    workflows: ["Mettre à jour les prix"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mystere-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: windows-latest          # Magic Set Editor is a Windows program
+    timeout-minutes: 60
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main                  # the schedule the price update has just committed
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Magic Set Editor (cadre M15)
+        run: ./pipeline/setup_mse.ps1 -Dir mse
+      - name: Rendu des cartes du jour
+        env:
+          MSE_DIR: ${{ github.workspace }}/mse
+        run: python pipeline/render_mystere.py
+      - name: Publier
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/mystere.json docs/img/mystere
+          git commit -m "Cartes mystère rendues" || { echo "Rien à publier"; exit 0; }
+          git pull --rebase -q origin main
+          git push
