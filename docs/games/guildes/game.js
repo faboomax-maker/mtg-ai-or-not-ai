@@ -36,11 +36,14 @@ function lastGuild() { try { return localStorage.getItem(LAST_KEY); } catch (e) 
 
 /* ------------------------------------------------------------------ emblem */
 /* The result's crest: a shield split between the guild's two colors, with its initial.
-   An original design (not the official guild symbol). To show your own image instead,
-   give the guild a `symbol: "games/guildes/img/<id>.svg"` in data.js. */
+   If an image exists at games/guildes/img/<id>.webp (azorius.webp, dimir.webp…), or at the path in the
+   guild's `symbol` field in data.js, it is shown instead; otherwise this original crest is drawn. */
 function Emblem(p) {
   var g = p.guild, a = C[p.pair[0]], b = C[p.pair[1]], id = "em-" + g.id;
-  if (g.symbol) return h("img", { className: "emblem emblem--img", src: g.symbol, alt: "Symbole " + g.name, width: 168, height: 168 });
+  var s = useState(false), missing = s[0], setMissing = s[1];
+  var src = g.symbol || "games/guildes/img/" + g.id + ".webp";
+  if (!missing) return h("img", { className: "emblem emblem--img", src: src, alt: "Symbole " + g.name, width: 168, height: 168,
+                                  onError: function () { setMissing(true); } });
   var shield = "M80 8 L146 30 V82 C146 124 116 150 80 164 C44 150 14 124 14 82 V30 Z";
   return h("svg", { className: "emblem", viewBox: "0 0 160 172", width: 168, height: 180, role: "img", "aria-label": "Blason " + g.name },
     h("defs", null,
@@ -74,15 +77,13 @@ function Intro(p) {
     h("div", null,
       h("p", { className: "ar-eyebrow eyebrow" }, h(A.Badge, { tone: "brass", icon: false }, "Nouveau"), " Quiz de personnalité"),
       h("h1", { className: "title-xl" }, "Quelle guilde de Ravnica es-tu ?")),
-    h("p", { className: "flavor" }, "Dix guildes, deux couleurs chacune. Quinze questions pour savoir où est ta place."),
+    h("p", { className: "flavor" }, "Quelques questions pour savoir où est vraiment ta place à Ravnica."),
     h(A.Panel, { title: "Comment ça marche", headingLevel: 2 },
       h("ul", { className: "rules body" },
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "heart" })),
           h("span", null, "Choisis la réponse qui te ressemble le plus, même si plusieurs te parlent.")),
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "d20" })),
-          h("span", null, "Fie-toi à ton premier instinct.")),
-        h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "chalice" })),
-          h("span", null, "Tes deux couleurs dominantes désignent ta guilde.")))),
+          h("span", null, "Fie-toi à ton premier instinct.")))),
     h("div", { className: "push" },
       last ? h("p", { className: "meta caption" }, "La dernière fois, tu étais ", h("strong", null, last), ".") : null,
       h(A.Button, { variant: "primary", size: "lg", block: true, onClick: p.onStart }, "Commencer")));
@@ -112,8 +113,6 @@ function Choices(p) {
     return h("li", { key: i },
       h("button", { type: "button", className: "choice body" + (on ? " is-on" : ""), "aria-pressed": on,
                     onClick: function () { choose(i); } },
-        it.color ? h("span", { className: "choice__key choice__key--color", "aria-hidden": "true",
-                               style: { background: it.color, borderColor: "rgba(0,0,0,.35)" } }) :
         h("span", { className: "choice__key label", "aria-hidden": "true" }, String.fromCharCode(65 + i)),
         h("span", { className: "choice__text" }, it.label)));
   }));
@@ -135,19 +134,25 @@ function Question(p) {
                    items: q[1].map(function (a) { return { label: a[0], value: a[1] }; }) })));
 }
 
+/* A tie: one more question that looks like the others (same header, letters A, B…), offering only
+   the tied colors' answers, shuffled. `step` is 0 or 1 (a second one is rarely needed). */
 function Tiebreak(p) {
+  var tb = D.TIEBREAKS[Math.min(p.step, D.TIEBREAKS.length - 1)];
+  var s = useState(function () { return shuffle(p.colors.slice()); }), order = s[0];
   return h("div", { className: "gq-play" },
     h("header", { className: "bar" },
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Question précédente", onClick: p.onBack }),
-      h("p", { className: "title-sm gq-count" }, "Départage"),
+      h("p", { className: "title-sm gq-count" }, p.step ? "Encore une !" : "Dernière question"),
       h(A.Button, { variant: "ghost", icon: "close", "aria-label": "Quitter le quiz", onClick: p.onQuit })),
     h("div", { className: "gq-progress" }, h("div", { className: "gq-progress__fill", style: { width: "100%" } })),
     h("main", { className: "gq-question" },
-      h("h2", { className: "title-lg gq-question__title" }, D.TIEBREAK),
-      h(Choices, { key: p.colors.join(""), onPick: p.onPick, items: p.colors.map(function (c) {
-        var v = C[c].value;
-        return { color: C[c].hex, value: c, label: v.charAt(0).toUpperCase() + v.slice(1) };
-      }) })));
+      h("h2", { className: "title-lg gq-question__title" }, tb[0]),
+      h(Choices, { onPick: p.onPick, items: order.map(function (c) { return { value: c, label: tb[1][c] }; }) })));
+}
+
+function shuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
 }
 
 function share(guild) {
@@ -160,7 +165,7 @@ function share(guild) {
 }
 
 function Result(p) {
-  var r = p.result, g = r.guild, scores = p.scores, max = Math.max.apply(null, D.ORDER.map(function (c) { return scores[c]; }));
+  var r = p.result, g = r.guild;
   var s = useState(null), status = s[0], setStatus = s[1];
   useEffect(function () { remember(g); window.scrollTo(0, 0); }, []);
   return h("div", { className: "gq-result" },
@@ -173,18 +178,8 @@ function Result(p) {
       h("h1", { id: "gq-guild", className: "title-xl" }, g.name),
       h("p", { className: "gq-chips" }, h(Chip, { color: r.pair[0] }), h("span", { "aria-hidden": "true" }, "+"), h(Chip, { color: r.pair[1] })),
       h("p", { className: "flavor gq-hero__text" }, g.text)),
-    h(A.Panel, { title: "Tes couleurs", headingLevel: 2 },
-      h("ul", { className: "bars" }, D.ORDER.map(function (c) {
-        var mine = r.pair.indexOf(c) >= 0;
-        return h("li", { key: c, className: "bars__row" + (mine ? " is-mine" : "") },
-          h("span", { className: "bars__name label" }, C[c].name),
-          h("span", { className: "bars__track", "aria-hidden": "true" },
-            h("span", { className: "bars__fill", style: { width: (max ? 100 * scores[c] / max : 0) + "%", background: C[c].hex } })),
-          h("span", { className: "bars__n label" }, scores[c]));
-      }))),
-    h(A.Panel, { title: "Profils de personnalité proches", headingLevel: 2 },
-      h("p", { className: "gq-types" }, g.types.map(function (t) { return h(A.Badge, { key: t, tone: "neutral", icon: false }, t); })),
-      h("p", { className: "caption gq-note" }, "Correspondance pour le fun avec les profils à quatre lettres, pas un test sérieux.")),
+    h(A.Panel, { title: "Ton profil de personnalité", headingLevel: 2 },
+      h("p", { className: "gq-types" }, g.types.map(function (t) { return h(A.Badge, { key: t, tone: "neutral", icon: false }, t); }))),
     h("div", { className: "gq-actions" },
       h(A.Button, { variant: "primary", size: "lg", block: true, icon: "share",
                     onClick: function () { share(g).then(setStatus); } }, "Partager ma guilde"),
@@ -226,9 +221,9 @@ function Game(p) {
   if (screen === "intro") body = h(Intro, { onStart: start, onExit: p.onExit });
   else if (screen === "quiz") body = h(Question, { index: index, selected: answers[index], onPick: answer, onBack: back,
                                                    onQuit: function () { setScreen("intro"); } });
-  else if (outcome.ask) body = h(Tiebreak, { colors: outcome.ask, onBack: back, onQuit: function () { setScreen("intro"); },
+  else if (outcome.ask) body = h(Tiebreak, { key: "tb" + picks.length, step: picks.length, colors: outcome.ask, onBack: back, onQuit: function () { setScreen("intro"); },
                                             onPick: function (c) { setPicks(picks.concat([c])); } });
-  else body = h(Result, { result: outcome, scores: scores, onReplay: start, onExit: p.onExit });
+  else body = h(Result, { result: outcome, onReplay: start, onExit: p.onExit });
   return h("div", { className: "app gq", "data-screen": screen }, body);
 }
 

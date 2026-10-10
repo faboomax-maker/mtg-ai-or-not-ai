@@ -4,7 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
-| **Quelle guilde es-tu ?** (nouveau) | `docs/games/guildes/` | 15 questions de personnalité ; tes deux couleurs dominantes donnent ta guilde de Ravnica, avec son blason et les profils de personnalité proches. |
+| **Quelle guilde es-tu ?** (nouveau) | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
 
 Chaque jeu a son lien direct : `https://<toi>.github.io/<depot>/#guildes`, `…/#ia-ou-vraie`.

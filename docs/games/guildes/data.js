@@ -1,7 +1,8 @@
 /* Quelle guilde de Ravnica es-tu ? — questions, scoring grid and results.
    Each answer gives 1 point to a color (W white, U blue, B black, R red, G green).
-   The two highest colors give the guild; ties are settled by one extra question (TIEBREAK)
-   that only shows the tied colors. */
+   The two highest colors give the guild. A tie (between 2 to 5 colors) is settled by one or two
+   extra questions (TIEBREAKS) that look like the others but only offer the tied colors' answers,
+   in a random order. At most two are ever needed (5-way tie: one pick, then a 4-way tie). */
 window.MTG = window.MTG || { games: [] };
 window.MTG.guildesData = {
   COLORS: {
@@ -107,7 +108,20 @@ window.MTG.guildesData = {
       ["Une découverte ou une création", "U"]]],
   ],
 
-  TIEBREAK: "Égalité ! Qu'est-ce qui compte le plus pour toi ?",
+  TIEBREAKS: [
+    ["Au fond, qu'est-ce qui compte le plus pour toi ?", {
+      W: "Que chacun soit traité de façon juste",
+      U: "Comprendre comment les choses fonctionnent vraiment",
+      B: "Avoir les cartes en main pour décider de ton destin",
+      R: "Être libre de vivre comme tu l'entends",
+      G: "Avoir un endroit et des gens auxquels appartenir" }],
+    ["Si tu ne pouvais garder qu'une seule de ces qualités, ce serait…", {
+      W: "Ton sens de l'équité",
+      U: "Ta curiosité",
+      B: "Ton ambition",
+      R: "Ta spontanéité",
+      G: "Ta loyauté envers les tiens" }],
+  ],
 
   // key = the two colors in WUBRG order
   GUILDS: {
