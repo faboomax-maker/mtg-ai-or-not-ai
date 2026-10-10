@@ -258,6 +258,7 @@ function Intro(p) {
 
 function Play(p) {
   var V = VARIANTS[p.variant], pool = p.data.pools[p.variant][p.mode];
+  var nextMode = ORDER[ORDER.indexOf(p.mode) + 1] || null;
   var seen = useRef({});
   var s1 = useState(function () {
     var pair = freshPair(V, pool, p.mode, seen.current);
@@ -292,7 +293,7 @@ function Play(p) {
     setResult({ ok: ok, guess: guess, msg: reaction(V, a, b, ok) });
     t.current = setTimeout(function () {
       if (!ok) { p.onOver({ streak: streak, a: a, b: b, guess: guess }); return; }
-      setStreak(streak + 1);
+      setStreak(streak + 1); p.onProgress(streak + 1);
       var next = upcoming && !seen.current[upcoming.id] ? [b, upcoming] : freshPair(V, pool, p.mode, seen.current);
       if (!next) { p.onOver({ streak: streak + 1, a: a, b: b, guess: guess, finished: true }); return; }
       next.forEach(function (c) { seen.current[c.id] = true; });
@@ -321,7 +322,12 @@ function Play(p) {
                       className: result && result.guess === "more" ? "is-picked" : null,
                       onClick: function () { answer("more"); } }, V.more)),
       h("p", { className: "pc-verdict label" + (result ? "" : " is-hint"), role: "status" },
-        result ? result.msg : "Touche une carte pour la lire en grand.")),
+        result ? result.msg : "Touche une carte pour la lire en grand."),
+      // from a streak of UNLOCK on, the next mode can be started right away (the record is kept)
+      nextMode && streak >= UNLOCK ? h(A.Button, { variant: "ghost", size: "md", iconEnd: V.modes[nextMode].icon || "arrow-right",
+                                                   className: "pc-skip", disabled: !!result,
+                                                   onClick: function () { p.onSkip(nextMode, streak); } },
+        "Trop facile ? Passer au mode " + V.modes[nextMode].name) : null),
     zoom ? h(Zoom, { card: zoom, onClose: function () { setZoom(null); } }) : null);
 }
 
@@ -383,7 +389,7 @@ function Game(p) {
   var s7 = useState({ best: 0, record: false, unlocked: null }), best = s7[0], setBestState = s7[1];
   var s8 = useState(savedVariant), variant = s8[0], setVariant = s8[1];
   var s9 = useState(null), flip = s9[0], setFlip = s9[1];          // null | "out" | "in"
-  var flipT = useRef([]);
+  var flipT = useRef([]), startBest = useRef(0);
   var V = VARIANTS[variant];
 
   useEffect(function () {
@@ -411,11 +417,14 @@ function Game(p) {
     ];
   }
   function start(m) {
-    if (!data || !freshPair(V, data.pools[variant][m], m, {})) { setError("Pas assez de cartes pour ce mode."); return; }
+    if (!data || !freshPair(V, data.pools[variant][m], m, {})) { setError("Pas assez de cartes pour ce mode."); setScreen("intro"); return; }
+    startBest.current = getBest(variant, m);
     setMode(m); setRun(run + 1); setScreen("play");
   }
+  /** A streak reached during the run: kept as the record at once (it unlocks the next mode). */
+  function progress(n) { if (n > getBest(variant, mode)) setBest(variant, mode, n); }
   function end(o) {
-    var prev = getBest(variant, mode), record = o.streak > prev;
+    var prev = startBest.current, record = o.streak > prev;
     if (record) setBest(variant, mode, o.streak);
     var next = ORDER[ORDER.indexOf(mode) + 1];
     setBestState({ best: Math.max(prev, o.streak), record: record && o.streak > 0,
@@ -427,6 +436,7 @@ function Game(p) {
   if (screen === "intro") body = h(Intro, { variant: variant, data: data, error: error, flipping: !!flip,
                                             onStart: start, onExit: p.onExit, onSwitch: switchVariant });
   else if (screen === "play") body = h(Play, { key: run, variant: variant, data: data, mode: mode, onOver: end,
+                                               onProgress: progress, onSkip: function (m, n) { progress(n); start(m); },
                                                onQuit: function () { setScreen("intro"); } });
   else body = h(Over, { variant: variant, over: over, mode: mode, best: best.best, record: best.record, unlocked: best.unlocked,
                         onNext: function (m) { start(m); },
