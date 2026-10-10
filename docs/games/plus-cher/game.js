@@ -1,6 +1,6 @@
 /* Plus cher ou moins cher ? — a card and its price, then a second card: is it worth more or less?
    Chain right answers; one mistake ends the run. Prices: docs/data/prix.json, made by
-   pipeline/fetch_prices.py (Scryfall's Cardmarket trend price, refreshed every week).
+   pipeline/fetch_prices.py (Scryfall's Cardmarket trend price, refreshed every day).
    Registered in window.MTG.games; the hub (app.js) mounts it with { onExit }. */
 (function () {
 "use strict";
@@ -307,7 +307,7 @@ window.MTG.games.push({
   title: "Plus cher ou moins cher ?",
   pitch: "Une carte, son prix. La suivante vaut-elle plus ou moins ? Enchaîne les bonnes réponses.",
   icon: "crown",
-  details: "4 difficultés à débloquer · prix mis à jour chaque semaine",
+  details: "4 difficultés à débloquer · prix mis à jour chaque jour",
   isNew: true,
   order: 3,
   component: Game,

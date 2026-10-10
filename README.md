@@ -20,7 +20,7 @@ Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors prés
 
 ### Prix de « Plus cher ou moins cher ? »
 
-`docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque lundi ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
+`docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque nuit (vers 6 h, heure de Paris) ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
 
 Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`). Chaque mode se débloque en faisant une série de 5 dans le précédent (`UNLOCK`) :
 
@@ -133,7 +133,7 @@ docs/                 site statique publié par GitHub Pages
     ia-ou-vraie/      game.js, style.css : le quiz « IA ou vraie carte ? »
     guildes/          data.js (questions, barème, guildes), game.js, style.css
     plus-cher/        game.js, style.css : « Plus cher ou moins cher ? »
-  data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque semaine)
+  data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque jour)
   data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
   img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/
