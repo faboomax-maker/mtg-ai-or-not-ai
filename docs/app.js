@@ -1,453 +1,79 @@
 "use strict";
-/* IA ou vraie carte ? — the quiz, built with the Artifice design system (window.Artifice, React 18).
-   Left = IA, right = Vraie. Two modes: normal (recent cards) and hardcore (mostly commons from every
-   era, a timer per card, Charnier theme). With the game server (deck.api), the answers are only
-   revealed by the server after each answer, which also times them and keeps the top 10s. Without
-   it, the answers are sealed in the deck and the game is played in the browser (no leaderboard). */
+/* The collection's hub: lists the games and mounts the one picked.
+   Each game lives in docs/games/<id>/ and registers itself in window.MTG.games:
+     { id, title, pitch, icon, details, isNew, order, component, lastResult? }
+   `component` is a React component that receives { onExit } (back to the hub).
+   The picked game is kept in the URL hash (#guildes, #ia-ou-vraie), so a game can be linked directly.
+   To add a game: a folder in games/, its <script> (and <link>) in index.html, a push() here. */
 
-var A = window.Artifice, h = React.createElement;
-var useState = React.useState, useRef = React.useRef, useEffect = React.useEffect;
-var ROUND = 20, VERDICT_MS = 800, MIN_VERDICT_MS = 300;   // a tap skips the verdict after 300 ms (as the server counts)
-var DECKS = { normal: "data/cards.json", hardcore: "data/hardcore.json" };
-var MODE_NAME = { normal: "Facile", hardcore: "Hardcore" };   // (internal id of the easy mode: "normal")
+window.MTG = window.MTG || { games: [] };
 
-/* ------------------------------------------------------------------ data */
-function unseal(card) {
-  var bytes = Uint8Array.from(atob(card.s), function (c) { return c.charCodeAt(0); });
-  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(card.img)).then(function (buf) {
-    var key = new Uint8Array(buf);
-    var out = bytes.map(function (b, i) { return b ^ key[i % key.length]; });
-    return JSON.parse(new TextDecoder().decode(out));
+(function () {
+  var A = window.Artifice, h = React.createElement;
+  var useState = React.useState, useEffect = React.useEffect;
+
+  function gameFromHash() {
+    var id = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+    return window.MTG.games.filter(function (g) { return g.id === id; })[0] || null;
+  }
+
+  function Tile(p) {
+    var g = p.game, last = g.lastResult ? g.lastResult() : null;
+    return h("li", null,
+      h("button", { type: "button", className: "tile" + (g.isNew ? " is-new" : ""), onClick: p.onPick,
+                    "aria-label": g.title + (g.isNew ? " (nouveau)" : "") },
+        g.isNew ? h("span", { className: "tile__new label", "aria-hidden": "true" }, "Nouveau") : null,
+        h("span", { className: "tile__icon", "aria-hidden": "true" }, h(A.Icon, { name: g.icon || "d20", size: 28 })),
+        h("span", { className: "tile__text" },
+          h("span", { className: "tile__head" }, h("span", { className: "tile__title title-sm" }, g.title)),
+          h("span", { className: "tile__pitch body" }, g.pitch),
+          g.details ? h("span", { className: "tile__details caption" }, g.details) : null,
+          last ? h("span", { className: "tile__last caption" }, last) : null),
+        h("span", { className: "tile__go", "aria-hidden": "true" }, h(A.Icon, { name: "arrow-right", size: 22 }))));
+  }
+
+  function Hub(p) {
+    var games = window.MTG.games.slice().sort(function (a, b) {
+      return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0) || (a.order || 0) - (b.order || 0);
+    });
+    return h("div", { className: "app" },
+      h("div", { className: "hub" },
+        h("div", null,
+          h("p", { className: "ar-eyebrow eyebrow" }, "Mini-jeux Magic"),
+          h("h1", { className: "title-xl" }, "À quoi on joue ?")),
+        h("p", { className: "flavor" }, "Choisis ton jeu. D'autres arrivent bientôt."),
+        h("ul", { className: "games" }, games.map(function (g) {
+          return h(Tile, { key: g.id, game: g, onPick: function () { p.onPick(g); } });
+        })),
+        h("div", { className: "push" },
+          h("p", { className: "legal caption" },
+            "Contenu de fan non officiel, autorisé par la ",
+            h("a", { href: "https://company.wizards.com/fancontentpolicy", target: "_blank", rel: "noopener" }, "Fan Content Policy"),
+            ". Non approuvé par Wizards. Des parties des éléments utilisés sont la propriété de Wizards of the Coast. ©Wizards of the Coast LLC."))));
+  }
+
+  function App() {
+    var s = useState(gameFromHash), game = s[0], setGame = s[1];
+    useEffect(function () {
+      function onHash() { setGame(gameFromHash()); window.scrollTo(0, 0); }
+      window.addEventListener("hashchange", onHash);
+      return function () { window.removeEventListener("hashchange", onHash); };
+    }, []);
+    useEffect(function () {
+      document.title = game ? game.title + " · Mini-jeux Magic" : "Mini-jeux Magic";
+    }, [game]);
+
+    function pick(g) { location.hash = g.id; }
+    function exit() {
+      // back to the hub without leaving an empty "#" in the history
+      if (history.replaceState) { history.pushState(null, "", location.pathname + location.search); setGame(null); window.scrollTo(0, 0); }
+      else location.hash = "";
+    }
+    return game ? h(game.component, { key: game.id, onExit: exit }) : h(Hub, { onPick: pick });
+  }
+
+  // the games' scripts come after this one in index.html: mount once they are all registered
+  document.addEventListener("DOMContentLoaded", function () {
+    ReactDOM.createRoot(document.getElementById("root")).render(h(App));
   });
-}
-
-function shuffle(a) {
-  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
-  return a;
-}
-
-function post(api, path, data) {
-  return fetch(api + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
-    .then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) {
-        if (!r.ok) throw new Error(d.error || "HTTP " + r.status);
-        return d;
-      });
-    });
-}
-
-/** Hardcore time limit of card i (0-based): from FIRST_MS for the first card down to LAST_MS for
-    the last (the server uses the same values, worker/src/index.js). */
-var FIRST_MS = 6000, LAST_MS = 6000;      // the same time for every card
-function limitMs(i, n) { return Math.round(FIRST_MS - (FIRST_MS - LAST_MS) * i / Math.max(1, n - 1)); }
-
-/** A game: the cards, and how an answer is judged (server or sealed deck). */
-function newGame(mode, deck) {
-  var byImg = {};
-  deck.cards.forEach(function (c) { byImg[c.img] = c; });
-  function card(img) { return { id: img, src: deck.img + img, data: byImg[img] }; }
-  if (deck.api) {
-    return post(deck.api, "/start", { mode: mode }).then(function (g) {
-      return {
-        mode: mode, api: deck.api, id: g.game, cards: g.cards.map(card),
-        limits: mode === "hardcore" ? (g.limits || g.cards.map(function (_, i) { return limitMs(i, g.cards.length); })) : null,
-        judge: function (index, side) {
-          return post(deck.api, "/answer", { game: g.game, index: index, answer: side }).then(function (r) {
-            return { truth: r.truth, ok: r.correct, timeout: r.timeout, secret: r.secret };
-          });
-        },
-      };
-    });
-  }
-  var cards = shuffle(deck.cards.slice()).slice(0, Math.min(ROUND, deck.cards.length)).map(function (c) { return card(c.img); });
-  return Promise.resolve({
-    mode: mode, api: null, cards: cards,
-    limits: mode === "hardcore" ? cards.map(function (_, i) { return limitMs(i, cards.length); }) : null,
-    judge: function (index, side) {
-      return unseal(cards[index].data).then(function (secret) {
-        var truth = secret.real ? "real" : "ai";
-        return { truth: truth, ok: side === truth, timeout: side === "timeout", secret: secret };
-      });
-    },
-  });
-}
-
-/* Card as large as the screen allows: the rules text must stay readable. */
-function cardWidth(timer) {
-  var byHeight = (window.innerHeight - (timer ? 350 : 300)) * 63 / 88;
-  return Math.round(Math.max(240, Math.min(460, byHeight)));
-}
-
-function seconds(ms) {
-  return (ms / 1000).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " s";
-}
-
-/* ------------------------------------------------------------ leaderboard */
-function Leaderboard(p) {
-  var rows = (p.board && p.board[p.mode]) || [];
-  return h("div", { className: "board" },
-    p.switchable ? h("div", { className: "board__modes", role: "group", "aria-label": "Mode du classement" },
-      ["normal", "hardcore"].map(function (m) {
-        return h(A.Button, { key: m, variant: "secondary", size: "md", className: m === p.mode ? "is-on" : null,
-                             "aria-pressed": m === p.mode, onClick: function () { p.onMode(m); } }, MODE_NAME[m]);
-      })) : null,
-    p.board === undefined ? h("p", { className: "caption board__empty" }, "Chargement du classement…") :
-    !rows.length ? h("p", { className: "caption board__empty" },
-      p.board ? "Personne encore. La première place t'attend." : "Le classement ouvre bientôt.") :
-    h("ol", { className: "board__list" }, rows.map(function (r, i) {
-      var mine = p.highlight && p.highlight === i + 1;
-      return h("li", { key: i, className: "board__row" + (mine ? " is-mine" : "") },
-        h("span", { className: "board__rank label" }, i + 1),
-        h("span", { className: "board__name body" }, r.name),
-        h("span", { className: "board__score label" }, r.score + " / " + r.total),
-        h("span", { className: "board__time caption" }, seconds(r.ms)));
-    })));
-}
-
-function loadBoard(decks) {
-  var api = ["normal", "hardcore"].map(function (m) { return decks[m] && decks[m].api; }).filter(Boolean)[0];
-  var url = api ? api + "/leaderboard" : "data/leaderboard.json";
-  return fetch(url, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; })
-    .catch(function () { return null; });
-}
-
-/* ---------------------------------------------------------------- screens */
-/* The (joke) promotion and its terms and conditions, unfolded by the "(1)". */
-var CGU = [
-  ["Article 1 – Objet", "La présente opération « Score parfait » (ci-après « l'Opération ») est organisée par l'éditeur du présent quiz (ci-après « l'Organisateur »), personne physique agissant seule, depuis son canapé, sans capital social ni service juridique. L'Opération est gratuite et sans obligation d'achat, ce qui tombe bien."],
-  ["Article 2 – Conditions de participation", "L'Opération est ouverte à toute personne physique disposant d'un écran, de deux pouces et d'un minimum d'amour-propre. Est réputé « gagnant » tout participant obtenant la totalité des bonnes réponses d'une même partie, sans aide extérieure, oracle, voyante ou cousin qui joue depuis Alpha. L'Organisateur se réserve le droit de soupçonner quiconque de tricherie, à tout moment et sans motif."],
-  ["Article 3 – Dotations", "Les lands Beta mis en jeu (ci-après « les Dotations ») sont des biens exclusivement numériques, au sens le plus large, le plus immatériel et, pour tout dire, le plus métaphysique du terme. Ils n'existent que dans l'esprit du gagnant, où ils sont réputés remis dès l'affichage du score parfait. Leur état est « Near Mint » ou meilleur, selon l'imagination de leur détenteur. Aucun Black Lotus n'est mis en jeu, ni réelle, ni imaginaire, c'est pas le Relic Fest ici cousin."],
-  ["Article 4 – Remise des Dotations", "Aucune expédition, aucun retrait en magasin et aucun échange ne sera effectué. Les Dotations ne peuvent être ni revendues, ni gradées, ni jouées en tournoi homologué, ni montrées à un ami sans provoquer chez celui-ci une légère inquiétude. Toute tentative de les sortir de sa tête se fait aux risques et périls du gagnant."],
-  ["Article 5 – Valeur", "La valeur commerciale des Dotations est estimée à 0,00 € (zéro euro), TVA non applicable, article 293 B du Code de l'imaginaire. Leur valeur sentimentale est, en revanche, inestimable."],
-  ["Article 6 – Responsabilité", "L'Organisateur décline toute responsabilité en cas de déception, de colère, de message en majuscules, ou de perte de temps consécutive à la lecture intégrale du présent règlement."],
-  ["Article 7 – Données personnelles", "Aucune donnée n'est collectée, hormis le pseudo que tu choisis toi-même d'inscrire au classement. Tu disposes d'un droit d'accès, de rectification et d'oubli, que tu peux exercer en oubliant."],
-  ["Article 8 – Loi applicable et litiges", "Le présent règlement est soumis aux lois de la physique. Tout litige sera réglé à l'amiable, à défaut par une partie de duel commander bo3 à l'ancienne, tu connais. En cliquant sur « Jouer », le participant reconnaît avoir lu et accepté le présent règlement, ce que personne ne fait jamais."],
-];
-
-function Promo(p) {
-  var s = useState(false), open = s[0], setOpen = s[1];
-  return h("aside", { className: "promo", "aria-label": "Promotion" },
-    h("p", { className: "promo__line" },
-      h(A.Icon, { name: "crown", size: 22 }),
-      h("span", { className: "promo__text body-strong" }, p.children || "Fais un score parfait et gagne des lands Beta !"),
-      h("button", { type: "button", className: "promo__note label", "aria-expanded": open, "aria-controls": "cgu",
-                    "aria-label": "(1) Conditions de l'offre", onClick: function () { setOpen(!open); } }, "(1)")),
-    open ? h("div", { id: "cgu", className: "promo__cgu" },
-      h("p", { className: "promo__cgu-title label" }, "(1) Conditions générales de l'Opération « Score parfait »"),
-      CGU.map(function (a) {
-        return h("p", { key: a[0], className: "caption" }, h("strong", null, a[0] + ". "), a[1]);
-      }),
-      h(A.Button, { variant: "ghost", size: "md", onClick: function () { setOpen(false); } }, "Fermer")) : null);
-}
-
-function Intro(p) {
-  var s = useState("normal"), boardMode = s[0], setBoardMode = s[1];
-  var normal = p.decks.normal, hard = p.decks.hardcore;
-  return h("div", { className: "intro" },
-    h(Promo),
-    h("div", null,
-      h("p", { className: "ar-eyebrow eyebrow" }, "Quiz Magic"),
-      h("h1", { className: "title-xl" }, "IA ou vraie carte ?")),
-    h("p", { className: "flavor" },
-      "Vingt cartes. Wizards en a imprimé certaines, une machine a inventé les autres. À toi de trier."),
-    h(A.Panel, { title: "Comment on joue", headingLevel: 2 },
-      h("ul", { className: "rules body" },
-        h("li", null, h("span", { className: "ic-ai" }, h(A.Icon, { name: "arrow-left" })),
-          h("span", null, "À gauche : ", h("strong", null, "IA"))),
-        h("li", null, h("span", { className: "ic-real" }, h(A.Icon, { name: "arrow-right" })),
-          h("span", null, "À droite : ", h("strong", null, "vraie carte"))),
-        h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "swipe" })),
-          h("span", null, "Glisse, touche les boutons ou utilise les flèches.")),
-        h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "hourglass" })),
-          h("span", null, h("strong", null, "Hardcore : "), "des cartes communes de toutes les époques, et un sablier de 6 secondes par carte.")))),
-    h(A.Panel, { title: "Classement", headingLevel: 2 },
-      h(Leaderboard, { board: p.board, mode: boardMode, onMode: setBoardMode, switchable: true })),
-    h("div", { className: "push" },
-      p.error ? h("p", { className: "error caption" }, p.error) : null,
-      h(A.Button, { variant: "primary", size: "lg", block: true, disabled: !(normal && normal.cards.length) || p.busy,
-                    onClick: function () { p.onStart("normal"); } }, "Mode facile"),
-      h(A.Button, { variant: "secondary", size: "lg", block: true, icon: "skull", disabled: !(hard && hard.cards.length) || p.busy,
-                    onClick: p.onHardcore }, hard ? "Mode hardcore" : "Mode hardcore (bientôt)"),
-      p.meta ? h("p", { className: "meta caption" }, p.meta) : null,
-      h("p", { className: "legal caption" },
-        "Vraies cartes via ", h("a", { href: "https://scryfall.com", target: "_blank", rel: "noopener" }, "Scryfall"),
-        ". Contenu de fan non officiel, autorisé par la ",
-        h("a", { href: "https://company.wizards.com/fancontentpolicy", target: "_blank", rel: "noopener" }, "Fan Content Policy"),
-        ". Non approuvé par Wizards. Des parties des éléments utilisés sont la propriété de Wizards of the Coast. ©Wizards of the Coast LLC.")));
-}
-
-/* Before hardcore: a warning, a (fake) analysis of the player, and its verdict. */
-var SCAN_MS = 2800, NOOB_WAIT = 3;       // the "TG noob !!!" button shows up after 3 s
-var SCAN_LINES = ["Mesure de tes réflexes…", "Examen de ta collection…", "Consultation de l'oracle…"];
-
-function Warning(p) {
-  var s1 = useState("ask"), step = s1[0], setStep = s1[1];
-  var s2 = useState(0), pct = s2[0], setPct = s2[1];
-  var s3 = useState(NOOB_WAIT), wait = s3[0], setWait = s3[1];
-  useEffect(function () {                 // countdown before the button
-    if (step !== "verdict" || wait <= 0) return;
-    var id = setTimeout(function () { setWait(wait - 1); }, 1000);
-    return function () { clearTimeout(id); };
-  }, [step, wait]);
-  useEffect(function () {
-    if (step !== "scan") return;
-    var t0 = performance.now();
-    var id = setInterval(function () {
-      var k = Math.min(1, (performance.now() - t0) / SCAN_MS);
-      setPct(k);
-      if (k >= 1) { clearInterval(id); setStep("verdict"); }
-    }, 60);
-    return function () { clearInterval(id); };
-  }, [step]);
-
-  var body;
-  if (step === "ask") body = h(A.Panel, { title: "Mode hardcore", headingLevel: 1 },
-    h("p", { className: "body" }, "Es-tu sûr de vouloir jouer à ce mode ? Il est vraiment dur !"),
-    h("div", { className: "warn__actions" },
-      h(A.Button, { variant: "secondary", size: "lg", onClick: p.onCancel }, "Non"),
-      h(A.Button, { variant: "primary", size: "lg", onClick: function () { setStep("scan"); } }, "Oui")));
-  else if (step === "scan") body = h("div", { className: "scan", role: "status", "aria-live": "polite" },
-    h("p", { className: "scan__title title-xl" }, "Analyse…"),
-    h("div", { className: "scan__track", "aria-hidden": "true" },
-      h("div", { className: "scan__fill", style: { width: Math.round(pct * 100) + "%" } })),
-    h("p", { className: "caption scan__line" }, SCAN_LINES[Math.min(SCAN_LINES.length - 1, Math.floor(pct * SCAN_LINES.length))]));
-  else body = h("div", { className: "verdict-noob" },
-    h("p", { className: "body-strong verdict-noob__text", role: "status" }, "Mon analyse montre que tu n'as pas le niveau pour ce mode."),
-    p.error ? h("p", { className: "error caption" }, p.error) : null,
-    wait > 0 ? h("div", { className: "noob-wait", role: "timer", "aria-label": "Encore " + wait + " seconde" + (wait > 1 ? "s" : "") },
-      h(A.Icon, { name: "hourglass", size: 22 }),
-      h("span", { className: "noob-wait__n title-sm" }, wait)) :
-    h(A.Button, { variant: "primary", size: "lg", block: true, disabled: p.busy, onClick: p.onGo },
-      h("span", { className: "verdict-noob__label" }, "TG noob !!!!",
-        h("img", { className: "verdict-noob__face", src: "ui/enerve.png", alt: "", width: 32, height: 32 }),
-        "j'ai le niveau !")),
-    h(A.Button, { variant: "secondary", size: "lg", block: true, disabled: p.busy, onClick: p.onEasy }, "Passer en mode facile"));
-
-  return h("div", { className: "warn" },
-    h("header", { className: "bar" },
-      h(A.Button, { variant: "secondary", icon: "close", "aria-label": "Retour à l'accueil", onClick: p.onCancel }),
-      h("span"), h("span")),
-    body);
-}
-
-/* The hourglass of a hardcore card: counts down `limit` ms while `running`, then calls onExpire. */
-function Timer(p) {
-  var s = useState(p.limit), left = s[0], setLeft = s[1];
-  var fired = useRef(false);
-  useEffect(function () {
-    if (!p.running) return;
-    var start = performance.now();
-    var id = setInterval(function () {
-      var rest = Math.max(0, p.limit - (performance.now() - start));
-      setLeft(rest);
-      if (rest <= 0 && !fired.current) { fired.current = true; clearInterval(id); p.onExpire(); }
-    }, 100);
-    return function () { clearInterval(id); };
-  }, [p.running]);
-  var secs = Math.ceil(left / 1000), low = left <= 3000;
-  return h("div", { className: "timer" + (low ? " is-low" : ""), role: "timer", "aria-label": "Temps restant" },
-    h(A.Icon, { name: "hourglass", size: 20 }),
-    h("div", { className: "timer__track", "aria-hidden": "true" },
-      h("div", { className: "timer__fill", style: { width: (100 * left / p.limit) + "%" } })),
-    h("span", { className: "timer__secs label" }, secs + " s"));
-}
-
-function Round(p) {
-  var g = p.game, cards = g.cards;
-  var s1 = useState(0), i = s1[0], setI = s1[1];
-  var s2 = useState([]), res = s2[0], setRes = s2[1];
-  var s3 = useState(null), verdict = s3[0], setVerdict = s3[1];
-  var s4 = useState(cardWidth(!!g.limits)), width = s4[0], setWidth = s4[1];
-  var s5 = useState(false), waiting = s5[0], setWaiting = s5[1];
-  var t = useRef(null), shownAt = useRef(performance.now()), answered = useRef(-1), skip = useRef(null);
-  useEffect(function () {                     // keyboard: Enter, space or an arrow skips the verdict
-    function onKey(e) { if (skip.current && /^(Enter| |ArrowLeft|ArrowRight)$/.test(e.key)) skip.current(); }
-    window.addEventListener("keydown", onKey);
-    return function () { window.removeEventListener("keydown", onKey); };
-  }, []);
-  useEffect(function () {
-    function onResize() { setWidth(cardWidth(!!g.limits)); }
-    window.addEventListener("resize", onResize);
-    return function () { clearTimeout(t.current); window.removeEventListener("resize", onResize); };
-  }, []);
-  useEffect(function () { shownAt.current = performance.now(); }, [i]);
-
-  function onAnswer(side, card, idx) {
-    if (answered.current >= idx) return;                    // (timer and swipe at the same time)
-    answered.current = idx;
-    var ms = performance.now() - shownAt.current;
-    setWaiting(true);
-    g.judge(idx, side).then(function (j) {
-      setWaiting(false);
-      var next = res.concat([{ id: card.id, src: card.src, truth: j.truth, answer: side === "timeout" ? (j.truth === "ai" ? "real" : "ai") : side,
-                               ok: j.ok, timeout: j.timeout, ms: ms, card: card.data, secret: j.secret }]);
-      setRes(next);
-      setVerdict({ correct: j.ok, truth: j.truth, src: card.src, index: idx + 1, total: cards.length, timeout: j.timeout });
-      var shown = performance.now(), done = false;
-      function advance() {
-        if (done) return;
-        done = true; clearTimeout(t.current); skip.current = null;
-        setVerdict(null);
-        if (idx + 1 >= cards.length) p.onEnd(next); else setI(idx + 1);
-      }
-      // a tap (or a key) on the verdict moves on at once, after a short minimum
-      skip.current = function () { if (performance.now() - shown >= MIN_VERDICT_MS) advance(); };
-      t.current = setTimeout(advance, VERDICT_MS);
-    }).catch(function (e) { p.onError("Le serveur de jeu ne répond pas : " + e.message); });
-  }
-
-  var overlay = verdict ? h("div", { className: "verdict-wrap", onClick: function () { if (skip.current) skip.current(); } },
-    verdict.timeout ? h("p", { className: "timeout label" }, h(A.Icon, { name: "hourglass", size: 18 }), "Temps écoulé") : null,
-    h(A.Verdict, verdict)) : null;
-
-  return h(React.Fragment, null,
-    h("header", { className: "bar" },
-      h(A.Button, { variant: "secondary", icon: "close", "aria-label": "Quitter la partie", onClick: p.onQuit }),
-      h("h1", { className: "title-sm" }, g.mode === "hardcore" ? "Hardcore" : "IA ou vraie carte ?"),
-      h("span")),
-    h(A.RoundProgress, { current: Math.min(res.length + (verdict ? 0 : 1), cards.length), total: cards.length,
-                         results: res.map(function (r) { return r.ok; }) }),
-    g.limits ? h(Timer, { key: i, limit: g.limits[i], running: !verdict && !waiting && answered.current < i,
-                          onExpire: function () { onAnswer("timeout", cards[i], i); } }) : null,
-    // the next card waits under the current one (first card of the stack), seen while swiping;
-    // not in hardcore: it would be readable during the verdict, before its timer starts
-    h("main", { className: "play",
-                style: { "--next-card": cards[i + 1] && !g.limits ? 'url("' + cards[i + 1].src + '")' : "none" } },
-      h(A.SwipeDeck, { cards: cards, current: i, locked: !!verdict || waiting, onAnswer: onAnswer, cardWidth: width,
-                       overlay: overlay, hint: g.limits ? null : undefined })));
-}
-
-/* What each card really was: set, artist, Scryfall; for AI cards, where the art comes from. */
-function Details(p) {
-  return h(A.Panel, { title: "Les cartes", headingLevel: 2 },
-    h("ol", { className: "details" }, p.items.map(function (r) {
-      var s = r.secret || {}, info;
-      if (r.truth === "real") {
-        info = [s.set, s.artist ? "illustration de " + s.artist : null].filter(Boolean).join(" · ");
-        info = h("p", { className: "info caption" }, info,
-          s.url ? h(React.Fragment, null, " · ", h("a", { href: s.url, target: "_blank", rel: "noopener" }, "Scryfall")) : null);
-      } else {
-        info = h("p", { className: "info caption" },
-          "Texte et nom inventés par une IA.",
-          s.art_from ? " Illustration de " + (s.artist || "?") + ", empruntée à « " + s.art_from + " »." : "",
-          s.set ? " Symbole de " + s.set + " emprunté." : "");
-      }
-      return h("li", { key: r.id },
-        h("span", { className: "name body-strong" }, r.card ? r.card.name : ""),
-        h(A.Badge, { tone: r.truth }, r.truth === "ai" ? "IA" : "Vraie"),
-        info);
-    })));
-}
-
-/* Save the score: asks the server whether it enters the top 10, then a name. */
-function SaveScore(p) {
-  var g = p.game;
-  var s1 = useState(null), result = s1[0], setResult = s1[1];
-  var s2 = useState(""), name = s2[0], setName = s2[1];
-  var s3 = useState(null), error = s3[0], setError = s3[1];
-  var s4 = useState(false), busy = s4[0], setBusy = s4[1];
-  var s5 = useState(null), saved = s5[0], setSaved = s5[1];
-  useEffect(function () {
-    if (!g.api) return;
-    try { setName(localStorage.getItem("quiz-name") || ""); } catch (e) { /* private mode */ }
-    post(g.api, "/result", { game: g.id }).then(setResult).catch(function (e) { setError(e.message); });
-  }, []);
-
-  if (!g.api) return h(A.Panel, { title: "Classement", headingLevel: 2 },
-    h("p", { className: "caption" }, "Le classement n'est pas encore ouvert pour ce jeu de cartes."));
-
-  function submit(ev) {
-    ev.preventDefault();
-    setBusy(true); setError(null);
-    try { localStorage.setItem("quiz-name", name.trim()); } catch (e) { /* private mode */ }
-    post(g.api, "/submit", { game: g.id, name: name }).then(function (r) { setSaved(r); p.onBoard(r.leaderboard); })
-      .catch(function (e) { setError(e.message === "name not allowed" ? "Ce pseudo n'est pas accepté." :
-                                      /name/.test(e.message) ? "1 à 16 lettres, chiffres ou espaces." : e.message); })
-      .then(function () { setBusy(false); });
-  }
-
-  var body;
-  if (saved) body = h(Leaderboard, { board: saved.leaderboard, mode: g.mode, highlight: saved.rank });
-  else if (!result) body = h("p", { className: "caption" }, error || "Calcul du classement…");
-  else if (!result.qualifies) body = h(React.Fragment, null,
-    h("p", { className: "caption" }, "Pas dans le top 10 cette fois. Temps : " + seconds(result.ms) + "."),
-    h(Leaderboard, { board: p.board, mode: g.mode }));
-  else body = h("form", { className: "save", onSubmit: submit },
-    h("p", { className: "body" }, "Tu entres dans le top 10 ", h("strong", null, MODE_NAME[g.mode]),
-      " : " + result.score + " / " + result.total + " en " + seconds(result.ms) + "."),
-    h(A.TextField, { label: "Ton pseudo", value: name, maxLength: 16, autoComplete: "nickname", required: true,
-                     error: error, onChange: function (e) { setName(e.target.value); } }),
-    h(A.Button, { type: "submit", variant: "primary", size: "lg", block: true, disabled: busy || !name.trim() }, "Enregistrer"));
-  return h(A.Panel, { title: "Classement", headingLevel: 2 }, body);
-}
-
-function Score(p) {
-  var s = useState(null);
-  var score = p.items.filter(function (r) { return r.ok; }).length;
-  var ms = p.items.reduce(function (t, r) { return t + r.ms; }, 0);
-  return h("div", { className: "scroll" },
-    h(A.ScoreSummary, { score: score, total: p.items.length, items: p.items, shareStatus: s[0],
-      onReplay: p.onReplay,
-      onShare: function () { A.shareScore(score, p.items.length, location.href).then(s[1]); } }),
-    h("p", { className: "total-time caption" }, h(A.Icon, { name: "hourglass", size: 16 }), "Temps total : " + seconds(ms)),
-    score === p.items.length ? h(Promo, null, "Score parfait : tes lands Beta t'attendent !") : null,
-    h(SaveScore, { game: p.game, board: p.board, onBoard: p.onBoard }),
-    h(Details, { items: p.items }),
-    h(A.Button, { variant: "ghost", size: "md", onClick: p.onHome }, "Accueil"));
-}
-
-function App() {
-  var s1 = useState("intro"), screen = s1[0], setScreen = s1[1];
-  var s2 = useState({}), decks = s2[0], setDecks = s2[1];
-  var s3 = useState(null), meta = s3[0], setMeta = s3[1];
-  var s4 = useState(null), error = s4[0], setError = s4[1];
-  var s5 = useState(null), game = s5[0], setGame = s5[1];
-  var s6 = useState([]), items = s6[0], setItems = s6[1];
-  var s7 = useState(0), round = s7[0], setRound = s7[1];
-  var s8 = useState(undefined), board = s8[0], setBoard = s8[1];
-  var s9 = useState(false), busy = s9[0], setBusy = s9[1];
-
-  useEffect(function () {
-    var get = function (url) {
-      return fetch(url, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-    };
-    Promise.all([get(DECKS.normal), get(DECKS.hardcore)]).then(function (d) {
-      var found = { normal: d[0], hardcore: d[1] };
-      if (found.normal && !found.normal.img) found.normal.img = "img/";         // (older single-deck layout)
-      setDecks(found);
-      if (!d[0] && !d[1]) setError("Impossible de charger les cartes.");
-      else if (d[0]) setMeta(d[0].count + " cartes en réserve · tirage du " + d[0].generated);
-      loadBoard(found).then(setBoard);
-    });
-  }, []);
-
-  // hardcore: the Charnier theme on the whole page, while playing and on the score screen
-  useEffect(function () {
-    var hard = screen === "warn" || (screen !== "intro" && game && game.mode === "hardcore");
-    if (hard) document.documentElement.setAttribute("data-theme", "charnier");
-    else document.documentElement.removeAttribute("data-theme");
-    var tc = document.querySelector('meta[name="theme-color"]');
-    if (tc) tc.setAttribute("content", hard ? "#0c0505" : "#15100d");
-  }, [screen, game]);
-
-  function start(mode) {
-    setBusy(true); setError(null);
-    newGame(mode, decks[mode]).then(function (g) { setGame(g); setRound(round + 1); setScreen("round"); })
-      .catch(function (e) { setError("Le serveur de jeu ne répond pas (" + e.message + "). Réessaie dans un instant."); })
-      .then(function () { setBusy(false); });
-  }
-  function home() { setScreen("intro"); loadBoard(decks).then(setBoard); }
-
-  return h("div", { className: "app", "data-screen": screen },
-    screen === "intro" ? h(Intro, { onStart: start, onHardcore: function () { setError(null); setScreen("warn"); },
-                                    decks: decks, meta: meta, error: error, board: board, busy: busy }) :
-    screen === "warn" ? h(Warning, { onCancel: home, onGo: function () { start("hardcore"); },
-                                     onEasy: function () { start("normal"); }, busy: busy, error: error }) :
-    screen === "round" ? h(Round, { key: round, game: game, onQuit: home,
-                                    onError: function (m) { setError(m); setScreen("intro"); },
-                                    onEnd: function (r) { setItems(r); setScreen("score"); } }) :
-    h(Score, { items: items, game: game, board: board, onBoard: setBoard, onHome: home,
-               onReplay: function () { start(game.mode); } }));
-}
-
-ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();

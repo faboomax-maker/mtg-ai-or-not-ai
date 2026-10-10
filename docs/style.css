@@ -1,4 +1,5 @@
-/* Page layout around the Artifice components (tokens.css + bundle.css). */
+/* Shared layout of the collection (hub + every game), around the Artifice components
+   (vendor/artifice/tokens.css + bundle.css). Each game adds its own games/<id>/style.css. */
 html, body { margin: 0; }
 body {
   background: var(--surface); color: var(--ink); font-family: var(--font-ui);
@@ -16,113 +17,53 @@ body {
 
 .bar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: var(--space-2); min-height: 56px; }
 .bar h1 { margin: 0; text-align: center; color: var(--ink); }
-.play { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-4); padding-top: var(--space-3); }
-/* the card centered in the free space; the answer buttons stay at the bottom, under the thumb */
-.play .ar-deck { flex: 1; }
-.play .ar-deck__stage { margin: auto 0; }
-
-/* Stack: the next card's face on the first card under the one being played. Same size and
-   place as the current card, so it is simply revealed when that one flies away. */
-.play .ar-deck__back--1 {
-  background-color: var(--card-placeholder);
-  background-image: var(--next-card, none);
-  background-size: cover; background-position: center; background-repeat: no-repeat;
-  box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card);
-  transform: none; filter: brightness(.8);
-}
-.play .ar-deck__stage:has(.ar-swipe.is-drag) .ar-deck__back--1,
-.play .ar-deck__stage:has(.ar-swipe.is-fly) .ar-deck__back--1 { filter: none; transition: filter var(--ar-dur-fly) ease-out; }
-
-.intro { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding-top: var(--space-7); }
-.intro h1 { margin: var(--space-1) 0 0; color: var(--ink); }
-.intro .flavor { margin: 0; color: var(--ink-muted); }
-.rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-.rules li { display: flex; align-items: center; gap: var(--space-3); }
-.ic-ai { color: var(--answer-ai-ink); } .ic-real { color: var(--answer-real-ink); } .ic-m { color: var(--ink-muted); }
-.push { margin-top: auto; display: flex; flex-direction: column; gap: var(--space-3); }
-.meta { margin: 0; color: var(--ink-muted); text-align: center; }
-
-.scroll { flex: 1; display: flex; flex-direction: column; gap: var(--space-6); padding-top: var(--space-5); }
-
-/* Details after the game: what each card was */
-.details { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-.details li { display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-3); align-items: start;
-  padding-bottom: var(--space-3); border-bottom: var(--stroke-hair) solid var(--line-soft); }
-.details li:last-child { border-bottom: 0; padding-bottom: 0; }
-.details .name { color: var(--ink); }
-.details .info { grid-column: 1 / -1; margin: 0; color: var(--ink-muted); }
-.details a { color: var(--brass-ink); }
-.details a:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-
-/* Hardcore timer: a sunken track that empties; brass fill (blood in the Charnier theme) */
-.timer { display: grid; grid-template-columns: auto 1fr 3.2em; align-items: center; gap: var(--space-2); color: var(--ink-muted); }
-.timer__track { height: 10px; border-radius: var(--radius-sm); background: var(--surface-sunken);
-  box-shadow: var(--shadow-inset); border: var(--stroke-hair) solid var(--line); overflow: hidden; }
-.timer__fill { height: 100%; background: var(--brass); box-shadow: inset 0 -1px 0 var(--brass-edge); }
-.timer__secs { color: var(--ink); text-align: right; font-variant-numeric: lining-nums tabular-nums; }
-.timer.is-low .timer__secs, .timer.is-low { color: var(--danger-ink); }
-.timer.is-low .timer__fill { background: var(--danger); }
-
-.verdict-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
-.timeout { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; padding: var(--space-1) var(--space-3);
-  color: var(--on-danger); background: var(--danger); border: var(--stroke-control) solid var(--on-danger); border-radius: var(--radius-md); }
-
-/* Leaderboard */
-.board { display: flex; flex-direction: column; gap: var(--space-3); }
-.board__modes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
-.board__modes .is-on { color: var(--brass-ink); border-color: var(--brass-ink); box-shadow: var(--shadow-inset), inset 0 -3px 0 var(--brass-ink); }
-.board__empty { margin: 0; color: var(--ink-muted); }
-.board__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.board__row { display: grid; grid-template-columns: 2em 1fr auto 4.5em; align-items: baseline; gap: var(--space-2);
-  padding: var(--space-2) 0; border-bottom: var(--stroke-hair) solid var(--line-soft); }
-.board__row:last-child { border-bottom: 0; }
-.board__rank { color: var(--brass-ink); font-variant-numeric: lining-nums; }
-.board__name { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.board__score { color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
-.board__time { color: var(--ink-muted); text-align: right; font-variant-numeric: lining-nums tabular-nums; }
-.board__row.is-mine { background: var(--brass-soft); box-shadow: inset 3px 0 0 var(--brass-ink); padding-left: var(--space-2); }
-
-.save { display: flex; flex-direction: column; gap: var(--space-3); }
-.save .body { margin: 0; }
-.total-time { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1); margin: 0; color: var(--ink-muted); }
-
-/* Hardcore warning, (fake) analysis and verdict */
-.warn { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); }
-.warn .ar-panel { margin-top: var(--space-6); }
-.warn .body { margin: 0 0 var(--space-5); }
-.warn__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-.scan { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-4); text-align: center; }
-.scan__title { margin: 0; color: var(--ink); }
-.scan__track { height: 14px; border-radius: var(--radius-sm); background: var(--surface-sunken);
-  box-shadow: var(--shadow-inset); border: var(--stroke-hair) solid var(--line); overflow: hidden; }
-.scan__fill { height: 100%; background: var(--brass); box-shadow: inset 0 -1px 0 var(--brass-edge); }
-.scan__line { margin: 0; color: var(--ink-muted); }
-.verdict-noob { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-5); text-align: center; }
-.verdict-noob__label { display: inline-flex; align-items: center; gap: var(--space-2); }
-.verdict-noob__face { width: 32px; height: 32px; animation: ar-shake 420ms ease-in-out 3; }
-.verdict-noob__text { margin: 0; color: var(--ink); }
-/* countdown in the button's place (same height: nothing moves when the button appears) */
-.noob-wait { align-self: stretch; height: var(--size-answer); display: flex; align-items: center; justify-content: center;
-  gap: var(--space-2); color: var(--ink-muted); border: var(--stroke-control) dashed var(--line); border-radius: var(--radius-md); }
-.noob-wait__n { color: var(--brass-ink); font-variant-numeric: lining-nums tabular-nums; }
-@media (prefers-reduced-motion: reduce) { .verdict-noob__face { animation: none; } }
-
-/* Promotion banner (a joke: the terms say the prize is imaginary) */
-.promo { background: var(--brass-soft); border: var(--stroke-control) solid var(--brass-ink); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-bevel); padding: var(--space-3) var(--space-4); color: var(--ink); }
-.promo__line { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
-.promo__line .ar-icon { flex: none; color: var(--brass-ink); }
-.promo__text { flex: 1; }
-.promo__note { flex: none; min-width: var(--size-touch); min-height: var(--size-touch); margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
-  background: none; border: 0; color: var(--brass-ink); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.promo__note:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-.promo__cgu { margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--stroke-hair) solid var(--line-soft);
-  display: flex; flex-direction: column; gap: var(--space-2); }
-.promo__cgu p { margin: 0; color: var(--ink-muted); }
-.promo__cgu strong { color: var(--ink); }
-.promo__cgu-title { color: var(--ink) !important; }
-.promo__cgu .ar-btn { align-self: flex-end; }
 
 .legal { margin: 0; color: var(--ink-muted); text-align: center; }
 .legal a { color: var(--brass-ink); }
 .error { margin: 0; color: var(--danger-ink); }
+
+/* ------------------------------------------------------------------ hub */
+.hub { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); padding-top: var(--space-7); }
+.hub h1 { margin: var(--space-1) 0 0; color: var(--ink); }
+.hub .flavor { margin: 0; color: var(--ink-muted); }
+.games { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+
+/* A game tile: the whole tile is the button. */
+.tile {
+  position: relative; width: 100%; box-sizing: border-box; text-align: left; cursor: pointer;
+  display: grid; grid-template-columns: 52px 1fr 24px; align-items: center; gap: var(--space-3);
+  padding: var(--space-4); color: var(--ink); font: inherit;
+  background: var(--surface-raised); border: var(--stroke-control) solid var(--line); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-bevel);
+  transition: transform 120ms ease-out, border-color 120ms ease-out, box-shadow 120ms ease-out;
+}
+.tile:hover { border-color: var(--brass-ink); }
+.tile:active { transform: translateY(1px); box-shadow: var(--shadow-inset); }
+.tile:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.tile.is-new { border-color: var(--brass-ink); box-shadow: var(--shadow-bevel), inset 0 0 0 1px var(--brass-soft); }
+.tile__icon {
+  width: 52px; height: 52px; display: grid; place-items: center; color: var(--brass-ink);
+  background: var(--surface-sunken); border: var(--stroke-hair) solid var(--line); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-inset);
+}
+.tile__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.tile__head { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.tile__title { margin: 0; color: var(--ink); }
+.tile__pitch { margin: 0; color: var(--ink-muted); }
+.tile__details { margin: 0; color: var(--brass-ink); }
+.tile__go { color: var(--ink-muted); }
+.tile__last { margin: 0; color: var(--ink); }
+.tile__last strong { color: var(--brass-ink); }
+
+/* "Nouveau" ribbon on the tile's corner */
+.tile__new {
+  position: absolute; top: calc(-1 * var(--space-2)); right: var(--space-3);
+  padding: 2px var(--space-2); border-radius: var(--radius-pill);
+  background: var(--brass); color: var(--on-brass); border: var(--stroke-hair) solid var(--brass-edge);
+  box-shadow: var(--shadow-lift); letter-spacing: .06em; text-transform: uppercase;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tile__new { animation: tile-new 2.4s ease-in-out infinite; }
+  @keyframes tile-new { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+}
+.hub .push { margin-top: auto; display: flex; flex-direction: column; gap: var(--space-3); }
