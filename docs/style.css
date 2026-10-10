@@ -67,3 +67,8 @@ body {
   @keyframes tile-new { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 }
 .hub .push { margin-top: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* Dark theme (Charnier): its panels have dripping edges instead of brass corner diamonds. The theme
+   makes every panel child position: relative, which only hides the diamonds in block panels; in a
+   flex panel (centered score, guild card) they would stack in the middle. Hide them everywhere. */
+[data-theme="charnier"] .ar-panel > .ar-panel__corner { display: none; }
