@@ -62,8 +62,14 @@ function Emblem(p) {
                 style: { font: "700 34px var(--font-display)" } }, g.name.charAt(0)));
 }
 
+/* A guild color: its mana symbol image if there is one (games/guildes/img/mana/<w|u|b|r|g>.webp,
+   or the color's `symbol` field in data.js), otherwise a pill with the color's name. */
 function Chip(p) {
   var c = C[p.color];
+  var s = useState(false), missing = s[0], setMissing = s[1];
+  var src = c.symbol || "games/guildes/img/mana/" + p.color.toLowerCase() + ".webp";
+  if (!missing) return h("img", { className: "mana", src: src, alt: c.name, title: c.name, width: 36, height: 36,
+                                  onError: function () { setMissing(true); } });
   return h("span", { className: "chip label", style: { "--chip": c.hex, "--chip-ink": c.ink } }, c.name);
 }
 
