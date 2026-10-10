@@ -16,7 +16,9 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import gzip
 import json
+import re
 
 from common import DOCS, session
 
@@ -39,6 +41,38 @@ def keep(c: dict, min_eur: float) -> bool:
     return bool(eur) and float(eur) >= min_eur
 
 
+def strings(x):
+    """Every string inside a JSON value (nested objects and lists included)."""
+    if isinstance(x, str):
+        yield x
+    elif isinstance(x, dict):
+        for v in x.values():
+            yield from strings(v)
+    elif isinstance(x, list):
+        for v in x:
+            yield from strings(v)
+
+
+def download_url(s, entry: dict) -> str:
+    """The file's address in a bulk-data entry: download_uri, or any link to a .json(.gz) file,
+    or else the entry's own page (uri), fetched in full."""
+    for key in ("download_uri", "download_url", "url"):
+        if isinstance(entry.get(key), str) and entry[key].startswith("http"):
+            return entry[key]
+    for v in strings(entry):
+        if v.startswith("http") and re.search(r"\.json(\.gz)?(\?|$)", v):
+            return v
+    if isinstance(entry.get("uri"), str):
+        full = s.get(entry["uri"], timeout=60)
+        full.raise_for_status()
+        detail = full.json()
+        for key in ("download_uri", "download_url"):
+            if isinstance(detail.get(key), str):
+                return detail[key]
+    raise SystemExit("Pas de lien de téléchargement pour « oracle_cards ». Champs reçus : "
+                     + json.dumps(entry, ensure_ascii=False)[:600])
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--min-eur", type=float, default=0.10, help="prix minimum (défaut 0,10 €)")
@@ -49,14 +83,18 @@ def main() -> None:
     meta = s.get(BULK, timeout=60)
     meta.raise_for_status()
     files = meta.json().get("data") or []
-    url = next((f.get("download_uri") for f in files if f.get("type") == "oracle_cards"), None)
-    if not url:
+    entry = next((f for f in files if f.get("type") == "oracle_cards"), None)
+    if not entry:
         raise SystemExit("Fichier « oracle_cards » introuvable dans la liste Scryfall : "
                          + (", ".join(str(f.get("type")) for f in files) or meta.text[:300]))
+    url = download_url(s, entry)
     print("Téléchargement", url)
     r = s.get(url, timeout=600)
     r.raise_for_status()
-    cards = r.json()
+    raw = r.content
+    if raw[:2] == b"\x1f\x8b":                            # gzipped file served as is
+        raw = gzip.decompress(raw)
+    cards = json.loads(raw)
 
     rows = []
     for c in cards:
