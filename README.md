@@ -4,7 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
-| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Quatre difficultés à débloquer (prix plus proches, cartes moins connues), record par mode. |
+| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Variante **Plus ou moins populaire ?** (classement EDHREC), accessible par un bouton en bas de l'accueil du jeu. Quatre difficultés à débloquer par variante, record par mode. |
 | **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
 
@@ -22,7 +22,7 @@ Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors prés
 
 `docs/data/prix.json` vient des données gratuites de Scryfall (prix Cardmarket tendance, en euros, et popularité EDHREC). Le workflow **« Mettre à jour les prix »** le régénère chaque nuit (vers 6 h, heure de Paris) ; on peut aussi le lancer à la main (onglet **Actions → Mettre à jour les prix → Run workflow**), ou en local : `python pipeline/fetch_prices.py`.
 
-Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`). Chaque mode se débloque en faisant une série de 5 dans le précédent (`UNLOCK`) :
+Difficultés (réglables dans `VARIANTS`, en haut de `docs/games/plus-cher/game.js`). Chaque mode se débloque en faisant une série de 5 dans le précédent (`UNLOCK`). Pour les prix :
 
 | Mode | Cartes | Écart de prix |
 |---|---|---|
@@ -30,6 +30,15 @@ Difficultés (réglables dans `MODES`, en haut de `docs/games/plus-cher/game.js`
 | Moyen | les 12 000 plus jouées | ×1,6 à ×3 |
 | Hardcore | hors des 3 000 plus jouées, ou non classées | ×1,6 à ×3 |
 | Impossible | hors des 3 000 plus jouées, ou non classées | ×1,15 à ×1,6 |
+
+Pour la popularité (rang EDHREC, cartes classées uniquement) :
+
+| Mode | Cartes | Écart de rang |
+|---|---|---|
+| Facile | les 3 000 plus jouées | ×4 à ×60 |
+| Moyen | les 12 000 plus jouées | ×2 à ×4 |
+| Hardcore | au-delà du rang 3 000 | ×2 à ×4 |
+| Impossible | au-delà du rang 3 000 | ×1,15 à ×1,6 |
 
 ## IA ou vraie carte ?
 
