@@ -1,6 +1,25 @@
-# Vraie ou IA ? — le quiz Magic
+# Mini-jeux Magic
 
-Un quiz web : chaque carte est soit une **vraie carte Magic**, soit une carte **inventée par une IA** (texte et illustration). Le joueur doit deviner laquelle.
+Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En ouvrant le site, on choisit son jeu :
+
+| Jeu | Dossier | En deux mots |
+|---|---|---|
+| **Quelle guilde es-tu ?** (nouveau) | `docs/games/guildes/` | 15 questions de personnalité ; tes deux couleurs dominantes donnent ta guilde de Ravnica, avec son blason et les profils de personnalité proches. |
+| **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
+
+Chaque jeu a son lien direct : `https://<toi>.github.io/<depot>/#guildes`, `…/#ia-ou-vraie`.
+
+### Ajouter un jeu
+
+1. Crée `docs/games/<id>/` avec un `game.js` (et un `style.css` si besoin).
+2. Dans `game.js`, enregistre le jeu : `window.MTG.games.push({ id, title, pitch, icon, details, isNew, component })`. `component` est un composant React qui reçoit `onExit` (retour à l'accueil) ; `icon` est un nom d'icône Artifice (`d20`, `chalice`, `potion`…).
+3. Ajoute ses `<script>` et `<link>` dans `docs/index.html`, après `app.js`.
+
+Le badge « Nouveau » s'affiche tant que `isNew: true` ; le jeu est alors présenté en premier.
+
+## IA ou vraie carte ?
+
+Chaque carte est soit une **vraie carte Magic**, soit une carte **inventée par une IA** (texte et illustration). Le joueur doit deviner laquelle.
 
 Toutes les cartes passent par **le même rendu** : [Magic Set Editor](https://github.com/twanvl/MagicSetEditor2) les dessine avec le même cadre M15 (templates du [Full Magic Pack](https://github.com/MagicSetEditorPacks/Full-Magic-Pack)), illustrations recadrées à l'identique, symbole de set dessiné pareil, fichiers renommés au hasard. Seul le contenu peut trahir une carte.
 
@@ -94,8 +113,12 @@ Réglages : modèle via `LLM_MODEL`, requête Scryfall via `--query` (par exempl
 
 ```
 docs/                 site statique publié par GitHub Pages
-  index.html  style.css  app.js
-  data/cards.json     cartes (réponse légèrement obfusquée)
+  index.html          charge l'accueil puis chaque jeu
+  app.js  style.css   accueil (choix du jeu, lien #<id>) et mise en page commune
+  games/
+    ia-ou-vraie/      game.js, style.css : le quiz « IA ou vraie carte ? »
+    guildes/          data.js (questions, barème, guildes), game.js, style.css
+  data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
   img/                cartes rendues par MSE (WebP, noms aléatoires)
 pipeline/
   fetch_real.py       1. vraies cartes depuis Scryfall
@@ -113,7 +136,8 @@ pipeline/
 - La réponse est seulement **obfusquée** dans `cards.json` : un joueur qui fouille le code peut tricher. C'est un jeu entre amis, pas un examen.
 - Les cartes sont en anglais : c'est la langue de référence de Scryfall et des modèles.
 - Le rendu demande Windows (Magic Set Editor) : le workflow GitHub tourne donc sur un runner Windows.
-- Sans ender_mse.py, uild.py retombe sur l'ancien cadre HTML/CSS.
+- Sans 
+ender_mse.py, uild.py retombe sur l'ancien cadre HTML/CSS.
 
 ## Crédits et licences
 
