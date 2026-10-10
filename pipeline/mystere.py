@@ -23,11 +23,16 @@ DAYS_AHEAD = 21
 MAX_RANK = 1500                         # well-known cards only: the 1 500 most played in Commander
 ALLOWED_SYMBOLS = re.compile(r"^\{([WUBRGCXT]|\d)\}$")
 SYMBOL = re.compile(r"\{[^}]+\}")
-PARIS = ZoneInfo("Europe/Paris")
 
 
 def paris_today() -> dt.date:
-    return dt.datetime.now(PARIS).date()
+    """Today's date in Paris (the game switches cards at Paris midnight)."""
+    try:
+        return dt.datetime.now(ZoneInfo("Europe/Paris")).date()
+    except Exception:                       # no time zone data (tzdata not installed): CET/CEST guess
+        now = dt.datetime.now(dt.timezone.utc)
+        summer = 3 < now.month < 10 or (now.month == 3 and now.day >= 25) or (now.month == 10 and now.day < 25)
+        return (now + dt.timedelta(hours=2 if summer else 1)).date()
 
 
 def candidate(c: dict) -> bool:
