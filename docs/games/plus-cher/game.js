@@ -139,7 +139,7 @@ function loadData() {
   return dataPromise;
 }
 
-function image(c) { return "https://cards.scryfall.io/normal/front/" + c.id[0] + "/" + c.id[1] + "/" + c.id + ".jpg"; }
+function image(c, size) { return "https://cards.scryfall.io/" + (size || "normal") + "/front/" + c.id[0] + "/" + c.id[1] + "/" + c.id + ".jpg"; }
 function scryfall(c) { return "https://scryfall.com/card/" + c.s + "/" + encodeURIComponent(c.cn); }
 function preload(c) { if (c) { var i = new Image(); i.src = image(c); } }
 
@@ -181,9 +181,23 @@ function freshPair(V, pool, mode, seen) {
 function Card(p) {
   var c = p.card;
   return h("figure", { className: "pc-card" + (p.state ? " is-" + p.state : "") },
-    h("div", { className: "pc-card__img" },
+    h("button", { type: "button", className: "pc-card__img", "aria-label": "Agrandir " + c.n,
+                  onClick: function () { p.onZoom(c); } },
       h("img", { key: c.id, src: image(c), alt: c.n, loading: "eager", decoding: "async" })),
     h("figcaption", { className: "pc-card__price" }, p.children));
+}
+
+/** A card shown full screen, in the large Scryfall size; a tap anywhere (or Escape) closes it. */
+function Zoom(p) {
+  var c = p.card;
+  useEffect(function () {
+    function onKey(e) { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); p.onClose(); } }
+    window.addEventListener("keydown", onKey);
+    return function () { window.removeEventListener("keydown", onKey); };
+  }, []);
+  return h("div", { className: "pc-zoom", role: "dialog", "aria-modal": "true", "aria-label": c.n, onClick: p.onClose },
+    h("img", { className: "pc-zoom__img", src: image(c, "large"), alt: c.n }),
+    h("p", { className: "pc-zoom__hint caption" }, "Touche pour fermer"));
 }
 
 /** The hidden value, counted up from 0 once revealed. */
@@ -253,6 +267,7 @@ function Play(p) {
   var s2 = useState(0), streak = s2[0], setStreak = s2[1];
   var s3 = useState(null), result = s3[0], setResult = s3[1];     // null | { ok, guess, msg }
   var s4 = useState(null), upcoming = s4[0], setUpcoming = s4[1];
+  var s5 = useState(null), zoom = s5[0], setZoom = s5[1];
   var t = useRef(null);
   var a = pair[0], b = pair[1];
 
@@ -263,6 +278,7 @@ function Play(p) {
   }, [b.id]);
   useEffect(function () {
     function onKey(e) {
+      if (zoom) return;
       if (e.key === "ArrowLeft") answer("less");
       else if (e.key === "ArrowRight") answer("more");
     }
@@ -271,7 +287,7 @@ function Play(p) {
   });
 
   function answer(guess) {
-    if (result) return;
+    if (result || zoom) return;
     var ok = guess === (V.isMore(a, b) ? "more" : "less");
     setResult({ ok: ok, guess: guess, msg: reaction(V, a, b, ok) });
     t.current = setTimeout(function () {
@@ -292,9 +308,9 @@ function Play(p) {
       h("span", { className: "pc-mode-tag label" }, V.modes[p.mode].name)),
     h("main", { className: "pc-board" },
       h("div", { className: "pc-pair" },
-        h(Card, { card: a }, h("span", { className: "pc-price title-md" }, V.fmt(V.val(a)))),
+        h(Card, { card: a, onZoom: setZoom }, h("span", { className: "pc-price title-md" }, V.fmt(V.val(a)))),
         h("span", { className: "pc-vs label", "aria-hidden": "true" }, "vs"),
-        h(Card, { card: b, state: result ? (result.ok ? "ok" : "ko") : null },
+        h(Card, { card: b, onZoom: setZoom, state: result ? (result.ok ? "ok" : "ko") : null },
           result ? h(CountUp, { value: V.val(b), fmt: V.fmt }) : h("span", { className: "pc-price pc-price--hidden title-md" }, V.hidden))),
       h("p", { className: "pc-question body" }, V.question(a, b)),
       h("div", { className: "pc-answers" },
@@ -304,7 +320,9 @@ function Play(p) {
         h(A.Button, { variant: "primary", size: "lg", iconEnd: "arrow-right", disabled: !!result,
                       className: result && result.guess === "more" ? "is-picked" : null,
                       onClick: function () { answer("more"); } }, V.more)),
-      h("p", { className: "pc-verdict label", role: "status" }, result ? result.msg : " ")));
+      h("p", { className: "pc-verdict label" + (result ? "" : " is-hint"), role: "status" },
+        result ? result.msg : "Touche une carte pour la lire en grand.")),
+    zoom ? h(Zoom, { card: zoom, onClose: function () { setZoom(null); } }) : null);
 }
 
 function share(V, mode, n) {

@@ -34,10 +34,18 @@
 .bar:has(.pc-mode-tag) { grid-template-columns: 44px 1fr auto; }
 .pc-board { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-4); padding: var(--space-3) 0; }
 
-.pc-pair { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-2); }
-.pc-vs { color: var(--ink-muted); text-transform: uppercase; letter-spacing: .08em; }
+/* Two cards as wide as the phone allows: they reach out into the page margins, and « vs » is a small
+   badge laid over the gap instead of a column of its own. */
+.pc-pair { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 6px;
+  margin: 0 calc(8px - var(--space-4)); }
+.pc-vs { position: absolute; left: 50%; top: calc((50vw - 11px) * 88 / 63 / 2); transform: translate(-50%, -50%); z-index: 1;
+  min-width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--radius-pill);
+  background: var(--surface-raised); border: var(--stroke-hair) solid var(--line); box-shadow: var(--shadow-lift);
+  color: var(--ink-muted); text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
+@media (min-width: 560px) { .pc-vs { top: 40%; } }
 .pc-card { margin: 0; display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); }
-.pc-card__img { aspect-ratio: 63 / 88; border-radius: 4.5% / 3.2%; overflow: hidden; background: var(--card-placeholder);
+.pc-card__img { display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+  aspect-ratio: 63 / 88; border-radius: 4.5% / 3.2%; overflow: hidden; background: var(--card-placeholder);
   box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card); transition: box-shadow 200ms ease-out, transform 200ms ease-out; }
 .pc-card__img img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .pc-card.is-ok .pc-card__img { box-shadow: 0 0 0 3px var(--success), var(--shadow-card); }
@@ -108,3 +116,19 @@
 @keyframes pc-flip-out { from { transform: perspective(1400px) rotateY(0); } to { transform: perspective(1400px) rotateY(90deg); } }
 @keyframes pc-flip-in  { from { transform: perspective(1400px) rotateY(-90deg); } to { transform: perspective(1400px) rotateY(0); } }
 body:has(.pc.is-flip-out), body:has(.pc.is-flip-in) { overflow-x: hidden; }
+
+.pc-card__img:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.pc-verdict.is-hint { color: var(--ink-muted); opacity: .7; font-weight: 400; }
+
+/* A card shown full screen */
+.pc-zoom { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-3); padding: var(--space-4); background: rgba(8, 5, 4, .88); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); cursor: zoom-out; }
+.pc-zoom__img { width: min(92vw, calc(80vh * 63 / 88)); aspect-ratio: 63 / 88; border-radius: 4.5% / 3.2%;
+  box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card); background: var(--card-placeholder); }
+.pc-zoom__hint { margin: 0; color: var(--ink-muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .pc-zoom { animation: pc-fade 160ms ease-out; }
+  .pc-zoom__img { animation: pc-grow 200ms ease-out; }
+  @keyframes pc-fade { from { opacity: 0; } }
+  @keyframes pc-grow { from { transform: scale(.85); } }
+}
