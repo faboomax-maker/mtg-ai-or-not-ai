@@ -22,6 +22,8 @@ jobs:
     timeout-minutes: 60
     env:
       PYTHONUTF8: "1"
+      PYTHONUNBUFFERED: "1"          # live log (otherwise nothing shows until the end)
+      MSE_TIMEOUT: "300"             # a single MSE launch for 2 cards: 5 min is plenty
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +38,14 @@ jobs:
         env:
           MSE_DIR: ${{ github.workspace }}/mse
         run: python pipeline/render_mystere.py
+      - name: Captures en cas de blocage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mystere-debug
+          path: pipeline/work/mystere/out/
+          retention-days: 3
+          if-no-files-found: ignore
       - name: Publier
         shell: bash
         run: |

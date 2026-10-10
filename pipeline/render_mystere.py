@@ -17,6 +17,7 @@ import datetime as dt
 import json
 import secrets
 import shutil
+import time
 
 from PIL import Image, ImageFilter
 
@@ -36,16 +37,11 @@ def art_crop(s, card: dict) -> str:
     return f"https://cards.scryfall.io/art_crop/front/{i[0]}/{i[1]}/{i}.jpg"
 
 
-def render_card(card: dict, art, tag: str) -> Image.Image | None:
-    """One MSE render of a card dict (render_mse format) -> image, or None."""
-    out = TMP / f"out-{tag}"
-    shutil.rmtree(out, ignore_errors=True)
-    try:
-        render([(card, art)], out)
-    except SystemExit as e:                  # render() exits when a card fails: keep going
-        print(f"  {tag}: {e}")
-    png = out / f"{card['id']}.png"
-    return Image.open(png).convert("RGB") if png.exists() else None
+def no_size_steps_for_blanks() -> None:
+    """The blank cards have no text: one render each instead of render_mse's ten text sizes."""
+    import render_mse
+    original = render_mse.size_steps
+    render_mse.size_steps = lambda c: [] if c["id"].endswith("-blank") else original(c)
 
 
 def main() -> None:
@@ -57,7 +53,7 @@ def main() -> None:
     s = session()
     today = mystere.paris_today()
     since, until = (today - dt.timedelta(days=1)).isoformat(), (today + dt.timedelta(days=AHEAD)).isoformat()
-    keep, done = set(), 0
+    keep, done, todo = set(), 0, []
 
     for date, blob in sorted(data["days"].items()):
         card = mystere.unseal(blob, date)
@@ -87,19 +83,34 @@ def main() -> None:
                 "power": card.get("p"), "toughness": card.get("h")}
         blank = {**base, "id": base["id"] + "-blank", "name": "", "mana_cost": "", "type_line": "",
                  "oracle_text": "", "flavor_text": None, "power": "", "toughness": ""}
-        full_img = render_card(full, art, "full")
-        blank_img = render_card(blank, blurred, "blank")
-        if not (full_img and blank_img):
-            print("  not rendered (the game falls back to its own frame)")
-            continue
-        names = {"b": secrets.token_hex(8) + ".webp", "f": secrets.token_hex(8) + ".webp"}
-        blank_img.save(IMG / names["b"], "WEBP", quality=86, method=6)
-        full_img.save(IMG / names["f"], "WEBP", quality=86, method=6)
-        card["img"] = names
-        card["size"] = list(full_img.size)
-        data["days"][date] = mystere.seal(card, date)
-        keep.update(names.values())
-        done += 1
+        todo.append((date, card, full, art, blank, blurred))
+
+    if todo:
+        # every card (full and blank) in ONE render: Magic Set Editor is started once per set and
+        # each set symbol is drawn once, instead of once per card and version
+        out = TMP / "out"
+        shutil.rmtree(out, ignore_errors=True)
+        no_size_steps_for_blanks()
+        t0 = time.time()
+        try:
+            render([x for d, c, f, a, b, bl in todo for x in ((f, a), (b, bl))], out)
+        except SystemExit as e:              # render() exits when a card fails: keep the others
+            print(f"  {e}")
+        print(f"Rendu MSE : {time.time() - t0:.0f} s")
+        for date, card, full, _, blank, _ in todo:
+            fp, bp = out / f"{full['id']}.png", out / f"{blank['id']}.png"
+            if not (fp.exists() and bp.exists()):
+                print(f"{date}: not rendered (the game falls back to its own frame)")
+                continue
+            full_img, blank_img = Image.open(fp).convert("RGB"), Image.open(bp).convert("RGB")
+            names = {"b": secrets.token_hex(8) + ".webp", "f": secrets.token_hex(8) + ".webp"}
+            blank_img.save(IMG / names["b"], "WEBP", quality=86, method=6)
+            full_img.save(IMG / names["f"], "WEBP", quality=86, method=6)
+            card["img"] = names
+            card["size"] = list(full_img.size)
+            data["days"][date] = mystere.seal(card, date)
+            keep.update(names.values())
+            done += 1
 
     for f in IMG.glob("*.webp"):              # days gone from the schedule
         if f.name not in keep:
