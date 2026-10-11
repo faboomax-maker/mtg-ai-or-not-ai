@@ -243,9 +243,14 @@ function Keyboard(p) {
 }
 
 /** The name field, with suggestions from every card name once 2 letters are typed. */
+/** The name field, with suggestions from every card name once 2 letters are typed. On a phone the
+    virtual keyboard would hide a field at the bottom of the page: while typing, the field and its
+    suggestions move to the top of the screen (a panel over the page), and come back afterwards. */
 function NameGuess(p) {
   var s1 = useState(""), value = s1[0], setValue = s1[1];
   var s2 = useState([]), names = s2[0], setNames = s2[1];
+  var s3 = useState(false), open = s3[0], setOpen = s3[1];
+  var input = useRef(null);
   var q = norm(value);
   var sugg = useMemo(function () {
     if (q.length < 2 || !names.length) return [];
@@ -256,20 +261,33 @@ function NameGuess(p) {
     }
     return starts.concat(has).slice(0, 6);
   }, [q, names]);
+  useEffect(function () {                      // the panel opened: keep the focus in its field
+    if (open && input.current) input.current.focus();
+  }, [open]);
+  function close() { setOpen(false); if (input.current) input.current.blur(); }
   function submit(name) {
     if (!norm(name)) return;
-    p.onGuess(name); setValue("");
+    p.onGuess(name); setValue(""); close();
   }
-  return h("form", { className: "my-name", onSubmit: function (e) { e.preventDefault(); submit(value); } },
-    h("div", { className: "my-name__row" },
-      h("input", { className: "my-name__input body", type: "text", value: value, placeholder: "Le nom de la carte…", autoComplete: "off",
-                   spellCheck: false, disabled: p.disabled, "aria-label": "Proposer le nom de la carte",
-                   onFocus: function () { loadNames().then(setNames); },
-                   onChange: function (e) { setValue(e.target.value); } }),
-      h(A.Button, { type: "submit", variant: "primary", size: "md", disabled: p.disabled || !norm(value) }, "Deviner")),
-    sugg.length ? h("ul", { className: "my-sugg", role: "listbox" }, sugg.map(function (n) {
-      return h("li", { key: n }, h("button", { type: "button", className: "my-sugg__item body", onClick: function () { submit(n); } }, n));
-    })) : null);
+  var keep = function (e) { e.preventDefault(); };   // a tap on a suggestion must not close the keyboard first
+  return h(React.Fragment, null,
+    open ? h("div", { className: "my-name__scrim", onMouseDown: keep, onClick: close }) : null,
+    h("form", { className: "my-name" + (open ? " is-open" : ""), onSubmit: function (e) { e.preventDefault(); submit(value); } },
+      open ? h("p", { className: "my-name__title label" }, "Quelle est cette carte ?") : null,
+      h("div", { className: "my-name__row" },
+        h("input", { ref: input, className: "my-name__input", type: "text", value: value, placeholder: "Le nom de la carte…",
+                     autoComplete: "off", autoCapitalize: "words", spellCheck: false, enterKeyHint: "go",
+                     disabled: p.disabled, "aria-label": "Proposer le nom de la carte",
+                     onFocus: function () { setOpen(true); loadNames().then(setNames); },
+                     onKeyDown: function (e) { if (e.key === "Escape") close(); },
+                     onChange: function (e) { setValue(e.target.value); } }),
+        h(A.Button, { type: "submit", variant: "primary", size: "md", disabled: p.disabled || !norm(value), onMouseDown: keep }, "Deviner"),
+        open ? h(A.Button, { variant: "ghost", size: "md", icon: "close", "aria-label": "Fermer", onMouseDown: keep, onClick: close }) : null),
+      open && sugg.length ? h("ul", { className: "my-sugg", role: "listbox" }, sugg.map(function (n) {
+        return h("li", { key: n }, h("button", { type: "button", className: "my-sugg__item body", onMouseDown: keep,
+                                                  onClick: function () { submit(n); } }, n));
+      })) : null,
+      open ? h("p", { className: "my-name__hint caption" }, "Attention : une mauvaise réponse coûte un essai.") : null));
 }
 
 function share(date, guesses, won) {
