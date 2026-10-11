@@ -8,6 +8,11 @@ on:
     workflows: ["Mettre à jour les prix"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Refaire le rendu des cartes d'aujourd'hui et de demain (nouvelle partie, pour tester)"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -37,6 +42,7 @@ jobs:
       - name: Rendu des cartes du jour
         env:
           MSE_DIR: ${{ github.workspace }}/mse
+          FORCE: ${{ inputs.force && '1' || '' }}     # (only when launched by hand)
         run: python pipeline/render_mystere.py
       - name: Captures en cas de blocage
         if: always()

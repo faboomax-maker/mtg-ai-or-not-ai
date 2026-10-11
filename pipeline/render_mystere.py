@@ -8,6 +8,7 @@ For today's and tomorrow's cards (docs/data/mystere.json) when not rendered yet,
 They go to docs/img/mystere/<random>.webp, and their names into the (sealed) card of the day.
 Day after day this renders one card (tomorrow's), ready before its Paris midnight; today's is
 rendered too if missing (first run, or a day the workflow did not run). Images of past days are deleted.
+FORCE=1 re-renders today's and tomorrow's cards anyway: new images, so the game starts afresh (tests).
 
 Needs Magic Set Editor (Windows): see render_mse.py. Usage: python pipeline/render_mystere.py
 """
@@ -22,12 +23,13 @@ import time
 from PIL import Image, ImageFilter
 
 import mystere
-from common import DOCS, WORK, fetch_bytes, normalize_image, session
+from common import DOCS, WORK, env, fetch_bytes, normalize_image, session
 from render_mse import render
 
 DATA = DOCS / "data" / "mystere.json"
 IMG = DOCS / "img" / "mystere"
 TMP = WORK / "mystere"
+FORCE = env("FORCE", "") == "1"               # re-render today's and tomorrow's cards (tests): new game
 AHEAD = 1                                    # render up to tomorrow's card
 BLUR = 22                                    # art blur of the blank card (px on the 640 px art)
 
@@ -58,7 +60,8 @@ def main() -> None:
     for date, blob in sorted(data["days"].items()):
         card = mystere.unseal(blob, date)
         imgs = card.get("img") or {}
-        if imgs and all((IMG / f).exists() for f in imgs.values()):
+        due = today.isoformat() <= date <= until
+        if imgs and all((IMG / f).exists() for f in imgs.values()) and not (FORCE and due):
             keep.update(imgs.values())
             continue
         if not (today.isoformat() <= date <= until):     # only today's and tomorrow's cards

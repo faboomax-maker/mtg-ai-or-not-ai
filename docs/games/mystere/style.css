@@ -81,7 +81,8 @@
 /* Name guess */
 .my-name { position: relative; display: flex; flex-direction: column; gap: var(--space-2); }
 .my-name__row { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2); }
-.my-name__input { min-width: 0; height: var(--size-control); padding: 0 var(--space-3); border-radius: var(--radius-md);
+.my-name.is-open .my-name__row { grid-template-columns: 1fr auto auto; }
+.my-name__input { min-width: 0; font: 400 16px/1.2 var(--font-ui);   /* 16px: no zoom on iPhone */ height: var(--size-control); padding: 0 var(--space-3); border-radius: var(--radius-md);
   border: var(--stroke-control) solid var(--line); background: var(--surface-sunken); color: var(--ink); box-shadow: var(--shadow-inset); }
 .my-name__input:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 1px; }
 .my-sugg { list-style: none; margin: 0; padding: var(--space-1); display: flex; flex-direction: column;
@@ -128,3 +129,15 @@
 .my-box .my-sym--text, .my-box .my-sym--tap, .my-box .my-sym.is-hidden { font-size: .72em; width: 1.55em; height: 1.55em; }
 .my-box.is-debug { outline: 1px dashed #e0245e; background: rgba(224, 36, 94, .08); }
 .my-ch.is-it { font-style: italic; }
+
+/* While typing the name (phones): the field moves to the top, above the virtual keyboard */
+.my-name.is-open { position: fixed; z-index: 30; top: 0; left: 0; right: 0; margin: 0 auto; max-width: var(--app-max, 520px);
+  box-sizing: border-box; padding: max(env(safe-area-inset-top), 12px) var(--space-4) var(--space-4);
+  background: var(--surface); border-bottom: var(--stroke-hair) solid var(--line); box-shadow: var(--shadow-lift); }
+.my-name__scrim { position: fixed; inset: 0; z-index: 29; background: rgba(8, 5, 4, .6); }
+.my-name__title { margin: 0; color: var(--brass-ink); }
+.my-name__hint { margin: 0; color: var(--ink-muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .my-name.is-open { animation: my-drop 180ms ease-out; }
+  @keyframes my-drop { from { transform: translateY(-12px); opacity: 0; } }
+}

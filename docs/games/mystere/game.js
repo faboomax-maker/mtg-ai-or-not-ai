@@ -89,15 +89,18 @@ function keysOf(card) {
 }
 
 /* ------------------------------------------------------------------ save & stats */
+/** Which version of the card of the day: its full image (a new render = a new game), else none. */
+function version(card) { return card.img ? card.img.f : ""; }
 function loadSave(date) { try { return JSON.parse(localStorage.getItem(SAVE_KEY + date)) || null; } catch (e) { return null; } }
 function save(date, state) { try { localStorage.setItem(SAVE_KEY + date, JSON.stringify(state)); } catch (e) { /* private mode */ } }
 function loadStats() {
   try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { played: 0, won: 0, streak: 0, best: 0, last: null }; }
   catch (e) { return { played: 0, won: 0, streak: 0, best: 0, last: null }; }
 }
-function recordStats(date, won) {
+function recordStats(date, won, v) {
   var s = loadStats();
-  if (s.last === date) return s;
+  if (s.last === date && (s.lastV || "") === (v || "")) return s;
+  s.lastV = v || "";
   var yesterday = parisDate(new Date(new Date(date + "T12:00:00Z").getTime() - 864e5));
   s.played++; if (won) s.won++;
   s.streak = won ? (s.lastWon === yesterday ? s.streak + 1 : 1) : 0;
@@ -194,11 +197,11 @@ function MseCard(p) {
     h("img", { className: "my-mse__img", src: "img/mystere/" + c.img.b, alt: "" }),
     h("img", { className: "my-mse__img my-mse__full", src: "img/mystere/" + c.img.f, alt: done ? c.n : "", loading: done ? "eager" : "lazy" }),
     done ? null : h(React.Fragment, null,
-      h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 4.5, min: 2.6, oneLine: true }),
+      h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 5.0, min: 2.8, oneLine: true }),
       c.m ? h(Box, { kind: "cost", text: c.m, known: known, sig: sig, width: width, max: 4.8, min: 3.4, oneLine: true }) : null,
-      h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.2, min: 2.6, oneLine: true }),
-      h(Box, { kind: "text", text: c.o, known: known, sig: sig, width: width, max: 4.0, min: 2.3 }),
-      pt ? h(Box, { kind: "pt", text: pt, known: known, sig: sig, width: width, max: 4.4, min: 3, oneLine: true }) : null));
+      h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.6, min: 2.8, oneLine: true }),
+      h(Box, { kind: "text", text: c.o, known: known, sig: sig, width: width, max: 5.4, min: 2.6 }),
+      pt ? h(Box, { kind: "pt", text: pt, known: known, sig: sig, width: width, max: 5.0, min: 3.2, oneLine: true }) : null));
 }
 
 function CardView(p) {
@@ -243,9 +246,14 @@ function Keyboard(p) {
 }
 
 /** The name field, with suggestions from every card name once 2 letters are typed. */
+/** The name field, with suggestions from every card name once 2 letters are typed. On a phone the
+    virtual keyboard would hide a field at the bottom of the page: while typing, the field and its
+    suggestions move to the top of the screen (a panel over the page), and come back afterwards. */
 function NameGuess(p) {
   var s1 = useState(""), value = s1[0], setValue = s1[1];
   var s2 = useState([]), names = s2[0], setNames = s2[1];
+  var s3 = useState(false), open = s3[0], setOpen = s3[1];
+  var input = useRef(null);
   var q = norm(value);
   var sugg = useMemo(function () {
     if (q.length < 2 || !names.length) return [];
@@ -256,20 +264,33 @@ function NameGuess(p) {
     }
     return starts.concat(has).slice(0, 6);
   }, [q, names]);
+  useEffect(function () {                      // the panel opened: keep the focus in its field
+    if (open && input.current) input.current.focus();
+  }, [open]);
+  function close() { setOpen(false); if (input.current) input.current.blur(); }
   function submit(name) {
     if (!norm(name)) return;
-    p.onGuess(name); setValue("");
+    p.onGuess(name); setValue(""); close();
   }
-  return h("form", { className: "my-name", onSubmit: function (e) { e.preventDefault(); submit(value); } },
-    h("div", { className: "my-name__row" },
-      h("input", { className: "my-name__input body", type: "text", value: value, placeholder: "Le nom de la carte…", autoComplete: "off",
-                   spellCheck: false, disabled: p.disabled, "aria-label": "Proposer le nom de la carte",
-                   onFocus: function () { loadNames().then(setNames); },
-                   onChange: function (e) { setValue(e.target.value); } }),
-      h(A.Button, { type: "submit", variant: "primary", size: "md", disabled: p.disabled || !norm(value) }, "Deviner")),
-    sugg.length ? h("ul", { className: "my-sugg", role: "listbox" }, sugg.map(function (n) {
-      return h("li", { key: n }, h("button", { type: "button", className: "my-sugg__item body", onClick: function () { submit(n); } }, n));
-    })) : null);
+  var keep = function (e) { e.preventDefault(); };   // a tap on a suggestion must not close the keyboard first
+  return h(React.Fragment, null,
+    open ? h("div", { className: "my-name__scrim", onMouseDown: keep, onClick: close }) : null,
+    h("form", { className: "my-name" + (open ? " is-open" : ""), onSubmit: function (e) { e.preventDefault(); submit(value); } },
+      open ? h("p", { className: "my-name__title label" }, "Quelle est cette carte ?") : null,
+      h("div", { className: "my-name__row" },
+        h("input", { ref: input, className: "my-name__input", type: "text", value: value, placeholder: "Le nom de la carte…",
+                     autoComplete: "off", autoCapitalize: "words", spellCheck: false, enterKeyHint: "go",
+                     disabled: p.disabled, "aria-label": "Proposer le nom de la carte",
+                     onFocus: function () { setOpen(true); loadNames().then(setNames); },
+                     onKeyDown: function (e) { if (e.key === "Escape") close(); },
+                     onChange: function (e) { setValue(e.target.value); } }),
+        h(A.Button, { type: "submit", variant: "primary", size: "md", disabled: p.disabled || !norm(value), onMouseDown: keep }, "Deviner"),
+        open ? h(A.Button, { variant: "ghost", size: "md", icon: "close", "aria-label": "Fermer", onMouseDown: keep, onClick: close }) : null),
+      open && sugg.length ? h("ul", { className: "my-sugg", role: "listbox" }, sugg.map(function (n) {
+        return h("li", { key: n }, h("button", { type: "button", className: "my-sugg__item body", onMouseDown: keep,
+                                                  onClick: function () { submit(n); } }, n));
+      })) : null,
+      open ? h("p", { className: "my-name__hint caption" }, "Attention : une mauvaise réponse coûte un essai.") : null));
 }
 
 function share(date, guesses, won) {
@@ -320,8 +341,10 @@ function Game(p) {
   useEffect(function () {
     loadToday().then(function (d) {
       setDay(d);
+      // a new render of the card (new images) starts a fresh game; ?reset too (for tests)
+      if (/[?&]reset\b/.test(location.search)) { try { localStorage.removeItem(SAVE_KEY + d.date); } catch (e) {} }
       var saved = loadSave(d.date);
-      if (saved && saved.guesses) setGuesses(saved.guesses);
+      if (saved && saved.guesses && (saved.v || "") === version(d.card)) setGuesses(saved.guesses);
     }).catch(function () { setError("La carte du jour n'est pas encore disponible. Reviens un peu plus tard."); });
   }, []);
 
@@ -345,9 +368,9 @@ function Game(p) {
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
   });
-  useEffect(function () { if (done && day) setStats(recordStats(day.date, won)); }, [done]);
+  useEffect(function () { if (done && day) setStats(recordStats(day.date, won, version(day.card))); }, [done]);
 
-  function commit(next) { setGuesses(next); save(day.date, { guesses: next }); }
+  function commit(next) { setGuesses(next); save(day.date, { v: version(day.card), guesses: next }); }
   function guessKey(k) {
     if (done || keyState[k]) return;
     var ok = !!present[k];
