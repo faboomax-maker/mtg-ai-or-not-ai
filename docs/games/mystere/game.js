@@ -89,15 +89,18 @@ function keysOf(card) {
 }
 
 /* ------------------------------------------------------------------ save & stats */
+/** Which version of the card of the day: its full image (a new render = a new game), else none. */
+function version(card) { return card.img ? card.img.f : ""; }
 function loadSave(date) { try { return JSON.parse(localStorage.getItem(SAVE_KEY + date)) || null; } catch (e) { return null; } }
 function save(date, state) { try { localStorage.setItem(SAVE_KEY + date, JSON.stringify(state)); } catch (e) { /* private mode */ } }
 function loadStats() {
   try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { played: 0, won: 0, streak: 0, best: 0, last: null }; }
   catch (e) { return { played: 0, won: 0, streak: 0, best: 0, last: null }; }
 }
-function recordStats(date, won) {
+function recordStats(date, won, v) {
   var s = loadStats();
-  if (s.last === date) return s;
+  if (s.last === date && (s.lastV || "") === (v || "")) return s;
+  s.lastV = v || "";
   var yesterday = parisDate(new Date(new Date(date + "T12:00:00Z").getTime() - 864e5));
   s.played++; if (won) s.won++;
   s.streak = won ? (s.lastWon === yesterday ? s.streak + 1 : 1) : 0;
@@ -338,8 +341,10 @@ function Game(p) {
   useEffect(function () {
     loadToday().then(function (d) {
       setDay(d);
+      // a new render of the card (new images) starts a fresh game; ?reset too (for tests)
+      if (/[?&]reset\b/.test(location.search)) { try { localStorage.removeItem(SAVE_KEY + d.date); } catch (e) {} }
       var saved = loadSave(d.date);
-      if (saved && saved.guesses) setGuesses(saved.guesses);
+      if (saved && saved.guesses && (saved.v || "") === version(d.card)) setGuesses(saved.guesses);
     }).catch(function () { setError("La carte du jour n'est pas encore disponible. Reviens un peu plus tard."); });
   }, []);
 
@@ -363,9 +368,9 @@ function Game(p) {
     window.addEventListener("keydown", onKey);
     return function () { window.removeEventListener("keydown", onKey); };
   });
-  useEffect(function () { if (done && day) setStats(recordStats(day.date, won)); }, [done]);
+  useEffect(function () { if (done && day) setStats(recordStats(day.date, won, version(day.card))); }, [done]);
 
-  function commit(next) { setGuesses(next); save(day.date, { guesses: next }); }
+  function commit(next) { setGuesses(next); save(day.date, { v: version(day.card), guesses: next }); }
   function guessKey(k) {
     if (done || keyState[k]) return;
     var ok = !!present[k];
