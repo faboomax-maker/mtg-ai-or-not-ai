@@ -194,11 +194,11 @@ function MseCard(p) {
     h("img", { className: "my-mse__img", src: "img/mystere/" + c.img.b, alt: "" }),
     h("img", { className: "my-mse__img my-mse__full", src: "img/mystere/" + c.img.f, alt: done ? c.n : "", loading: done ? "eager" : "lazy" }),
     done ? null : h(React.Fragment, null,
-      h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 4.5, min: 2.6, oneLine: true }),
+      h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 5.0, min: 2.8, oneLine: true }),
       c.m ? h(Box, { kind: "cost", text: c.m, known: known, sig: sig, width: width, max: 4.8, min: 3.4, oneLine: true }) : null,
-      h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.2, min: 2.6, oneLine: true }),
-      h(Box, { kind: "text", text: c.o, known: known, sig: sig, width: width, max: 4.0, min: 2.3 }),
-      pt ? h(Box, { kind: "pt", text: pt, known: known, sig: sig, width: width, max: 4.4, min: 3, oneLine: true }) : null));
+      h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.6, min: 2.8, oneLine: true }),
+      h(Box, { kind: "text", text: c.o, known: known, sig: sig, width: width, max: 5.4, min: 2.6 }),
+      pt ? h(Box, { kind: "pt", text: pt, known: known, sig: sig, width: width, max: 5.0, min: 3.2, oneLine: true }) : null));
 }
 
 function CardView(p) {
