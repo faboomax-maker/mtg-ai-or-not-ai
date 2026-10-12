@@ -4,7 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
-| **Est-ce légal ?** (nouveau) | `docs/games/legal/` | Des situations de jeu dessinées avec les vraies cartes : le coup tenté est-il permis par les règles ? Explication et règle citée à chaque réponse. |
+| **Est-ce légal ?** (nouveau) | `docs/games/legal/` | Des situations de jeu dessinées avec les vraies cartes : le coup tenté est-il permis par les règles ? Mode facile (classiques) et difficile (couches, dépendances, actions spéciales, coûts « sans payer »), avec des questions à choix sur le résultat. Explication et règle citée à chaque réponse. |
 | **Carte mystère** (nouveau) | `docs/games/mystere/` | Une carte par jour, cachée lettre par lettre (façon Spellify) : lettres, chiffres et symboles de mana se révèlent partout sur la carte ; 13 essais pour trouver son nom. Statistiques et série, partage du résultat. |
 | **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Variante **Plus ou moins populaire ?** (classement EDHREC), accessible par un bouton en bas de l'accueil du jeu. Quatre difficultés à débloquer par variante, record par mode. |
 | **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
@@ -28,7 +28,7 @@ Juste après, le workflow Windows **« Rendre les cartes mystère »** (`.github
 
 ### Situations de « Est-ce légal ? »
 
-Les situations sont dans `docs/games/legal/scenarios.json` : le plateau (cartes de chaque joueur, pile, cimetière, main, exil, zone de commandement, phase, mana disponible), le coup tenté, la réponse et son explication. Chaque carte utilisée a des règles de vérification (`checks`) : le workflow quotidien les compare au texte Oracle de Scryfall (`pipeline/legal_check.py`) et écrit `docs/data/legal-cards.json`. Une situation dont une carte ne correspond plus (texte Oracle modifié par Wizards) n'est plus proposée, et le log du workflow dit laquelle. `?s=<id>` dans l'adresse joue une seule situation.
+Les situations sont dans `docs/games/legal/scenarios.json` (champ `mode` : `facile` ou `difficile` ; `type: choice` pour une question à choix, avec `question`, `options` et `answer`) : le plateau (cartes de chaque joueur, pile, cimetière, main, exil, zone de commandement, phase, mana disponible), le coup tenté, la réponse et son explication. Chaque carte utilisée a des règles de vérification (`checks`) : le workflow quotidien les compare au texte Oracle de Scryfall (`pipeline/legal_check.py`) et écrit `docs/data/legal-cards.json`. Une situation dont une carte ne correspond plus (texte Oracle modifié par Wizards) n'est plus proposée, et le log du workflow dit laquelle. `?s=<id>` dans l'adresse joue une seule situation.
 
 ### Prix de « Plus cher ou moins cher ? »
 

@@ -6,15 +6,22 @@
 "use strict";
 var A = window.Artifice, h = React.createElement;
 var useState = React.useState, useEffect = React.useEffect, useRef = React.useRef;
-var ROUND = 10, BEST_KEY = "legal-best";
+var ROUND = 10, BEST_KEY = "legal-best";        // + "-difficile" for the hard mode
+var MODES = {
+  facile:    { name: "Facile", desc: "Les grands classiques : split second, mal de l'invocation, taxe de commandant…" },
+  difficile: { name: "Difficile", desc: "Les vrais cas limites : couches, dépendances, actions spéciales, coûts « sans payer »…", icon: "skull" },
+};
 var MANA_IMG = { W: 1, U: 1, B: 1, R: 1, G: 1 };   // games/guildes/img/mana/<w|u|b|r|g>.webp
 
 function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
-function getBest() { try { return parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) { return 0; } }
-function setBest(n) { try { localStorage.setItem(BEST_KEY, String(n)); } catch (e) { /* private mode */ } }
+function key(mode) { return mode === "difficile" ? BEST_KEY + "-difficile" : BEST_KEY; }
+function getBest(mode) { try { return parseInt(localStorage.getItem(key(mode)), 10) || 0; } catch (e) { return 0; } }
+function setBest(mode, n) { try { localStorage.setItem(key(mode), String(n)); } catch (e) { /* private mode */ } }
+function modeOf(s) { return s.mode || "facile"; }
+function roundSize(data, mode) { return Math.min(ROUND, data.scenarios.filter(function (s) { return modeOf(s) === mode; }).length); }
 
 var dataPromise = null;
 function loadData() {
@@ -55,10 +62,11 @@ function Card(p) {
   var c = p.card;
   return h("button", { type: "button", className: "lg-card lg-card--" + (p.size || "md") + (c.t ? " is-tapped" : ""),
                        onClick: function () { p.onZoom(c); }, "aria-label": c.n + (c.t ? " (engagée)" : "") + (c.f ? " (arrivée ce tour)" : "") + (c.note ? " — " + c.note : "") },
+    c.fd ? h("span", { className: "lg-card__frame lg-card__back", "aria-hidden": "true" }, h("span", null, "Face cachée")) :
     h("span", { className: "lg-card__frame" }, h("img", { src: image(p.cards, c.n), alt: "", loading: "eager" })),
     c.f ? h("span", { className: "lg-card__new label" }, "Arrivée ce tour") : null,
     h("span", { className: "lg-card__name" }, c.n.split(",")[0]),
-    c.note ? h("span", { className: "lg-card__note caption" }, c.note) : null);
+    c.note ? h("span", { className: "lg-card__note caption" }, h(Rich, { text: c.note })) : null);
 }
 
 function Row(p) {
@@ -82,7 +90,8 @@ function Board(p) {
       h("p", { className: "lg-who label" }, "Adversaire",
         h("span", { className: "lg-life" }, "♥ " + s.opp.life),
         h("span", { className: "lg-hand" }, "✋ " + s.opp.hand)),
-      h(Row, { list: s.opp.battlefield, cards: cards, onZoom: z, empty: "Aucun permanent" })),
+      h(Row, { list: s.opp.battlefield, cards: cards, onZoom: z, empty: "Aucun permanent" }),
+      h(Zone, { label: "Son cimetière", list: s.opp.graveyard, cards: cards, onZoom: z })),
     h("div", { className: "lg-mid" },
       h("p", { className: "lg-phase label" }, s.phase),
       s.stack && s.stack.length ? h("div", { className: "lg-stack" },
@@ -113,6 +122,7 @@ function Zoom(p) {
   }, []);
   return h("div", { className: "lg-zoom", role: "dialog", "aria-modal": "true", "aria-label": p.card.n, onClick: p.onClose },
     h("img", { className: "lg-zoom__img", src: image(p.cards, p.card.n, "large"), alt: p.card.n }),
+    p.card.fd ? h("p", { className: "lg-zoom__note body" }, "Face cachée sur le champ de bataille (tu sais que c'est cette carte).") : null,
     p.card.note || p.card.f || p.card.t ? h("p", { className: "lg-zoom__note body" },
       [p.card.t ? "Engagée" : null, p.card.f ? "Arrivée ce tour" : null, p.card.note].filter(Boolean).join(" · ")) : null,
     h("p", { className: "lg-zoom__hint caption" }, "Touche pour fermer"));
@@ -140,16 +150,23 @@ function Intro(p) {
     h(A.Panel, { title: "Comment ça marche", headingLevel: 2 },
       h("ul", { className: "rules body" },
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "d20" })),
-          h("span", null, ROUND + " situations tirées au hasard.")),
+          h("span", null, "Jusqu'à " + ROUND + " situations tirées au hasard, en mode facile ou difficile.")),
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "info" })),
           h("span", null, "Touche une carte pour la lire en grand.")),
+        h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "chalice" })),
+          h("span", null, "En difficile, certaines questions demandent le résultat (force, endurance, blessures…).")),
         h("li", null, h("span", { className: "ic-m" }, h(A.Icon, { name: "check" })),
           h("span", null, "« Légal » veut dire permis par les règles du jeu, pas par les formats ni les listes de bannissement.")))),
+    h("div", { className: "lg-modes", role: "group", "aria-label": "Difficulté" }, ["facile", "difficile"].map(function (m) {
+      var md = MODES[m], n = p.data ? roundSize(p.data, m) : 0, best = getBest(m);
+      return h("button", { key: m, type: "button", className: "lg-mode", disabled: !n, onClick: function () { p.onStart(m); } },
+        h("span", { className: "lg-mode__head" }, md.icon ? h(A.Icon, { name: md.icon, size: 20 }) : null, h("span", { className: "title-sm" }, md.name)),
+        h("span", { className: "lg-mode__desc caption" }, md.desc),
+        h("span", { className: "lg-mode__best label" }, best ? "Record : " + best + " / " + n : n ? n + " situations" : "\u00a0"));
+    })),
     h("div", { className: "push" },
       p.error ? h("p", { className: "error caption" }, p.error) :
-      !p.data ? h("p", { className: "meta caption" }, "Chargement des situations…") :
-      best ? h("p", { className: "meta caption" }, "Ton record : " + best + " / " + ROUND) : null,
-      h(A.Button, { variant: "primary", size: "lg", block: true, disabled: !p.data || !p.data.scenarios.length, onClick: p.onStart }, "Commencer"),
+      !p.data ? h("p", { className: "meta caption" }, "Chargement des situations…") : null,
       h("p", { className: "legal caption" },
         "Textes Oracle vérifiés chaque jour via ", h("a", { href: "https://scryfall.com", target: "_blank", rel: "noopener" }, "Scryfall"),
         ". Contenu de fan non officiel, autorisé par la ",
@@ -158,8 +175,8 @@ function Intro(p) {
 }
 
 function Question(p) {
-  var sc = p.sc, ans = p.answer;
-  var ok = ans != null && ans === sc.legal;
+  var sc = p.sc, ans = p.answer, choice = sc.type === "choice";
+  var ok = ans != null && ans === (choice ? sc.answer : sc.legal);
   var bottom = useRef(null);
   useEffect(function () { if (ans != null && bottom.current) bottom.current.scrollIntoView({ behavior: "smooth", block: "end" }); }, [ans]);
   return h("div", { className: "lg-play" },
@@ -170,14 +187,19 @@ function Question(p) {
     h(Board, { sc: sc, cards: p.cards, onZoom: p.onZoom }),
     h("div", { className: "lg-action" },
       h("p", { className: "lg-action__label label" }, "Le coup"),
-      h("p", { className: "body lg-action__text" }, h(Rich, { text: sc.action }))),
+      h("p", { className: "body lg-action__text" }, h(Rich, { text: sc.action })),
+      choice ? h("p", { className: "body-strong lg-action__question" }, sc.question) : null),
+    choice && ans == null ? h("div", { className: "lg-options" }, sc.options.map(function (o, i) {
+      return h(A.Button, { key: i, variant: "secondary", size: "lg", onClick: function () { p.onAnswer(i); } }, o);
+    })) :
     ans == null ? h("div", { className: "lg-answers" },
       h(A.Button, { variant: "secondary", size: "lg", icon: "cross", onClick: function () { p.onAnswer(false); } }, "Illégal"),
       h(A.Button, { variant: "primary", size: "lg", icon: "check", onClick: function () { p.onAnswer(true); } }, "Légal")) :
     h(A.Panel, { className: "lg-verdict" + (ok ? " is-ok" : " is-ko") },
       h("p", { className: "lg-verdict__head title-sm", role: "status" },
         h(A.Badge, { tone: ok ? "success" : "danger" }, ok ? "Bien vu" : "Raté"),
-        " C'est " + (sc.legal ? "légal." : "illégal.")),
+        choice ? " Réponse : " + sc.options[sc.answer] + (ok ? "." : " (tu as dit " + sc.options[ans] + ").") :
+                 " C'est " + (sc.legal ? "légal." : "illégal.")),
       h("p", { className: "body lg-verdict__why" }, h(Rich, { text: sc.why })),
       h("p", { className: "caption lg-verdict__rule" }, sc.rule),
       h(A.Button, { variant: "primary", size: "lg", block: true, iconEnd: "arrow-right", onClick: p.onNext },
@@ -191,11 +213,11 @@ function End(p) {
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Tous les jeux", onClick: p.onExit }),
       h("span"), h("span")),
     h(A.Panel, { as: "section", className: "lg-endpanel" },
-      h("p", { className: "ar-eyebrow eyebrow" }, "Ton score"),
+      h("p", { className: "ar-eyebrow eyebrow" }, "Ton score · " + MODES[p.mode].name),
       h("p", { className: "lg-endscore" }, p.score + " / " + p.total),
       h("p", { className: "flavor lg-quip" }, quip(p.score, p.total)),
       p.record ? h(A.Badge, { tone: "success", icon: "crown" }, "Nouveau record !") :
-        h("p", { className: "caption meta" }, "Record : " + getBest() + " / " + ROUND)),
+        h("p", { className: "caption meta" }, "Record en " + MODES[p.mode].name.toLowerCase() + " : " + getBest(p.mode) + " / " + p.total)),
     h("div", { className: "lg-endactions" },
       h(A.Button, { variant: "primary", size: "lg", block: true, icon: "replay", onClick: p.onReplay }, "Rejouer"),
       h(A.Button, { variant: "ghost", size: "md", onClick: p.onExit }, "Tous les jeux")));
@@ -211,28 +233,39 @@ function Game(p) {
   var s7 = useState(0), score = s7[0], setScore = s7[1];
   var s8 = useState(null), zoom = s8[0], setZoom = s8[1];
   var s9 = useState(false), record = s9[0], setRecord = s9[1];
+  var s10 = useState("facile"), mode = s10[0], setMode = s10[1];
 
   useEffect(function () {
     loadData().then(setData).catch(function () { setError("Les situations sont en cours de vérification. Reviens un peu plus tard."); });
   }, []);
   useEffect(function () { window.scrollTo(0, 0); }, [screen, index]);
+  // hard mode: the dark Charnier theme, like the other games' hard modes
+  useEffect(function () {
+    if (mode === "difficile" && screen !== "intro") document.documentElement.setAttribute("data-theme", "charnier");
+    else document.documentElement.removeAttribute("data-theme");
+  }, [mode, screen]);
+  useEffect(function () { return function () { document.documentElement.removeAttribute("data-theme"); }; }, []);
 
-  function start() {
+  function start(m) {
+    m = m || mode;
     // ?s=<id>: that situation only (to check one)
     var only = (/[?&]s=([\w-]+)/.exec(location.search) || [])[1];
     var pool = only ? data.scenarios.filter(function (x) { return x.id === only; }) : [];
-    setDeck(pool.length ? pool : shuffle(data.scenarios.slice()).slice(0, ROUND));
+    var ofMode = data.scenarios.filter(function (x) { return modeOf(x) === m; });
+    setMode(m);
+    setDeck(pool.length ? pool : shuffle(ofMode).slice(0, ROUND));
     setIndex(0); setAnswer(null); setScore(0); setScreen("play");
   }
   function onAnswer(v) {
     if (answer != null) return;
     setAnswer(v);
-    if (v === deck[index].legal) setScore(score + 1);
+    var sc = deck[index];
+    if (v === (sc.type === "choice" ? sc.answer : sc.legal)) setScore(score + 1);
   }
   function next() {
     if (index + 1 < deck.length) { setIndex(index + 1); setAnswer(null); return; }
-    var prev = getBest(), rec = deck.length === ROUND && score > prev;   // (not in ?s= mode)
-    if (rec) setBest(score);
+    var prev = getBest(mode), rec = deck.length === roundSize(data, mode) && score > prev;   // (not in ?s= mode)
+    if (rec) setBest(mode, score);
     setRecord(rec); setScreen("end");
   }
 
@@ -241,8 +274,8 @@ function Game(p) {
   else if (screen === "play") body = h(Question, { sc: deck[index], cards: data.cards, index: index, total: deck.length,
                                                    score: score, answer: answer, onAnswer: onAnswer, onNext: next,
                                                    onZoom: setZoom, onQuit: function () { setScreen("intro"); } });
-  else body = h(End, { score: score, total: deck.length, record: record, onReplay: start, onExit: p.onExit });
-  return h("div", { className: "app lg", "data-screen": screen }, body,
+  else body = h(End, { score: score, total: deck.length, record: record, mode: mode, onReplay: function () { start(mode); }, onExit: p.onExit });
+  return h("div", { className: "app lg" + (mode === "difficile" && screen !== "intro" ? " is-hard" : ""), "data-screen": screen }, body,
     zoom ? h(Zoom, { card: zoom, cards: data.cards, onClose: function () { setZoom(null); } }) : null);
 }
 
@@ -251,10 +284,13 @@ window.MTG.games.push({
   title: "Est-ce légal ?",
   pitch: "Des situations de jeu, un coup tenté : les règles le permettent-elles ? Split second, échappée, taxe de commandant…",
   icon: "info",
-  details: ROUND + " situations · explication et règle à chaque réponse",
+  details: "Facile et difficile (couches, dépendances…) · explication et règle à chaque réponse",
   isNew: true,
   order: 5,
   component: Game,
-  lastResult: function () { var b = getBest(); return b ? "Ton record : " + b + " / " + ROUND : null; },
+  lastResult: function () {
+    var f = getBest("facile"), d = getBest("difficile");
+    return f || d ? "Tes records · Facile " + f + " · Difficile " + d : null;
+  },
 });
 })();

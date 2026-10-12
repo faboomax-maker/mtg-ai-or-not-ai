@@ -1,231 +1,1152 @@
 {
-  "about": "Situations of « Est-ce légal ? ». Each card used here is checked against its Scryfall Oracle text every day (pipeline/legal_check.py, rules in \"checks\"); a situation whose cards don't all pass is not shown. Card refs: n = name, t = tapped, f = entered this turn, note = small caption. Legality = the game rules, not format legality (banlists).",
+  "about": "Situations of « Est-ce légal ? ». Each card used here is checked against its Scryfall Oracle text every day (pipeline/legal_check.py, rules in \"checks\"); a situation whose cards don't all pass is not shown. Card refs: n = name, t = tapped, f = entered this turn, fd = face down, note = small caption. mode: facile | difficile; type: legal (default: legal true/false) | choice (question, options, answer = index). Legality = the game rules, not format legality (banlists).",
   "checks": {
-    "Pyrokinesis": ["type:Instant", "cost:{4}{R}{R}", "rather than pay this spell's mana cost", "divided as you choose among any number of target creatures"],
-    "Underworld Breach": ["each nonland card in your graveyard has escape", "mana cost plus exile three other cards from your graveyard", "at the beginning of the end step, sacrifice"],
-    "Shivan Dragon": ["color:R", "type:Creature"],
-    "Brainstorm": ["type:Instant"],
-    "Ponder": ["type:Sorcery"],
-    "Lightning Bolt": ["type:Instant", "cost:{R}", "deals 3 damage to any target"],
-    "Forest": ["type:Basic Land"],
-    "Thragtusk": ["type:Creature", "pt:5/3"],
-    "Carnage Tyrant": ["type:Creature", "pt:7/6", "can't be countered", "trample", "hexproof"],
-    "Counterspell": ["type:Instant", "cost:{U}{U}", "counter target spell"],
-    "Sudden Shock": ["type:Instant", "split second", "deals 2 damage to any target"],
-    "Blossoming Defense": ["type:Instant", "cost:{G}"],
-    "Tarmogoyf": ["type:Creature"],
-    "Smuggler's Copter": ["type:Vehicle", "crew 1", "pt:3/3"],
-    "Ragavan, Nimble Pilferer": ["type:Creature", "pt:2/1"],
-    "Llanowar Elves": ["type:Creature", "{t}: add {g}"],
-    "Liliana of the Veil": ["type:Planeswalker", "loyalty:3", "+1: each player discards a card", "-2: target player sacrifices a creature"],
-    "Leyline of Sanctity": ["you have hexproof"],
-    "Slippery Bogle": ["type:Creature", "hexproof"],
-    "Wrath of God": ["type:Sorcery", "destroy all creatures"],
-    "Faithless Looting": ["type:Sorcery", "flashback {2}{r}"],
-    "Violent Outburst": ["type:Instant", "cost:{1}{R}{G}", "cascade"],
-    "Living End": ["type:Sorcery", "cost:", "suspend 3"],
-    "Ancestral Vision": ["type:Sorcery", "cost:", "suspend 4"],
-    "Atraxa, Praetors' Voice": ["type:Legendary Creature", "cost:{G}{W}{U}{B}"],
-    "Basilisk Collar": ["type:Equipment", "equipped creature has deathtouch and lifelink"],
-    "Lightning Greaves": ["type:Equipment", "equipped creature has haste and shroud", "equip {0}"],
-    "Swords to Plowshares": ["type:Instant", "exile target creature"],
-    "Raffine, Scheming Seer": ["type:Creature", "ward {1}"],
-    "Snapcaster Mage": ["type:Creature", "flash", "gains flashback until end of turn", "flashback cost is equal to its mana cost"]
+    "Pyrokinesis": [
+      "type:Instant",
+      "cost:{4}{R}{R}",
+      "rather than pay this spell's mana cost",
+      "divided as you choose among any number of target creatures"
+    ],
+    "Underworld Breach": [
+      "each nonland card in your graveyard has escape",
+      "mana cost plus exile three other cards from your graveyard",
+      "at the beginning of the end step, sacrifice"
+    ],
+    "Shivan Dragon": [
+      "color:R",
+      "type:Creature"
+    ],
+    "Brainstorm": [
+      "type:Instant"
+    ],
+    "Ponder": [
+      "type:Sorcery"
+    ],
+    "Lightning Bolt": [
+      "type:Instant",
+      "cost:{R}",
+      "deals 3 damage to any target"
+    ],
+    "Forest": [
+      "type:Basic Land"
+    ],
+    "Thragtusk": [
+      "type:Creature",
+      "pt:5/3"
+    ],
+    "Carnage Tyrant": [
+      "type:Creature",
+      "pt:7/6",
+      "can't be countered",
+      "trample",
+      "hexproof"
+    ],
+    "Counterspell": [
+      "type:Instant",
+      "cost:{U}{U}",
+      "counter target spell"
+    ],
+    "Sudden Shock": [
+      "type:Instant",
+      "split second",
+      "deals 2 damage to any target"
+    ],
+    "Blossoming Defense": [
+      "type:Instant",
+      "cost:{G}"
+    ],
+    "Tarmogoyf": [
+      "type:Creature"
+    ],
+    "Smuggler's Copter": [
+      "type:Vehicle",
+      "crew 1",
+      "pt:3/3"
+    ],
+    "Ragavan, Nimble Pilferer": [
+      "type:Creature",
+      "pt:2/1"
+    ],
+    "Llanowar Elves": [
+      "type:Creature",
+      "{t}: add {g}"
+    ],
+    "Liliana of the Veil": [
+      "type:Planeswalker",
+      "loyalty:3",
+      "+1: each player discards a card",
+      "-2: target player sacrifices a creature"
+    ],
+    "Leyline of Sanctity": [
+      "you have hexproof"
+    ],
+    "Slippery Bogle": [
+      "type:Creature",
+      "hexproof"
+    ],
+    "Wrath of God": [
+      "type:Sorcery",
+      "destroy all creatures"
+    ],
+    "Faithless Looting": [
+      "type:Sorcery",
+      "flashback {2}{r}"
+    ],
+    "Violent Outburst": [
+      "type:Instant",
+      "cost:{1}{R}{G}",
+      "cascade"
+    ],
+    "Living End": [
+      "type:Sorcery",
+      "cost:",
+      "suspend 3"
+    ],
+    "Ancestral Vision": [
+      "type:Sorcery",
+      "cost:",
+      "suspend 4"
+    ],
+    "Atraxa, Praetors' Voice": [
+      "type:Legendary Creature",
+      "cost:{G}{W}{U}{B}"
+    ],
+    "Basilisk Collar": [
+      "type:Equipment",
+      "equipped creature has deathtouch and lifelink"
+    ],
+    "Lightning Greaves": [
+      "type:Equipment",
+      "equipped creature has haste and shroud",
+      "equip {0}"
+    ],
+    "Swords to Plowshares": [
+      "type:Instant",
+      "exile target creature"
+    ],
+    "Raffine, Scheming Seer": [
+      "type:Creature",
+      "ward {1}"
+    ],
+    "Snapcaster Mage": [
+      "type:Creature",
+      "flash",
+      "gains flashback until end of turn",
+      "flashback cost is equal to its mana cost"
+    ],
+    "Exalted Angel": [
+      "type:Creature",
+      "pt:4/5",
+      "flying",
+      "lifelink",
+      "morph {2}{w}{w}"
+    ],
+    "Lion's Eye Diamond": [
+      "type:Artifact",
+      "discard your hand",
+      "add three mana of any one color",
+      "activate only as an instant"
+    ],
+    "Infernal Tutor": [
+      "type:Sorcery",
+      "cost:{1}{B}"
+    ],
+    "Into the Roil": [
+      "type:Instant",
+      "cost:{1}{U}",
+      "kicker {1}{u}",
+      "return target nonland permanent to its owner's hand"
+    ],
+    "Stonecoil Serpent": [
+      "type:Creature",
+      "cost:{X}",
+      "pt:0/0",
+      "x +1/+1 counters"
+    ],
+    "Blood Moon": [
+      "type:Enchantment",
+      "nonbasic lands are mountains"
+    ],
+    "Urborg, Tomb of Yawgmoth": [
+      "type:Legendary Land",
+      "each land is a swamp in addition to its other land types"
+    ],
+    "Grizzly Bears": [
+      "type:Creature",
+      "pt:2/2"
+    ],
+    "Giant Growth": [
+      "type:Instant",
+      "target creature gets +3/+3 until end of turn"
+    ],
+    "Turn to Frog": [
+      "type:Instant",
+      "loses all abilities",
+      "base power and toughness 1/1"
+    ],
+    "Twisted Image": [
+      "type:Instant",
+      "switch target creature's power and toughness until end of turn"
+    ],
+    "Rancor": [
+      "type:Enchantment",
+      "enchanted creature gets +2/+0 and has trample"
+    ],
+    "Clone": [
+      "type:Creature",
+      "pt:0/0",
+      "as a copy of any creature on the battlefield"
+    ],
+    "White Knight": [
+      "type:Creature",
+      "pt:2/2",
+      "first strike"
+    ],
+    "Boros Charm": [
+      "type:Instant",
+      "double strike"
+    ]
   },
   "scenarios": [
     {
       "id": "breach-pyro-gratuit",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 5, "battlefield": [{ "n": "Thragtusk" }, { "n": "Ragavan, Nimble Pilferer" }] },
-      "you": { "life": 14, "mana": "{R}{R}{R}{R}{R}{R}",
-               "battlefield": [{ "n": "Underworld Breach", "f": true }],
-               "hand": [{ "n": "Shivan Dragon" }],
-               "graveyard": [{ "n": "Pyrokinesis" }, { "n": "Brainstorm" }, { "n": "Ponder" }, { "n": "Lightning Bolt" }] },
+      "opp": {
+        "life": 20,
+        "hand": 5,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          },
+          {
+            "n": "Ragavan, Nimble Pilferer"
+          }
+        ]
+      },
+      "you": {
+        "life": 14,
+        "mana": "{R}{R}{R}{R}{R}{R}",
+        "battlefield": [
+          {
+            "n": "Underworld Breach",
+            "f": true
+          }
+        ],
+        "hand": [
+          {
+            "n": "Shivan Dragon"
+          }
+        ],
+        "graveyard": [
+          {
+            "n": "Pyrokinesis"
+          },
+          {
+            "n": "Brainstorm"
+          },
+          {
+            "n": "Ponder"
+          },
+          {
+            "n": "Lightning Bolt"
+          }
+        ]
+      },
       "action": "Grâce à Underworld Breach, tu lances Pyrokinesis depuis ton cimetière avec l'échappée. Au lieu de payer {4}{R}{R}, tu utilises l'autre coût de Pyrokinesis : tu exiles Shivan Dragon (une carte rouge) de ta main, plus trois autres cartes de ton cimetière.",
       "legal": false,
       "why": "L'échappée est un coût alternatif, et le « exile une carte rouge de ta main » de Pyrokinesis en est un autre. Un sort ne peut utiliser qu'un seul coût alternatif. Avec Underworld Breach, il faut payer le coût d'échappée complet : {4}{R}{R} plus l'exil de trois autres cartes du cimetière.",
-      "rule": "Règle 118.9a (un seul coût alternatif par sort) · rulings d'Underworld Breach"
+      "rule": "Règle 118.9a (un seul coût alternatif par sort) · rulings d'Underworld Breach",
+      "mode": "facile"
     },
     {
       "id": "breach-pyro-paye",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 5, "battlefield": [{ "n": "Thragtusk" }, { "n": "Ragavan, Nimble Pilferer" }] },
-      "you": { "life": 14, "mana": "{R}{R}{R}{R}{R}{R}",
-               "battlefield": [{ "n": "Underworld Breach", "f": true }],
-               "hand": [{ "n": "Shivan Dragon" }],
-               "graveyard": [{ "n": "Pyrokinesis" }, { "n": "Brainstorm" }, { "n": "Ponder" }, { "n": "Lightning Bolt" }] },
+      "opp": {
+        "life": 20,
+        "hand": 5,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          },
+          {
+            "n": "Ragavan, Nimble Pilferer"
+          }
+        ]
+      },
+      "you": {
+        "life": 14,
+        "mana": "{R}{R}{R}{R}{R}{R}",
+        "battlefield": [
+          {
+            "n": "Underworld Breach",
+            "f": true
+          }
+        ],
+        "hand": [
+          {
+            "n": "Shivan Dragon"
+          }
+        ],
+        "graveyard": [
+          {
+            "n": "Pyrokinesis"
+          },
+          {
+            "n": "Brainstorm"
+          },
+          {
+            "n": "Ponder"
+          },
+          {
+            "n": "Lightning Bolt"
+          }
+        ]
+      },
       "action": "Grâce à Underworld Breach, tu lances Pyrokinesis depuis ton cimetière avec l'échappée : tu paies {4}{R}{R} et tu exiles Brainstorm, Ponder et Lightning Bolt de ton cimetière. Tu répartis 3 blessures sur Thragtusk et 1 sur Ragavan.",
       "legal": true,
       "why": "C'est exactement le coût d'échappée donné par Underworld Breach : le coût de mana de la carte ({4}{R}{R}) plus l'exil de trois autres cartes de ton cimetière. Pyrokinesis répartit 4 blessures comme tu veux entre ses cibles, avec au moins 1 par cible.",
-      "rule": "Échappée : texte et rulings d'Underworld Breach"
+      "rule": "Échappée : texte et rulings d'Underworld Breach",
+      "mode": "facile"
     },
     {
       "id": "contresort-tyrant",
       "phase": "Tour adverse · phase principale 1",
-      "opp": { "life": 20, "hand": 4, "battlefield": [] },
-      "stack": [{ "card": { "n": "Carnage Tyrant" }, "by": "opp", "label": "lancé par l'adversaire" }],
-      "you": { "life": 20, "mana": "{U}{U}", "hand": [{ "n": "Counterspell" }], "battlefield": [] },
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": []
+      },
+      "stack": [
+        {
+          "card": {
+            "n": "Carnage Tyrant"
+          },
+          "by": "opp",
+          "label": "lancé par l'adversaire"
+        }
+      ],
+      "you": {
+        "life": 20,
+        "mana": "{U}{U}",
+        "hand": [
+          {
+            "n": "Counterspell"
+          }
+        ],
+        "battlefield": []
+      },
       "action": "En réponse, tu lances Counterspell en ciblant Carnage Tyrant (« Ce sort ne peut pas être contrecarré »).",
       "legal": true,
       "why": "Un sort qui ne peut pas être contrecarré peut quand même être ciblé par un contresort, et la défense talismanique de Carnage Tyrant n'agit que sur le champ de bataille, pas sur la pile. Counterspell est lancé et se résout normalement, mais il ne fait rien : Carnage Tyrant n'est pas contrecarré. Légal, mais ton Counterspell part à la poubelle.",
-      "rule": "Rulings de Carnage Tyrant (un sort qui ne peut pas être contrecarré peut être ciblé)"
+      "rule": "Rulings de Carnage Tyrant (un sort qui ne peut pas être contrecarré peut être ciblé)",
+      "mode": "facile"
     },
     {
       "id": "split-second",
       "phase": "Tour adverse · combat",
-      "opp": { "life": 18, "hand": 3, "battlefield": [] },
-      "stack": [{ "card": { "n": "Sudden Shock" }, "by": "opp", "label": "cible Tarmogoyf" }],
-      "you": { "life": 20, "mana": "{G}", "hand": [{ "n": "Blossoming Defense" }], "battlefield": [{ "n": "Tarmogoyf" }] },
+      "opp": {
+        "life": 18,
+        "hand": 3,
+        "battlefield": []
+      },
+      "stack": [
+        {
+          "card": {
+            "n": "Sudden Shock"
+          },
+          "by": "opp",
+          "label": "cible Tarmogoyf"
+        }
+      ],
+      "you": {
+        "life": 20,
+        "mana": "{G}",
+        "hand": [
+          {
+            "n": "Blossoming Defense"
+          }
+        ],
+        "battlefield": [
+          {
+            "n": "Tarmogoyf"
+          }
+        ]
+      },
       "action": "En réponse à Sudden Shock, tu lances Blossoming Defense sur Tarmogoyf pour le sauver.",
       "legal": false,
       "why": "Sudden Shock a « split second » : tant qu'il est sur la pile, aucun joueur ne peut lancer de sort ni activer de capacité, sauf les capacités de mana. Impossible de répondre avec un éphémère.",
-      "rule": "Règle 702.61 (split second)"
+      "rule": "Règle 702.61 (split second)",
+      "mode": "facile"
     },
     {
       "id": "crew-mal-de-l-invocation",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 5, "battlefield": [] },
-      "you": { "life": 20, "mana": "",
-               "battlefield": [{ "n": "Smuggler's Copter", "note": "en jeu depuis 2 tours" }, { "n": "Ragavan, Nimble Pilferer", "f": true, "note": "lancé normalement" }] },
+      "opp": {
+        "life": 20,
+        "hand": 5,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Smuggler's Copter",
+            "note": "en jeu depuis 2 tours"
+          },
+          {
+            "n": "Ragavan, Nimble Pilferer",
+            "f": true,
+            "note": "lancé normalement"
+          }
+        ]
+      },
       "action": "Tu engages Ragavan, arrivé ce tour, pour l'équipage de Smuggler's Copter (Crew 1), puis tu attaques avec le Copter.",
       "legal": true,
       "why": "L'équipage (crew) n'utilise pas le symbole {T} : il engage des créatures comme coût, ce qu'une créature arrivée ce tour peut faire. Le Copter, lui, est sous ton contrôle depuis le début du tour, il peut donc attaquer.",
-      "rule": "Règle 302.6 (mal de l'invocation) · mot-clé équipage (crew)"
+      "rule": "Règle 302.6 (mal de l'invocation) · mot-clé équipage (crew)",
+      "mode": "facile"
     },
     {
       "id": "elfe-mal-de-l-invocation",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 6, "battlefield": [] },
-      "you": { "life": 20, "mana": "",
-               "battlefield": [{ "n": "Llanowar Elves", "f": true }, { "n": "Forest", "t": true }] },
+      "opp": {
+        "life": 20,
+        "hand": 6,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Llanowar Elves",
+            "f": true
+          },
+          {
+            "n": "Forest",
+            "t": true
+          }
+        ]
+      },
       "action": "Tu viens de jouer Llanowar Elves. Tu l'engages tout de suite pour produire {G}.",
       "legal": false,
       "why": "Une capacité avec le symbole {T} d'une créature ne peut pas être activée si tu ne la contrôles pas en continu depuis le début de ton tour (le « mal de l'invocation »), même si c'est une capacité de mana. Il faudrait que l'elfe ait la célérité.",
-      "rule": "Règle 302.6"
+      "rule": "Règle 302.6",
+      "mode": "facile"
     },
     {
       "id": "liliana-arrivee",
       "phase": "Ton tour · phase principale 1 · pile vide",
-      "opp": { "life": 20, "hand": 4, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 20, "mana": "", "battlefield": [{ "n": "Liliana of the Veil", "f": true, "note": "loyauté 3" }] },
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Liliana of the Veil",
+            "f": true,
+            "note": "loyauté 3"
+          }
+        ]
+      },
       "action": "Liliana of the Veil vient de se résoudre. Tu actives tout de suite son +1.",
       "legal": true,
       "why": "Le mal de l'invocation ne concerne que les créatures (et le symbole {T}). Un planeswalker peut activer une capacité de loyauté dès le tour où il arrive : une fois par tour, pendant ta phase principale, quand la pile est vide.",
-      "rule": "Règles 606.3 (capacités de loyauté) et 302.6"
+      "rule": "Règles 606.3 (capacités de loyauté) et 302.6",
+      "mode": "facile"
     },
     {
       "id": "liliana-deux-fois",
       "phase": "Ton tour · phase principale 2 · pile vide",
-      "opp": { "life": 20, "hand": 3, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 20, "mana": "", "battlefield": [{ "n": "Liliana of the Veil", "note": "loyauté 4 · +1 déjà utilisé ce tour" }] },
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Liliana of the Veil",
+            "note": "loyauté 4 · +1 déjà utilisé ce tour"
+          }
+        ]
+      },
       "action": "Tu as déjà activé le +1 de Liliana pendant ta phase principale 1. En phase principale 2, tu actives son −2 sur l'adversaire.",
       "legal": false,
       "why": "On ne peut activer qu'une seule capacité de loyauté par planeswalker et par tour, peu importe la phase.",
-      "rule": "Règle 606.3"
+      "rule": "Règle 606.3",
+      "mode": "facile"
     },
     {
       "id": "leyline-bolt",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 3, "hand": 2, "battlefield": [{ "n": "Leyline of Sanctity" }, { "n": "Thragtusk" }] },
-      "you": { "life": 20, "mana": "{R}", "hand": [{ "n": "Lightning Bolt" }], "battlefield": [] },
+      "opp": {
+        "life": 3,
+        "hand": 2,
+        "battlefield": [
+          {
+            "n": "Leyline of Sanctity"
+          },
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "{R}",
+        "hand": [
+          {
+            "n": "Lightning Bolt"
+          }
+        ],
+        "battlefield": []
+      },
       "action": "L'adversaire est à 3 points de vie. Tu lances Lightning Bolt en le ciblant, lui.",
       "legal": false,
       "why": "Leyline of Sanctity donne la défense talismanique (hexproof) à son contrôleur : tu ne peux pas le cibler avec tes sorts ni tes capacités. Tu peux en revanche toujours cibler ses créatures, comme Thragtusk.",
-      "rule": "Règle 702.11 (défense talismanique)"
+      "rule": "Règle 702.11 (défense talismanique)",
+      "mode": "facile"
     },
     {
       "id": "wrath-bogle",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 2, "battlefield": [{ "n": "Slippery Bogle", "note": "avec 3 auras" }] },
-      "you": { "life": 8, "mana": "{W}{W}{W}{W}", "hand": [{ "n": "Wrath of God" }], "battlefield": [] },
+      "opp": {
+        "life": 20,
+        "hand": 2,
+        "battlefield": [
+          {
+            "n": "Slippery Bogle",
+            "note": "avec 3 auras"
+          }
+        ]
+      },
+      "you": {
+        "life": 8,
+        "mana": "{W}{W}{W}{W}",
+        "hand": [
+          {
+            "n": "Wrath of God"
+          }
+        ],
+        "battlefield": []
+      },
       "action": "Tu lances Wrath of God pour te débarrasser de Slippery Bogle, qui a la défense talismanique.",
       "legal": true,
       "why": "La défense talismanique n'empêche que le ciblage. Wrath of God ne cible rien (« Détruisez toutes les créatures »), donc Slippery Bogle est détruit comme les autres.",
-      "rule": "Règle 702.11"
+      "rule": "Règle 702.11",
+      "mode": "facile"
     },
     {
       "id": "flashback-tour-adverse",
       "phase": "Tour adverse · étape de fin",
-      "opp": { "life": 20, "hand": 4, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 15, "mana": "{R}{R}{R}", "battlefield": [], "graveyard": [{ "n": "Faithless Looting" }] },
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 15,
+        "mana": "{R}{R}{R}",
+        "battlefield": [],
+        "graveyard": [
+          {
+            "n": "Faithless Looting"
+          }
+        ]
+      },
       "action": "Pendant l'étape de fin de l'adversaire, tu lances Faithless Looting depuis ton cimetière avec son flashback ({2}{R}).",
       "legal": false,
       "why": "Le flashback te permet de lancer la carte depuis le cimetière, mais ne change pas le moment où tu peux la lancer. Faithless Looting est un rituel : seulement pendant ta phase principale, avec la pile vide.",
-      "rule": "Règles 702.34 (flashback) et 307.1 (rituels)"
+      "rule": "Règles 702.34 (flashback) et 307.1 (rituels)",
+      "mode": "facile"
     },
     {
       "id": "cascade-living-end",
       "phase": "Tour adverse · étape de fin",
-      "opp": { "life": 20, "hand": 3, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 12, "mana": "{1}{R}{G}", "hand": [{ "n": "Violent Outburst" }], "battlefield": [],
-               "exile": [{ "n": "Living End", "note": "révélé par la cascade" }] },
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 12,
+        "mana": "{1}{R}{G}",
+        "hand": [
+          {
+            "n": "Violent Outburst"
+          }
+        ],
+        "battlefield": [],
+        "exile": [
+          {
+            "n": "Living End",
+            "note": "révélé par la cascade"
+          }
+        ]
+      },
       "action": "Pendant l'étape de fin de l'adversaire, tu lances Violent Outburst. La cascade révèle Living End (un rituel) : tu le lances sans payer son coût.",
       "legal": true,
       "why": "La cascade te fait lancer la carte pendant la résolution de sa capacité, sans payer son coût de mana. Les restrictions de timing du rituel ne s'appliquent pas dans ce cas. Living End a une valeur de mana de 0, inférieure aux 3 de Violent Outburst. (Ici, « légal » veut dire selon les règles : on ne parle pas des formats où Violent Outburst est banni.)",
-      "rule": "Règle 702.85 (cascade)"
+      "rule": "Règle 702.85 (cascade)",
+      "mode": "facile"
     },
     {
       "id": "ancestral-gratuit",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 5, "battlefield": [] },
-      "you": { "life": 20, "mana": "", "hand": [{ "n": "Ancestral Vision" }], "battlefield": [] },
+      "opp": {
+        "life": 20,
+        "hand": 5,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "hand": [
+          {
+            "n": "Ancestral Vision"
+          }
+        ],
+        "battlefield": []
+      },
       "action": "Ancestral Vision n'a pas de coût de mana. Tu le lances depuis ta main pour 0.",
       "legal": false,
       "why": "Une carte sans coût de mana ne peut pas être lancée en payant ce coût : il est impayable. On ne peut la lancer que par un autre moyen, ici la suspension (l'exiler avec 4 marqueurs temps pour {U}) ou un effet qui la fait lancer sans payer son coût, comme la cascade.",
-      "rule": "Règle 118.6"
+      "rule": "Règle 118.6",
+      "mode": "facile"
     },
     {
       "id": "taxe-commandant",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 35, "hand": 4, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 31, "mana": "{G}{W}{U}{B}", "battlefield": [],
-               "command": [{ "n": "Atraxa, Praetors' Voice", "note": "déjà lancée 1 fois" }] },
+      "opp": {
+        "life": 35,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 31,
+        "mana": "{G}{W}{U}{B}",
+        "battlefield": [],
+        "command": [
+          {
+            "n": "Atraxa, Praetors' Voice",
+            "note": "déjà lancée 1 fois"
+          }
+        ]
+      },
       "action": "Atraxa est revenue dans la zone de commandement après avoir été détruite. Tu la relances en payant {G}{W}{U}{B}.",
       "legal": false,
       "why": "Chaque fois que tu lances ton commandant depuis la zone de commandement, il coûte {2} de plus par lancement précédent depuis cette zone. Pour le deuxième lancement, Atraxa coûte {2}{G}{W}{U}{B}.",
-      "rule": "Règle 903.8 (taxe de commandant)"
+      "rule": "Règle 903.8 (taxe de commandant)",
+      "mode": "facile"
     },
     {
       "id": "pietinement-contact-mortel",
       "phase": "Ton tour · étape des blessures de combat",
-      "opp": { "life": 20, "hand": 2, "battlefield": [{ "n": "Thragtusk", "note": "bloque Carnage Tyrant" }] },
-      "you": { "life": 20, "mana": "",
-               "battlefield": [{ "n": "Carnage Tyrant", "t": true, "note": "attaque · équipé" }, { "n": "Basilisk Collar", "note": "attaché à Carnage Tyrant" }] },
+      "opp": {
+        "life": 20,
+        "hand": 2,
+        "battlefield": [
+          {
+            "n": "Thragtusk",
+            "note": "bloque Carnage Tyrant"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Carnage Tyrant",
+            "t": true,
+            "note": "attaque · équipé"
+          },
+          {
+            "n": "Basilisk Collar",
+            "note": "attaché à Carnage Tyrant"
+          }
+        ]
+      },
       "action": "Carnage Tyrant (7/6, piétinement) porte Basilisk Collar (contact mortel). Thragtusk (5/3) le bloque. Tu assignes 1 blessure à Thragtusk et 6 à l'adversaire.",
       "legal": true,
       "why": "Avec le piétinement, il suffit d'assigner des blessures mortelles aux bloqueurs avant d'assigner le reste au joueur. Avec le contact mortel, 1 blessure suffit pour être mortelle. 1 sur Thragtusk et 6 sur l'adversaire, c'est donc permis.",
-      "rule": "Règles 702.19 (piétinement) et 702.2 (contact mortel)"
+      "rule": "Règles 702.19 (piétinement) et 702.2 (contact mortel)",
+      "mode": "facile"
     },
     {
       "id": "greaves-instant",
       "phase": "Tour adverse · combat",
-      "opp": { "life": 20, "hand": 3, "battlefield": [] },
-      "stack": [{ "card": { "n": "Swords to Plowshares" }, "by": "opp", "label": "cible Thragtusk" }],
-      "you": { "life": 20, "mana": "", "battlefield": [{ "n": "Thragtusk" }, { "n": "Lightning Greaves" }] },
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": []
+      },
+      "stack": [
+        {
+          "card": {
+            "n": "Swords to Plowshares"
+          },
+          "by": "opp",
+          "label": "cible Thragtusk"
+        }
+      ],
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          },
+          {
+            "n": "Lightning Greaves"
+          }
+        ]
+      },
       "action": "En réponse à Swords to Plowshares, tu équipes Lightning Greaves (équipement {0}) sur Thragtusk pour lui donner le linceul (shroud).",
       "legal": false,
       "why": "L'équipement ne s'active qu'en vitesse rituel : pendant ta phase principale, quand la pile est vide. Même gratuit, on ne peut pas s'en servir en réponse.",
-      "rule": "Règle 702.6 (équipement)"
+      "rule": "Règle 702.6 (équipement)",
+      "mode": "facile"
     },
     {
       "id": "ward-bolt",
       "phase": "Ton tour · phase principale 1",
-      "opp": { "life": 20, "hand": 4, "battlefield": [{ "n": "Raffine, Scheming Seer" }] },
-      "you": { "life": 20, "mana": "{R}", "hand": [{ "n": "Lightning Bolt" }], "battlefield": [] },
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Raffine, Scheming Seer"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "{R}",
+        "hand": [
+          {
+            "n": "Lightning Bolt"
+          }
+        ],
+        "battlefield": []
+      },
       "action": "Tu n'as qu'un seul mana ({R}). Tu lances Lightning Bolt en ciblant Raffine, qui a « ward {1} ».",
       "legal": true,
       "why": "Ward n'empêche pas de cibler : tu peux lancer Lightning Bolt. Mais dès que Raffine devient la cible, ward se déclenche et contrecarre ton sort, à moins que tu ne paies {1}, ce que tu ne peux pas faire ici. Légal, mais inutile.",
-      "rule": "Mot-clé ward"
+      "rule": "Mot-clé ward",
+      "mode": "facile"
     },
     {
       "id": "snapcaster-bolt",
       "phase": "Tour adverse · étape de fin",
-      "opp": { "life": 3, "hand": 2, "battlefield": [{ "n": "Thragtusk" }] },
-      "you": { "life": 9, "mana": "{1}{U}{R}", "hand": [{ "n": "Snapcaster Mage" }], "battlefield": [], "graveyard": [{ "n": "Lightning Bolt" }] },
+      "opp": {
+        "life": 3,
+        "hand": 2,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 9,
+        "mana": "{1}{U}{R}",
+        "hand": [
+          {
+            "n": "Snapcaster Mage"
+          }
+        ],
+        "battlefield": [],
+        "graveyard": [
+          {
+            "n": "Lightning Bolt"
+          }
+        ]
+      },
       "action": "Pendant l'étape de fin de l'adversaire, tu lances Snapcaster Mage (flash) en ciblant Lightning Bolt dans ton cimetière, puis tu lances Lightning Bolt avec le flashback en payant {R}, en ciblant l'adversaire.",
       "legal": true,
       "why": "Snapcaster Mage a le flash. En arrivant, il donne le flashback à Lightning Bolt, pour un coût égal à son coût de mana ({R}). Lightning Bolt est un éphémère : tu peux le lancer depuis ton cimetière à ce moment-là.",
-      "rule": "Règle 702.34 (flashback) · texte de Snapcaster Mage"
+      "rule": "Règle 702.34 (flashback) · texte de Snapcaster Mage",
+      "mode": "facile"
+    },
+    {
+      "id": "mue-split-second",
+      "mode": "difficile",
+      "phase": "Tour adverse · combat",
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": []
+      },
+      "stack": [
+        {
+          "card": {
+            "n": "Sudden Shock"
+          },
+          "by": "opp",
+          "label": "cible ta créature face cachée"
+        }
+      ],
+      "you": {
+        "life": 20,
+        "mana": "{2}{W}{W}",
+        "battlefield": [
+          {
+            "n": "Exalted Angel",
+            "fd": true,
+            "note": "face cachée (2/2), mue {2}{W}{W}"
+          }
+        ]
+      },
+      "action": "En réponse à Sudden Shock (split second), tu paies {2}{W}{W} pour retourner face visible ta créature face cachée, Exalted Angel. Elle devient une 4/5 et survit aux 2 blessures.",
+      "legal": true,
+      "why": "Retourner une créature face cachée pour son coût de mue est une action spéciale, pas un sort ni une capacité activée. Split second ne l'empêche pas, et ça ne passe pas par la pile. Exalted Angel est une 4/5 quand Sudden Shock se résout, et 2 blessures ne la tuent pas.",
+      "rule": "Règle 702.61 · rulings de split second (les actions spéciales restent permises)"
+    },
+    {
+      "id": "led-pendant-le-lancement",
+      "mode": "difficile",
+      "phase": "Ton tour · phase principale 1",
+      "opp": {
+        "life": 20,
+        "hand": 5,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Lion's Eye Diamond"
+          }
+        ],
+        "hand": [
+          {
+            "n": "Infernal Tutor"
+          },
+          {
+            "n": "Brainstorm"
+          }
+        ]
+      },
+      "action": "Tu lances Infernal Tutor et, au moment de payer {1}{B}, tu sacrifies Lion's Eye Diamond (en défaussant le reste de ta main) pour produire {B}{B}{B}.",
+      "legal": false,
+      "why": "La capacité de Lion's Eye Diamond est bien une capacité de mana, mais elle ne s'active « que comme un éphémère », c'est-à-dire quand tu as la priorité. Pendant le lancement d'un sort, tu ne l'as pas : impossible de l'activer pour payer. Le mana doit déjà être dans ta réserve avant de commencer à lancer le sort. D'où la ligne classique : lancer Infernal Tutor avec une autre source de mana, puis sacrifier le Diamant en réponse.",
+      "rule": "Rulings de Lion's Eye Diamond"
+    },
+    {
+      "id": "cascade-kicker",
+      "mode": "difficile",
+      "phase": "Tour adverse · étape de fin",
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 14,
+        "mana": "{1}{1}{R}{G}{U}",
+        "hand": [
+          {
+            "n": "Violent Outburst"
+          }
+        ],
+        "battlefield": [],
+        "exile": [
+          {
+            "n": "Into the Roil",
+            "note": "révélée par la cascade"
+          }
+        ]
+      },
+      "action": "Tu lances Violent Outburst. La cascade révèle Into the Roil : tu le lances sans payer son coût de mana pour renvoyer Thragtusk, mais tu paies quand même son kicker {1}{U} pour piocher une carte.",
+      "legal": true,
+      "why": "« Sans payer son coût de mana » interdit seulement de remplacer ce coût par un coût alternatif. Les coûts additionnels comme le kicker peuvent toujours être payés. Into the Roil a une valeur de mana de 2, inférieure aux 3 de Violent Outburst.",
+      "rule": "Règle 702.85 (cascade) · rulings de cascade (coûts additionnels)"
+    },
+    {
+      "id": "cascade-x",
+      "mode": "difficile",
+      "phase": "Ton tour · phase principale 1",
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Thragtusk"
+          }
+        ]
+      },
+      "you": {
+        "life": 16,
+        "mana": "{1}{R}{G}{G}{G}{G}",
+        "hand": [
+          {
+            "n": "Violent Outburst"
+          }
+        ],
+        "battlefield": [],
+        "exile": [
+          {
+            "n": "Stonecoil Serpent",
+            "note": "révélé par la cascade"
+          }
+        ]
+      },
+      "action": "Tu lances Violent Outburst. La cascade révèle Stonecoil Serpent (valeur de mana 0 dans la bibliothèque). Tu le lances avec X = 3, en payant les {3} avec le mana qu'il te reste.",
+      "legal": false,
+      "why": "Quand on lance un sort sans payer son coût de mana, X doit être 0, et on ne peut pas payer X à côté. Stonecoil Serpent arrive donc sans marqueur +1/+1, en 0/0, et meurt aussitôt.",
+      "rule": "Rulings de cascade (X vaut 0)"
+    },
+    {
+      "id": "edit-defense-talismanique",
+      "mode": "difficile",
+      "phase": "Ton tour · phase principale 1 · pile vide",
+      "opp": {
+        "life": 20,
+        "hand": 2,
+        "battlefield": [
+          {
+            "n": "Slippery Bogle",
+            "note": "sa seule créature"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Liliana of the Veil",
+            "note": "loyauté 3, en jeu depuis un tour"
+          }
+        ]
+      },
+      "action": "Tu actives le −2 de Liliana of the Veil en ciblant l'adversaire, dont la seule créature est Slippery Bogle (défense talismanique).",
+      "legal": true,
+      "why": "Le −2 cible le joueur, pas la créature. Le joueur n'a pas la défense talismanique : la cible est légale. Il doit sacrifier une créature, et ce sera Slippery Bogle, puisque c'est la seule. Sacrifier ne cible pas.",
+      "rule": "Règle 702.11 (défense talismanique)"
+    },
+    {
+      "id": "blood-moon-urborg",
+      "mode": "difficile",
+      "phase": "Ton tour · phase principale 1",
+      "opp": {
+        "life": 20,
+        "hand": 4,
+        "battlefield": [
+          {
+            "n": "Blood Moon"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Urborg, Tomb of Yawgmoth",
+            "note": "arrivé après Blood Moon"
+          },
+          {
+            "n": "Forest"
+          }
+        ]
+      },
+      "action": "Urborg est arrivé après Blood Moon. Tu engages ta Forest pour produire {B}, puisque Urborg dit « Chaque terrain est un Marais en plus de ses autres types ».",
+      "legal": false,
+      "why": "Blood Moon fait d'Urborg une Montagne, qui perd donc sa capacité. L'effet d'Urborg dépend de celui de Blood Moon : Blood Moon s'applique toujours en premier, quel que soit l'ordre d'arrivée. Urborg ne donne le type Marais à aucun terrain, et ta Forest ne produit que {G}.",
+      "rule": "Règle 613.8 (dépendances) · couche 4"
+    },
+    {
+      "id": "couches-grenouille",
+      "mode": "difficile",
+      "type": "choice",
+      "phase": "Ton tour · combat",
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": [],
+        "graveyard": [
+          {
+            "n": "Turn to Frog"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Grizzly Bears",
+            "t": true,
+            "note": "attaque"
+          }
+        ],
+        "graveyard": [
+          {
+            "n": "Giant Growth"
+          }
+        ]
+      },
+      "action": "Tu lances Giant Growth sur Grizzly Bears (2/2), qui se résout. Ensuite, l'adversaire lance Turn to Frog sur Grizzly Bears, qui se résout aussi.",
+      "question": "Quelles sont maintenant la force et l'endurance de Grizzly Bears ?",
+      "options": [
+        "1/1",
+        "2/2",
+        "4/4",
+        "5/5"
+      ],
+      "answer": 2,
+      "why": "Turn to Frog fixe la force et l'endurance de base à 1/1 (couche 7b). Le bonus de Giant Growth s'applique en couche 7c, toujours après la 7b, quel que soit l'ordre des sorts : 1/1 + 3/3 = 4/4.",
+      "rule": "Règle 613.4 (couches 7b et 7c)"
+    },
+    {
+      "id": "couches-echange",
+      "mode": "difficile",
+      "type": "choice",
+      "phase": "Ton tour · phase principale 1",
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "Thragtusk",
+            "note": "enchanté par Rancor"
+          },
+          {
+            "n": "Rancor",
+            "note": "sur Thragtusk"
+          }
+        ],
+        "graveyard": [
+          {
+            "n": "Twisted Image"
+          }
+        ]
+      },
+      "action": "Tu lances Twisted Image sur Thragtusk (5/3), qui se résout. Ensuite, tu lances Rancor sur Thragtusk.",
+      "question": "Quelles sont maintenant la force et l'endurance de Thragtusk ?",
+      "options": [
+        "5/5",
+        "7/3",
+        "3/7",
+        "5/3"
+      ],
+      "answer": 2,
+      "why": "Les effets qui échangent force et endurance s'appliquent toujours en dernier (couche 7d), après les bonus comme celui de Rancor (7c), même si Rancor est arrivé après. 5/3 + 2/0 = 7/3, puis l'échange donne 3/7.",
+      "rule": "Règle 613.4 (couche 7d)"
+    },
+    {
+      "id": "clone-marqueurs",
+      "mode": "difficile",
+      "type": "choice",
+      "phase": "Ton tour · phase principale 1",
+      "opp": {
+        "life": 20,
+        "hand": 3,
+        "battlefield": [
+          {
+            "n": "Grizzly Bears",
+            "note": "2 marqueurs +1/+1 · Giant Growth ce tour (7/7)"
+          }
+        ]
+      },
+      "you": {
+        "life": 20,
+        "mana": "{3}{U}",
+        "hand": [
+          {
+            "n": "Clone"
+          }
+        ],
+        "battlefield": []
+      },
+      "action": "L'adversaire a une Grizzly Bears avec deux marqueurs +1/+1, sous l'effet d'un Giant Growth : c'est une 7/7. Tu lances Clone et il entre comme une copie de cette Grizzly Bears.",
+      "question": "Quelles sont la force et l'endurance de ton Clone ?",
+      "options": [
+        "2/2",
+        "4/4",
+        "5/5",
+        "7/7"
+      ],
+      "answer": 0,
+      "why": "Une copie ne reprend que les valeurs copiables, c'est-à-dire ce qui est imprimé sur la carte (nom, coût, types, capacités, force et endurance). Les marqueurs et les effets comme Giant Growth ne sont pas copiés : ton Clone est une Grizzly Bears 2/2.",
+      "rule": "Règle 707.2 (valeurs copiables)"
+    },
+    {
+      "id": "double-initiative-gagnee",
+      "mode": "difficile",
+      "type": "choice",
+      "phase": "Ton tour · entre les deux étapes de blessures de combat",
+      "opp": {
+        "life": 20,
+        "hand": 2,
+        "battlefield": []
+      },
+      "you": {
+        "life": 20,
+        "mana": "",
+        "battlefield": [
+          {
+            "n": "White Knight",
+            "t": true,
+            "note": "attaque, non bloqué"
+          }
+        ],
+        "graveyard": [
+          {
+            "n": "Boros Charm"
+          }
+        ]
+      },
+      "action": "White Knight (2/2, initiative) attaque et n'est pas bloqué. Il inflige ses 2 blessures pendant l'étape des blessures de l'initiative. Ensuite, avant l'étape normale, tu lances Boros Charm pour lui donner la double initiative.",
+      "question": "Combien de blessures White Knight inflige-t-il à l'adversaire en tout pendant ce combat ?",
+      "options": [
+        "2",
+        "4",
+        "6"
+      ],
+      "answer": 1,
+      "why": "Pendant la deuxième étape de blessures, une créature qui a la double initiative inflige ses blessures, même si elle en a déjà infligé à la première étape grâce à l'initiative. White Knight inflige donc 2 + 2 = 4. À l'inverse, une créature qui perd la double initiative entre les deux étapes n'inflige rien à la deuxième.",
+      "rule": "Règle 702.4d (double initiative)"
     }
   ]
 }

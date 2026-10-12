@@ -94,3 +94,27 @@
   box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card); background: var(--card-placeholder); }
 .lg-zoom__note { margin: 0; color: var(--ink); text-align: center; }
 .lg-zoom__hint { margin: 0; color: var(--ink-muted); }
+
+/* Difficulty picker */
+.lg-modes { display: flex; flex-direction: column; gap: var(--space-3); }
+.lg-mode { display: grid; gap: var(--space-1); text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--surface-raised); border: var(--stroke-control) solid var(--line); box-shadow: var(--shadow-bevel); }
+.lg-mode:hover:not(:disabled) { border-color: var(--brass-ink); }
+.lg-mode:active:not(:disabled) { transform: translateY(1px); box-shadow: var(--shadow-inset); }
+.lg-mode:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.lg-mode:disabled { opacity: .5; cursor: default; }
+.lg-mode__head { display: flex; align-items: center; gap: var(--space-2); }
+.lg-mode__head .ar-icon { color: var(--danger-ink); }
+.lg-mode__desc { color: var(--ink-muted); }
+.lg-mode__best { color: var(--brass-ink); }
+
+/* Multiple-choice answers */
+.lg-action__question { margin: var(--space-3) 0 0; color: var(--brass-ink); }
+.lg-options { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.lg-options .ar-btn { font-variant-numeric: lining-nums tabular-nums; }
+
+/* A face-down card */
+.lg-card__back { display: grid !important; place-items: center; background: repeating-linear-gradient(45deg, #3b2a1d 0 6px, #2a1d13 6px 12px) !important;
+  box-shadow: inset 0 0 0 3px #6b4f32, 0 0 0 1px rgba(0, 0, 0, .6), 0 3px 8px rgba(0, 0, 0, .45) !important; }
+.lg-card__back span { padding: 2px 4px; border-radius: 4px; background: rgba(0, 0, 0, .55); color: #f3d58a; font: 600 10px/1.2 var(--font-ui); text-align: center; }
