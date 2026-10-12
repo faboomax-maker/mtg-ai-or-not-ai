@@ -26,11 +26,27 @@ function loadData() {
   return dataPromise;
 }
 
-/** A round: 5 to 7 banned cards (in at least one format), the rest decoys, shuffled. */
+/** A round: 5 to 7 banned cards, the cards banned in only 1 or 2 formats twice as likely (that's
+    where one ticks too many or too few), then decoys taken in turn from each kind: ex-banned,
+    banned elsewhere, same mechanic as a banned card, "suspicious". */
+var KINDS = ["debannie", "ailleurs", "cousine", "suspecte"];
+function weightedPick(list, n) {
+  var bag = [];
+  list.forEach(function (c) { var w = c[2] === 7 ? 1 : 2; for (var i = 0; i < w; i++) bag.push(c); });
+  var out = [], seen = {};
+  shuffle(bag).forEach(function (c) { if (out.length < n && !seen[c[0]]) { seen[c[0]] = 1; out.push(c); } });
+  return out;
+}
 function newRound(d) {
   var nb = Math.min(d.banned.length, 5 + Math.floor(Math.random() * 3));
-  var cards = shuffle(d.banned.slice()).slice(0, nb).concat(shuffle(d.decoys.slice()).slice(0, ROUND - nb));
-  return shuffle(cards).map(function (c) { return { n: c[0], id: c[1], mask: c[2] }; });
+  var banned = weightedPick(d.banned, nb);
+  var pools = Array.isArray(d.decoys) ? { suspecte: d.decoys } : d.decoys, decoys = [], seen = {};
+  var lists = KINDS.map(function (k) { return shuffle((pools[k] || []).slice()); });
+  for (var turn = shuffle([0, 1, 2, 3]), i = 0; decoys.length < ROUND - nb && i < 400; i++) {
+    var l = lists[turn[i % 4]], c = l && l.shift();
+    if (c && !seen[c[0]]) { seen[c[0]] = 1; decoys.push(c); }
+  }
+  return shuffle(banned.concat(decoys)).map(function (c) { return { n: c[0], id: c[1], mask: c[2], why: c[3] || "" }; });
 }
 
 function quip(score) {
@@ -105,6 +121,7 @@ function Question(p) {
         h(A.Badge, { tone: p.result ? "success" : "danger" }, p.result ? "Bien vu" : "Raté"),
         c.mask ? " Bannie en " + FORMATS.filter(function (f) { return c.mask & f.bit; }).map(function (f) { return f.name; }).join(", ") + "."
                : " Légale partout. C'était un piège."),
+      !c.mask && c.why ? h("p", { className: "body bn-why" }, c.why + ".") : null,
       h(A.Button, { variant: "primary", size: "lg", block: true, iconEnd: "arrow-right", onClick: p.onNext },
         p.index + 1 < p.total ? "Carte suivante" : "Voir mon score")),
     h("div", { ref: bottom }));

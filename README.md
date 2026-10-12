@@ -33,7 +33,7 @@ Les situations sont dans `docs/games/legal/scenarios.json` (champ `mode` : `faci
 
 ### Listes de « Carte bannie ? »
 
-`docs/data/bannies.json` vient des légalités de Scryfall (Modern, Legacy, Duel Commander), mises à jour par le même workflow quotidien (`pipeline/bannies.py`) : la réponse suit chaque annonce de bannissement dès le lendemain. Seules les cartes au cadre moderne (2003 ou 2015) et légales ou bannies dans les trois formats sont gardées. Les leurres sont les cartes légales partout qui ressemblent le plus à des cartes bannies (très jouées, chères, peu coûteuses, tuteurs, sorts gratuits, tours supplémentaires…). Chaque partie mélange 5 à 7 cartes bannies et des leurres.
+`docs/data/bannies.json` vient des légalités de Scryfall (Modern, Legacy, Duel Commander), mises à jour par le même workflow quotidien (`pipeline/bannies.py`) : la réponse suit chaque annonce de bannissement dès le lendemain. Seules les cartes au cadre moderne (2003 ou 2015) et légales ou bannies dans les trois formats sont gardées. Les leurres sont des cartes légales dans les trois formats, de quatre sortes, prises à tour de rôle : **anciennes cartes bannies** (historique `docs/data/bannies-history.json`, enrichi chaque jour de toute carte vue bannie, amorcé avec des débannissements célèbres), **bannies ailleurs** (Commander, Pioneer, Standard, Pauper, restreintes en Vintage…), **cousines** (même mécanique qu'une carte bannie : delve, cascade, « sans payer son coût »…) et **suspectes** (très jouées, chères, peu coûteuses…). Après la réponse, le jeu dit pourquoi c'était un piège. Chaque partie mélange 5 à 7 cartes bannies, celles bannies dans un ou deux formats seulement étant deux fois plus probables.
 
 ### Prix de « Plus cher ou moins cher ? »
 
