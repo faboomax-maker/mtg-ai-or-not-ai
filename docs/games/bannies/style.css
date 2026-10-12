@@ -49,3 +49,4 @@
 .bn-zoom { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--space-3); padding: var(--space-4); background: rgba(8, 5, 4, .88); cursor: zoom-out; color: var(--ink-muted); }
 .bn-zoom img { width: min(92vw, calc(80vh * 63 / 88)); aspect-ratio: 63 / 88; border-radius: 4.5% / 3.2%; background: var(--card-placeholder); }
+.bn-why { margin: 0; color: var(--ink-muted); }
