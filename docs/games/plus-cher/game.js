@@ -224,7 +224,7 @@ function Intro(p) {
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Tous les jeux", onClick: p.onExit }),
       h("span"), h("span")),
     h("div", null,
-      h("p", { className: "ar-eyebrow eyebrow pc-eyebrow" }, h(A.Badge, { tone: "brass", icon: false }, "Nouveau"), " " + V.eyebrow),
+      h("p", { className: "ar-eyebrow eyebrow pc-eyebrow" }, V.eyebrow),
       h("h1", { className: "title-xl" }, V.title)),
     h("p", { className: "flavor" }, V.flavor),
     h("div", { className: "pc-modes", role: "group", "aria-label": "Difficulté" }, ORDER.map(function (m) {
@@ -450,7 +450,6 @@ window.MTG.games.push({
   pitch: "Une carte, son prix. La suivante vaut-elle plus ou moins ? Et en bonus : plus ou moins populaire ?",
   icon: "crown",
   details: "2 variantes · 4 difficultés à débloquer · données mises à jour chaque jour",
-  isNew: true,
   order: 3,
   component: Game,
   lastResult: function () {
