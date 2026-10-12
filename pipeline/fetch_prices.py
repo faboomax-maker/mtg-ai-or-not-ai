@@ -21,6 +21,7 @@ import gzip
 import json
 import re
 
+import legal_check
 import mystere
 from common import DOCS, session
 
@@ -125,6 +126,12 @@ def main() -> None:
         mystere.build(cards, DOCS / "data" / "mystere.json")
     except Exception as e:                            # the prices are published anyway
         print("Carte mystère : échec de la mise à jour :", e)
+
+    # « Est-ce légal ? »: every card of the situations checked against its Oracle text
+    try:
+        legal_check.build(cards, DOCS / "games" / "legal" / "scenarios.json", DOCS / "data" / "legal-cards.json")
+    except Exception as e:
+        print("Est-ce légal : échec de la vérification :", e)
 
 
 if __name__ == "__main__":
