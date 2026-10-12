@@ -1,0 +1,96 @@
+/* Est-ce légal ? — game situations on a small board (layout shared in docs/style.css). */
+.lg-intro { flex: 1; display: flex; flex-direction: column; gap: var(--space-5); }
+.lg-intro h1 { margin: var(--space-1) 0 0; color: var(--ink); }
+.lg-intro .flavor { margin: 0; color: var(--ink-muted); }
+.lg-eyebrow { display: flex; align-items: center; gap: var(--space-2); }
+.lg .rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.lg .rules li { display: flex; align-items: center; gap: var(--space-3); }
+.lg .ic-m { color: var(--brass-ink); flex: none; }
+.lg .push { margin-top: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+.lg .meta { margin: 0; color: var(--ink-muted); text-align: center; }
+
+/* Playing */
+.lg-play { display: flex; flex-direction: column; gap: var(--space-3); padding-bottom: var(--space-4); }
+.lg-count { margin: 0; text-align: center; color: var(--ink-muted); }
+.lg-score { justify-self: end; color: var(--brass-ink); }
+.bar:has(.lg-score) { grid-template-columns: 44px 1fr 44px; }
+
+/* The board: a dark felt, opponent on top, you below */
+.lg-board {
+  display: flex; flex-direction: column; gap: 10px; padding: 10px; margin: 0 calc(8px - var(--space-4));
+  border-radius: var(--radius-md); border: var(--stroke-hair) solid var(--line);
+  background: radial-gradient(120% 80% at 50% 50%, #23342b 0%, #15201a 70%, #101812 100%);
+  box-shadow: var(--shadow-inset); color: #efe8d8;
+}
+.lg-side { display: flex; flex-direction: column; gap: 8px; }
+.lg-who { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: #efe8d8; }
+.lg-life { color: #f2a68a; font-variant-numeric: lining-nums; }
+.lg-hand, .lg-mana { color: #cfc6b2; display: inline-flex; align-items: center; gap: 2px; }
+.lg-side--opp { padding-bottom: 8px; border-bottom: 1px dashed rgba(239, 232, 216, .18); }
+.lg-mid { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.lg-phase { margin: 0; padding: 3px 10px; border-radius: var(--radius-pill); background: rgba(0, 0, 0, .35);
+  border: 1px solid rgba(239, 232, 216, .25); color: #f3d58a; text-align: center; }
+.lg-stack { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 10px 8px;
+  border-radius: var(--radius-sm); background: rgba(120, 30, 30, .28); border: 1px solid rgba(242, 166, 138, .35); }
+.lg-stack__item { display: flex; align-items: center; gap: 8px; }
+.lg-stack__label { color: #f2a68a; max-width: 14ch; }
+.lg-side--you { padding-top: 8px; border-top: 1px dashed rgba(239, 232, 216, .18); }
+.lg-empty { margin: 0; color: rgba(239, 232, 216, .45); font-style: italic; }
+.lg-zones { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.lg-zone { display: flex; flex-direction: column; gap: 4px; }
+.lg-zone__label { margin: 0; color: #cfc6b2; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Cards: tap one to read it big */
+.lg-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+.lg-card { --w: 76px; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0; border: 0; background: none; cursor: zoom-in; color: inherit; font: inherit; }
+.lg-card--sm { --w: 56px; }
+.lg-card__frame { display: block; width: var(--w); aspect-ratio: 63 / 88; border-radius: 5% / 3.6%; overflow: hidden;
+  background: #2a221c; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6), 0 3px 8px rgba(0, 0, 0, .45); }
+.lg-card__frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* a tapped card is turned sideways and takes a landscape slot */
+.lg-card.is-tapped .lg-card__frame { width: calc(var(--w) * 88 / 63); aspect-ratio: 88 / 63; position: relative; }
+.lg-card.is-tapped .lg-card__frame img { position: absolute; left: 50%; top: 50%; width: calc(var(--w)); height: calc(var(--w) * 88 / 63);
+  transform: translate(-50%, -50%) rotate(90deg); }
+.lg-card__new { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  padding: 1px 6px; border-radius: var(--radius-pill); background: #f3d58a; color: #2a1d08; font-size: 10px; box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.lg-card__name { max-width: calc(var(--w) * 1.4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  text-align: center; color: #efe8d8; font: 600 11px/1.2 var(--font-ui); }
+.lg-card.is-tapped .lg-card__name { max-width: calc(var(--w) * 88 / 63); }
+.lg-card__note { max-width: calc(var(--w) * 1.5); text-align: center; color: #e6dcc6; font-size: 11px; line-height: 1.25; }
+.lg-card:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; border-radius: 6px; }
+
+/* Mana symbols in text */
+.lg-sym { display: inline-grid; place-items: center; width: 1.15em; height: 1.15em; margin: 0 1px; vertical-align: -0.2em;
+  border-radius: 50%; font: 700 .72em/1 var(--font-ui); color: #1d1712; background: #cbc2b2; box-shadow: 0 1px 0 rgba(0, 0, 0, .45); }
+.lg-sym--img { object-fit: contain; background: none; box-shadow: none; }
+.lg-sym--w { background: #f8f1d4; } .lg-sym--u { background: #a9d4ef; } .lg-sym--b { background: #c8bcbc; }
+.lg-sym--r { background: #f2a68a; } .lg-sym--g { background: #9fd3a6; }
+
+/* The play to judge */
+.lg-action { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-raised);
+  border: var(--stroke-control) solid var(--brass-ink); box-shadow: var(--shadow-bevel); }
+.lg-action__label { margin: 0 0 var(--space-1); color: var(--brass-ink); text-transform: uppercase; letter-spacing: .06em; }
+.lg-action__text { margin: 0; color: var(--ink); }
+.lg-answers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.lg-verdict { display: flex; flex-direction: column; gap: var(--space-2); }
+.lg-verdict p { margin: 0; }
+.lg-verdict__head { display: flex; align-items: center; gap: var(--space-2); color: var(--ink); }
+.lg-verdict__why { color: var(--ink); }
+.lg-verdict__rule { color: var(--brass-ink); margin-bottom: var(--space-2) !important; }
+
+/* End */
+.lg-end { display: flex; flex-direction: column; gap: var(--space-5); }
+.lg-endpanel { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-2); padding-top: var(--space-5); padding-bottom: var(--space-5); }
+.lg-endpanel p { margin: 0; }
+.lg-endscore { font: 700 64px/1 var(--font-display); color: var(--brass-ink); font-variant-numeric: lining-nums; }
+.lg-quip { color: var(--ink); max-width: 32ch; }
+.lg-endactions { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* A card read big */
+.lg-zoom { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-3); padding: var(--space-4); background: rgba(8, 5, 4, .88); cursor: zoom-out; }
+.lg-zoom__img { width: min(92vw, calc(78vh * 63 / 88)); aspect-ratio: 63 / 88; border-radius: 4.5% / 3.2%;
+  box-shadow: 0 0 0 1px var(--card-edge), var(--shadow-card); background: var(--card-placeholder); }
+.lg-zoom__note { margin: 0; color: var(--ink); text-align: center; }
+.lg-zoom__hint { margin: 0; color: var(--ink-muted); }
