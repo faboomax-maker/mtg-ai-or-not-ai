@@ -21,6 +21,7 @@ import gzip
 import json
 import re
 
+import bannies
 import legal_check
 import mystere
 from common import DOCS, session
@@ -132,6 +133,12 @@ def main() -> None:
         legal_check.build(cards, DOCS / "games" / "legal" / "scenarios.json", DOCS / "data" / "legal-cards.json")
     except Exception as e:
         print("Est-ce légal : échec de la vérification :", e)
+
+    # « Carte bannie ? »: banlists of Modern, Legacy and Duel Commander
+    try:
+        bannies.build(cards, DOCS / "data" / "bannies.json")
+    except Exception as e:
+        print("Carte bannie : échec de la mise à jour :", e)
 
 
 if __name__ == "__main__":

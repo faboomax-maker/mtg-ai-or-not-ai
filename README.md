@@ -4,9 +4,10 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
+| **Carte bannie ?** (nouveau) | `docs/games/bannies/` | Une carte (cadre moderne) : bannie en Modern, en Legacy, en Duel Commander, ou nulle part ? La moitié sont des leurres légaux qui ont l'air bannis. |
 | **Est-ce légal ?** (nouveau) | `docs/games/legal/` | Des situations de jeu dessinées avec les vraies cartes : le coup tenté est-il permis par les règles ? Mode facile (classiques) et difficile (couches, dépendances, actions spéciales, coûts « sans payer »), avec des questions à choix sur le résultat. Explication et règle citée à chaque réponse. |
-| **Carte mystère** (nouveau) | `docs/games/mystere/` | Une carte par jour, cachée lettre par lettre (façon Spellify) : lettres, chiffres et symboles de mana se révèlent partout sur la carte ; 13 essais pour trouver son nom. Statistiques et série, partage du résultat. |
-| **Plus cher ou moins cher ?** (nouveau) | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Variante **Plus ou moins populaire ?** (classement EDHREC), accessible par un bouton en bas de l'accueil du jeu. Quatre difficultés à débloquer par variante, record par mode. |
+| **Carte mystère** | `docs/games/mystere/` | Une carte par jour, cachée lettre par lettre (façon Spellify) : lettres, chiffres et symboles de mana se révèlent partout sur la carte ; 13 essais pour trouver son nom. Statistiques et série, partage du résultat. |
+| **Plus cher ou moins cher ?** | `docs/games/plus-cher/` | Une carte et son prix : la suivante vaut-elle plus ou moins ? Variante **Plus ou moins populaire ?** (classement EDHREC), accessible par un bouton en bas de l'accueil du jeu. Quatre difficultés à débloquer par variante, record par mode. |
 | **Quelle guilde es-tu ?** | `docs/games/guildes/` | Quiz de personnalité : découvre ta guilde de Ravnica, avec son blason et ton profil de personnalité. |
 | **IA ou vraie carte ?** | `docs/games/ia-ou-vraie/` | Vraie carte ou carte inventée par une IA ? Mode facile, hardcore et classement. |
 
@@ -29,6 +30,10 @@ Juste après, le workflow Windows **« Rendre les cartes mystère »** (`.github
 ### Situations de « Est-ce légal ? »
 
 Les situations sont dans `docs/games/legal/scenarios.json` (champ `mode` : `facile` ou `difficile` ; `type: choice` pour une question à choix, avec `question`, `options` et `answer`) : le plateau (cartes de chaque joueur, pile, cimetière, main, exil, zone de commandement, phase, mana disponible), le coup tenté, la réponse et son explication. Chaque carte utilisée a des règles de vérification (`checks`) : le workflow quotidien les compare au texte Oracle de Scryfall (`pipeline/legal_check.py`) et écrit `docs/data/legal-cards.json`. Une situation dont une carte ne correspond plus (texte Oracle modifié par Wizards) n'est plus proposée, et le log du workflow dit laquelle. `?s=<id>` dans l'adresse joue une seule situation.
+
+### Listes de « Carte bannie ? »
+
+`docs/data/bannies.json` vient des légalités de Scryfall (Modern, Legacy, Duel Commander), mises à jour par le même workflow quotidien (`pipeline/bannies.py`) : la réponse suit chaque annonce de bannissement dès le lendemain. Seules les cartes au cadre moderne (2003 ou 2015) et légales ou bannies dans les trois formats sont gardées. Les leurres sont les cartes légales partout qui ressemblent le plus à des cartes bannies (très jouées, chères, peu coûteuses, tuteurs, sorts gratuits, tours supplémentaires…). Chaque partie mélange 5 à 7 cartes bannies et des leurres.
 
 ### Prix de « Plus cher ou moins cher ? »
 
@@ -156,6 +161,7 @@ docs/                 site statique publié par GitHub Pages
     plus-cher/        game.js, style.css : « Plus cher ou moins cher ? »
     mystere/          game.js, style.css : « Carte mystère »
     legal/            scenarios.json, game.js, style.css : « Est-ce légal ? »
+    bannies/          game.js, style.css : « Carte bannie ? »
   data/prix.json      prix des cartes (pipeline/fetch_prices.py, chaque jour)
   data/mystere.json   cartes du jour de « Carte mystère » (pipeline/mystere.py, chaque jour)
   data/cards.json     cartes du quiz IA (réponse légèrement obfusquée)
@@ -169,6 +175,7 @@ pipeline/
   fetch_prices.py     prix Scryfall pour « Plus cher ou moins cher ? » (+ cartes du jour)
   mystere.py          cartes du jour de « Carte mystère »
   legal_check.py      vérification Oracle des cartes de « Est-ce légal ? »
+  bannies.py          listes de bannissement pour « Carte bannie ? »
   render_mystere.py   rendu MSE des cartes du jour (version vide + complète)
   demo.py             jeu de démo hors ligne
   common.py  placeholder.py

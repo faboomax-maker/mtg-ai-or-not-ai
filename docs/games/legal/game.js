@@ -286,7 +286,7 @@ window.MTG.games.push({
   icon: "info",
   details: "Facile et difficile (couches, dépendances…) · explication et règle à chaque réponse",
   isNew: true,
-  order: 5,
+  order: 6,
   component: Game,
   lastResult: function () {
     var f = getBest("facile"), d = getBest("difficile");

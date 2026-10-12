@@ -404,7 +404,7 @@ function Game(p) {
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Tous les jeux", onClick: p.onExit }),
       h("h1", { className: "title-sm" }, "Carte mystère"),
       h("span")),
-    day ? h("p", { className: "my-date caption" }, h(A.Badge, { tone: "brass", icon: false }, "Nouveau"), " Carte du " + longDate(day.date)) : null,
+    day ? h("p", { className: "my-date caption" }, "Carte du " + longDate(day.date)) : null,
     body);
 }
 
@@ -414,7 +414,6 @@ window.MTG.games.push({
   pitch: "Une carte par jour, cachée lettre par lettre. Lettres, chiffres, symboles de mana : 13 essais pour trouver son nom.",
   icon: "d20",
   details: "Une nouvelle carte chaque jour à minuit",
-  isNew: true,
   order: 4,
   component: Game,
   lastResult: function () {
