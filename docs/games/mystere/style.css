@@ -146,3 +146,38 @@
   .my-name.is-open { animation: my-drop 180ms ease-out; }
   @keyframes my-drop { from { transform: translateY(-12px); opacity: 0; } }
 }
+
+/* "?" button and the tutorial */
+.my-help { justify-self: end; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font: 700 20px/1 var(--font-display);
+  color: var(--brass-ink); background: var(--surface-raised); border: var(--stroke-control) solid var(--line); box-shadow: var(--shadow-bevel); }
+.my-help:focus-visible, .my-tuto__x:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.my-tuto { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+  padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 16px); background: var(--scrim, rgba(8, 5, 4, .72)); }
+.my-tuto__panel { width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-4) var(--space-5);
+  background: var(--surface-raised); border: var(--stroke-control) solid var(--brass-ink); border-radius: var(--radius-md); box-shadow: var(--shadow-lift); }
+@media (prefers-reduced-motion: no-preference) {
+  .my-tuto__panel { animation: my-tuto-in 220ms ease-out; }
+  @keyframes my-tuto-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+}
+.my-tuto__bar { display: flex; align-items: center; justify-content: space-between; }
+.my-tuto__bar .eyebrow { margin: 0; }
+.my-tuto__x { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; cursor: pointer;
+  color: var(--ink-muted); background: none; border: var(--stroke-hair) solid var(--line); }
+.my-tuto h2 { margin: 0; color: var(--ink); }
+.my-tuto__say { margin: 0; color: var(--ink-muted); }
+/* the example card: a small parchment text box */
+.my-tuto__card { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 10px; color: #111;
+  font-family: var(--font-text); background: linear-gradient(#f4ecdc, #e9dec7); border: 3px solid #2b2420; box-shadow: inset 0 0 0 2px #cdbd9d; }
+.my-tuto__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(43, 36, 32, .35); }
+.my-tuto__name { font-weight: 700; font-size: 18px; }
+.my-tuto__type { margin: 0; font-weight: 700; font-size: 15px; }
+.my-tuto__text { margin: 0; font-size: 16px; line-height: 1.35; }
+.my-tuto__card .my-slot { border-bottom-color: rgba(17, 17, 17, .65); background: rgba(17, 17, 17, .08); }
+.my-tuto__card .my-ch.is-found { color: #111; }
+.my-tuto__pips { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-3) 0; }
+.my-tuto__pips .label { margin: 0; color: var(--ink); }
+.my-tuto__dots { display: flex; justify-content: center; gap: 6px; }
+.my-tuto__dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.my-tuto__dots span.is-on { background: var(--brass); }
+.my-tuto__nav { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); }

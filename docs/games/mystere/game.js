@@ -2,6 +2,7 @@
    number, a mana or tap symbol, or the card's name) uses one of the 13 tries; a letter shows up
    everywhere on the card. Find the name before the tries run out.
    Cards: docs/data/mystere.json, a schedule {Paris date: sealed card} made by pipeline/mystere.py.
+   A tutorial (5 steps on an example card) opens on the first visit, then from the "?" button.
    Registered in window.MTG.games; the hub (app.js) mounts it with { onExit }. */
 (function () {
 "use strict";
@@ -345,6 +346,69 @@ function End(p) {
     h(Countdown));
 }
 
+/* ------------------------------------------------------------------ tutorial */
+/* Shown once (first visit), then from the "?" button: five steps on a small example card. */
+var TUTO_KEY = "mystere-tuto";
+var TUTO_CARD = { n: "Lightning Bolt", m: "{R}", t: "Instant", o: "Lightning Bolt deals 3 damage to any target." };
+var TUTO_STEPS = [
+  { title: "Une carte par jour", known: {},
+    text: "Chaque jour, une vraie carte de Magic est cachée : chaque lettre, chiffre et symbole de mana est remplacé par une case vide. À toi de trouver son nom." },
+  { title: "Propose une lettre", known: { L: 1 },
+    text: "Tape une lettre au clavier : si elle est sur la carte, elle apparaît partout d'un coup, dans le nom, le type et le texte. Ici, le L." },
+  { title: "Chiffres et symboles aussi", known: { L: 1, "3": 1, "{R}": 1 },
+    text: "Les chiffres et les symboles de mana (blanc, bleu, noir, rouge, vert, incolore, X, engager) se proposent de la même façon, avec les touches sous le clavier." },
+  { title: "Devine le nom", known: { L: 1, T: 1, "3": 1, "{R}": 1, I: 1, G: 1, N: 1 },
+    text: "Quand tu penses avoir trouvé, tape le nom dans le champ en bas de la page (il propose les noms des cartes). Tu gagnes aussi si toutes les lettres du nom sont révélées." },
+  { title: "13 essais, pas un de plus", known: null, pips: [1, 0, 1, 1, 0, 1, 1],
+    text: "Chaque lettre, chiffre ou symbole proposé, qu'il soit sur la carte ou non, et chaque nom proposé utilise un essai. Doré : trouvé, rouge : raté. Au 13e essai sans la bonne réponse, c'est perdu. Nouvelle carte chaque jour à minuit." },
+];
+function tutoSeen() { try { return !!localStorage.getItem(TUTO_KEY); } catch (e) { return true; } }
+function setTutoSeen() { try { localStorage.setItem(TUTO_KEY, "1"); } catch (e) { /* private mode */ } }
+
+function Tutorial(p) {
+  var s = useState(0), i = s[0], setI = s[1];
+  var step = TUTO_STEPS[i], last = i === TUTO_STEPS.length - 1;
+  var closeBtn = useRef(null);
+  useEffect(function () {
+    if (closeBtn.current) closeBtn.current.focus();
+    function onKey(e) {
+      if (e.key === "Escape") p.onClose();
+      else if (e.key === "ArrowRight") setI(function (n) { return Math.min(n + 1, TUTO_STEPS.length - 1); });
+      else if (e.key === "ArrowLeft") setI(function (n) { return Math.max(n - 1, 0); });
+      else return;
+      e.stopPropagation(); e.preventDefault();
+    }
+    window.addEventListener("keydown", onKey, true);      // before the game's own keyboard
+    return function () { window.removeEventListener("keydown", onKey, true); };
+  }, []);
+  var c = TUTO_CARD, k = step.known || {};
+  var demo = step.pips ?
+    h("div", { className: "my-tuto__pips" }, h(Pips, { guesses: step.pips.map(function (ok) { return { ok: !!ok }; }), used: step.pips.length }),
+      h("p", { className: "label" }, (TRIES - step.pips.length) + " essais restants")) :
+    h("div", { className: "my-tuto__card", "aria-hidden": "true" },
+      h("div", { className: "my-tuto__head" },
+        h(Masked, { className: "my-tuto__name", text: c.n, known: k }),
+        h(Masked, { className: "my-tuto__cost", text: c.m, known: k })),
+      h(Masked, { as: "p", className: "my-tuto__type", text: c.t, known: k }),
+      h(Masked, { as: "p", className: "my-tuto__text", text: c.o, known: k }));
+  return h("div", { className: "my-tuto", role: "dialog", "aria-modal": "true", "aria-labelledby": "my-tuto-title",
+                    onClick: function (e) { if (e.target === e.currentTarget) p.onClose(); } },
+    h("div", { className: "my-tuto__panel" },
+      h("div", { className: "my-tuto__bar" },
+        h("p", { className: "ar-eyebrow eyebrow" }, "Comment jouer · " + (i + 1) + " / " + TUTO_STEPS.length),
+        h("button", { ref: closeBtn, type: "button", className: "my-tuto__x", "aria-label": "Fermer le tutoriel", onClick: p.onClose },
+          h(A.Icon, { name: "close", size: 20 }))),
+      h("h2", { id: "my-tuto-title", className: "title-sm" }, step.title),
+      demo,
+      h("p", { className: "body my-tuto__say" }, step.text),
+      h("div", { className: "my-tuto__dots", "aria-hidden": "true" },
+        TUTO_STEPS.map(function (_, n) { return h("span", { key: n, className: n === i ? "is-on" : "" }); })),
+      h("div", { className: "my-tuto__nav" },
+        i > 0 ? h(A.Button, { variant: "ghost", size: "md", icon: "arrow-left", onClick: function () { setI(i - 1); } }, "Précédent") : h("span"),
+        last ? h(A.Button, { variant: "primary", size: "md", onClick: p.onClose }, "C'est parti") :
+               h(A.Button, { variant: "primary", size: "md", iconEnd: "arrow-right", onClick: function () { setI(i + 1); } }, "Suivant"))));
+}
+
 /* ------------------------------------------------------------------ game */
 function Game(p) {
   var s1 = useState(null), day = s1[0], setDay = s1[1];
@@ -353,6 +417,8 @@ function Game(p) {
   var s4 = useState(null), flash = s4[0], setFlash = s4[1];
   var s5 = useState(loadStats), stats = s5[0], setStats = s5[1];
   var quip = useRef(LOSE_QUIPS[Math.floor(Math.random() * LOSE_QUIPS.length)]);
+  var s6 = useState(function () { return !tutoSeen(); }), tuto = s6[0], setTuto = s6[1];
+  function closeTuto() { setTutoSeen(); setTuto(false); }
 
   useEffect(function () {
     loadToday().then(function (d) {
@@ -376,7 +442,7 @@ function Game(p) {
 
   useEffect(function () {                      // keyboard: letters and digits
     function onKey(e) {
-      if (done || !card || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (tuto || done || !card || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.target && /input|textarea/i.test(e.target.tagName)) return;
       var k = e.key.toUpperCase();
       if (/^[A-Z0-9]$/.test(k)) { e.preventDefault(); guessKey(k); }
@@ -419,9 +485,10 @@ function Game(p) {
     h("header", { className: "bar" },
       h(A.Button, { variant: "secondary", icon: "arrow-left", "aria-label": "Tous les jeux", onClick: p.onExit }),
       h("h1", { className: "title-sm" }, "Carte mystère"),
-      h("span")),
+      h("button", { type: "button", className: "my-help", "aria-label": "Comment jouer", onClick: function () { setTuto(true); } }, "?")),
     day ? h("p", { className: "my-date caption" }, "Carte du " + longDate(day.date)) : null,
-    body);
+    body,
+    tuto ? h(Tutorial, { onClose: closeTuto }) : null);
 }
 
 window.MTG.games.push({
