@@ -173,14 +173,21 @@ def value(key: str, v: str, indent: int = 1) -> str:
     return f"{tab}{key}:\n" + "".join(f"{tab}\t{line}\n" for line in v.split("\n"))
 
 
+def redraws_info(c: dict) -> bool:
+    """Cards whose collector info and artist are drawn by draw_info (M15 frame, not planeswalkers)."""
+    return "Planeswalker" not in c["type_line"] and era(c) == "current"
+
+
 def card_block(c: dict, image_name: str, meta: dict, rarity_grow: int = 0, size: str = "", tag: str = "") -> str:
     sup, sub = split_type(c["type_line"])
     pw = "Planeswalker" in sup
     fields = {
         "notes": c["id"] + tag,              # used as the export file name
         "name": esc(c["name"]),
-        # old frame: "Illus. Carl Critchlow" (the modern and M15 frames draw a brush instead)
-        "illustrator": artist_line(c, meta),
+        # old frame: "Illus. Carl Critchlow" (the modern and M15 frames draw a brush instead).
+        # M15 frame (not planeswalkers): draw_info redraws the whole collector info after MSE, so MSE
+        # draws no artist; else a long name overflows the erased area and its end shows through.
+        "illustrator": "" if redraws_info(c) else artist_line(c, meta),
         # the thin line between rules and flavor text is printed since Dominaria (April 2018)
         "separator": "flavor bar" if meta["released_at"] >= FLAVOR_BAR_SINCE else "none",
         "custom card number": TRACK.join(card_number(c, meta)),
@@ -733,6 +740,12 @@ def _brush(base: Path, width: int) -> Image.Image | None:
         return None
 
 
+# The artist's line runs under the holofoil stamp (its bottom is at .947) and must end before the
+# copyright on the right (from x .59): longer names are narrowed to fit.
+INFO_ARTIST_END = 0.565
+INFO_MIN_SQUEEZE = 0.62                     # below that, the font gets smaller too
+
+
 def draw_info(card_png: Path, base: Path, line1: str, line2: str, artist: str) -> None:
     """Redraw the collector info like print: MSE cannot letter-space it."""
     gotham, beleren = _font_file(base, "Gotham Medium Regular.ttf"), _font_file(base, "belerensmallcaps-bold.ttf")
@@ -743,6 +756,8 @@ def draw_info(card_png: Path, base: Path, line1: str, line2: str, artist: str) -
     d = ImageDraw.Draw(card)
     border = card.getpixel((round(0.03 * W), round(0.95 * H)))
     d.rectangle((round(0.045 * W), round(0.930 * H), round(0.42 * W), round(0.975 * H)), fill=border)
+    # and the rest of the artist's line, under the stamp (whatever MSE drew there)
+    d.rectangle((round(0.42 * W), round(0.951 * H), round(INFO_ARTIST_END * W), round(0.978 * H)), fill=border)
     ink = (255, 255, 255, 255) if sum(border[:3]) < 384 else (0, 0, 0, 255)
     cap = INFO_CAP * H
     probe = ImageFont.truetype(str(gotham), 100)
@@ -767,8 +782,24 @@ def draw_info(card_png: Path, base: Path, line1: str, line2: str, artist: str) -
         card.paste(Image.new("RGBA", brush.size, ink), (round(x), round(top)), brush)
         x += brush.width + 0.006 * W
     if artist:
-        af = ImageFont.truetype(str(beleren), round(size * 1.12 * 4) / 4)
-        d.text((x, INFO_L2 * H + cap), artist, font=af, fill=ink, anchor="ls")
+        asize = round(size * 1.12 * 4) / 4
+        af = ImageFont.truetype(str(beleren), asize)
+        room = INFO_ARTIST_END * W - x
+        width = af.getlength(artist)
+        if width <= room:
+            d.text((x, INFO_L2 * H + cap), artist, font=af, fill=ink, anchor="ls")
+        else:
+            # too long: drawn apart, then narrowed (and, if really long, made a bit smaller)
+            k = room / width
+            if k < INFO_MIN_SQUEEZE:
+                af = ImageFont.truetype(str(beleren), asize * max(0.8, k / INFO_MIN_SQUEEZE))
+                width = af.getlength(artist)
+            asc, desc = af.getmetrics()
+            text = Image.new("L", (int(width) + 4, asc + desc + 4), 0)
+            ImageDraw.Draw(text).text((2, 2 + asc), artist, font=af, fill=255, anchor="ls")
+            text = text.resize((max(1, round(min(room, width))), text.height), Image.LANCZOS)
+            card.paste(Image.new("RGBA", text.size, ink), (round(x) - 1, round(INFO_L2 * H + cap - asc - 2)), text)
+        print(f"  artist {artist!r}: {width:.0f} px for {room:.0f}" + (" (narrowed)" if width > room else ""))
     card.save(card_png)
 
 
@@ -984,7 +1015,7 @@ def render(cards: list[tuple[dict, Path]], out_dir: Path) -> None:
                 box["h"] *= SYMBOL_TWEAKS.get(code, {}).get("size", 1)
                 paste_symbol(png, symbols.get(letter, symbols["r"]), box)
             if png.exists():
-                if "Planeswalker" not in c["type_line"] and era(c) == "current":
+                if redraws_info(c):
                     num, rar = card_number(c, meta), RARITY_LETTER.get(c["rarity"], "r").upper()
                     new = meta["released_at"] >= NEW_NUMBERING
                     draw_info(png, base, f"{rar} {num}" if new else f"{num} {rar}",
