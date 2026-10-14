@@ -4,6 +4,7 @@ Une petite collection de jeux web autour de Magic, publiée sur GitHub Pages. En
 
 | Jeu | Dossier | En deux mots |
 |---|---|---|
+| **Smash or Pass** (nouveau) | `docs/games/smash/` | Des personnages connus de Magic (Jace, Liliana, Nicol Bolas, Emrakul…) à swiper comme sur Tinder : à droite Smash, à gauche Pass. Après chaque choix, la part des joueurs qui ont répondu Smash ou Pass (pour l'instant des pourcentages fictifs, champ `smash` dans `game.js`), avec une phrase sur le personnage ; bilan en fin de partie. |
 | **Carte bannie ?** (nouveau) | `docs/games/bannies/` | Une carte (cadre moderne) : bannie en Modern, en Legacy, en Duel Commander, ou nulle part ? La moitié sont des leurres légaux qui ont l'air bannis. |
 | **Est-ce légal ?** (nouveau) | `docs/games/legal/` | Des situations de jeu dessinées avec les vraies cartes : le coup tenté est-il permis par les règles ? Mode facile (classiques) et difficile (couches, dépendances, actions spéciales, coûts « sans payer »), avec des questions à choix sur le résultat. Explication et règle citée à chaque réponse. |
 | **Carte mystère** | `docs/games/mystere/` | Une carte par jour, cachée lettre par lettre (façon Spellify) : lettres, chiffres et symboles de mana se révèlent partout sur la carte ; 13 essais pour trouver son nom. Statistiques et série, partage du résultat. |

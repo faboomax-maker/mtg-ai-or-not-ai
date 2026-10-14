@@ -33,8 +33,10 @@ window.MTG = window.MTG || { games: [] };
   }
 
   function Hub(p) {
+    // new games first, the most recent on top; then the others in their order
     var games = window.MTG.games.slice().sort(function (a, b) {
-      return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0) || (a.order || 0) - (b.order || 0);
+      if (!!a.isNew !== !!b.isNew) return a.isNew ? -1 : 1;
+      return a.isNew ? (b.order || 0) - (a.order || 0) : (a.order || 0) - (b.order || 0);
     });
     return h("div", { className: "app" },
       h("div", { className: "hub" },
