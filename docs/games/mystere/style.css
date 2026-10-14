@@ -127,6 +127,11 @@
 .my-box .my-ch.is-found { color: #111; }
 .my-box .my-sym { width: 1.12em; height: 1.12em; font-size: 1em; vertical-align: -0.18em; }
 .my-box .my-sym--text, .my-box .my-sym--tap, .my-box .my-sym.is-hidden { font-size: .72em; width: 1.55em; height: 1.55em; }
+/* Blurred over the blank render: the set symbol (end of the type line) and the set code (bottom left) */
+.my-hide { position: absolute; overflow: hidden;
+  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent); mask-image: radial-gradient(closest-side, #000 72%, transparent); }
+.my-hide__img { position: absolute; inset: -30%; background-repeat: no-repeat; filter: blur(1.4cqw) saturate(.3); }
+.my-hide.is-debug { outline: 1px dashed #2e7de0; }
 .my-box.is-debug { outline: 1px dashed #e0245e; background: rgba(224, 36, 94, .08); }
 .my-ch.is-it { font-style: italic; }
 
