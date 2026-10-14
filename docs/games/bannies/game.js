@@ -199,7 +199,7 @@ window.MTG.games.push({
   icon: "skull",
   details: ROUND + " cartes · listes à jour chaque jour",
   isNew: true,
-  order: 5,
+  order: 6,
   component: Game,
   lastResult: function () { var b = getBest(); return b ? "Ton record : " + b + " / " + ROUND : null; },
 });
