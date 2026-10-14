@@ -180,6 +180,19 @@ function Box(p) {
     h(Masked, { className: "my-box__in", text: p.text, known: p.known, all: false, italic: p.kind === "text" }));
 }
 
+/** A blurred copy of one area of the card (left, top, width, height in % of the card), drawn on top
+    of it: the set symbol at the end of the type line and the set code at the bottom left. */
+var HIDE_SET = [81.6, 55.4, 12.8, 7.2], HIDE_CODE = [3.6, 92.2, 18.6, 6.2];
+function Blurred(p) {
+  var b = p.box, e = [b[0] - 0.3 * b[2], b[1] - 0.3 * b[3], 1.6 * b[2], 1.6 * b[3]];   // the inner copy is 30 % larger on each side
+  return h("div", { className: "my-hide" + (SHOW_BOXES ? " is-debug" : ""), "aria-hidden": "true",
+    style: { left: b[0] + "%", top: b[1] + "%", width: b[2] + "%", height: b[3] + "%" } },
+    h("div", { className: "my-hide__img", style: {
+      backgroundImage: "url(" + p.src + ")",
+      backgroundSize: (10000 / e[2]) + "% " + (10000 / e[3]) + "%",
+      backgroundPosition: (e[0] * 100 / (100 - e[2])) + "% " + (e[1] * 100 / (100 - e[3])) + "%" } }));
+}
+
 function MseCard(p) {
   var c = p.card, known = p.known, done = p.reveal;
   var sig = Object.keys(known).sort().join("");            // re-fit the text when letters appear
@@ -197,6 +210,9 @@ function MseCard(p) {
     h("img", { className: "my-mse__img", src: "img/mystere/" + c.img.b, alt: "" }),
     h("img", { className: "my-mse__img my-mse__full", src: "img/mystere/" + c.img.f, alt: done ? c.n : "", loading: done ? "eager" : "lazy" }),
     done ? null : h(React.Fragment, null,
+      // the set gives the card away: its symbol and the set code at the bottom are blurred
+      h(Blurred, { src: "img/mystere/" + c.img.b, box: HIDE_SET }),
+      h(Blurred, { src: "img/mystere/" + c.img.b, box: HIDE_CODE }),
       h(Box, { kind: "name", text: c.n, known: known, sig: sig, width: width, max: 5.0, min: 2.8, oneLine: true }),
       c.m ? h(Box, { kind: "cost", text: c.m, known: known, sig: sig, width: width, max: 4.8, min: 3.4, oneLine: true }) : null,
       h(Box, { kind: "type", text: c.t, known: known, sig: sig, width: width, max: 4.6, min: 2.8, oneLine: true }),
